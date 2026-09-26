@@ -1,0 +1,189 @@
+{
+  "/images/archive/01.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/archive/02.jpg": {
+    "width": 1800,
+    "height": 1200,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/archive/03.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/archive/04.jpg": {
+    "width": 1800,
+    "height": 1200,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/archive/05.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/archive/06.jpg": {
+    "width": 1800,
+    "height": 1200,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/experience/01.jpg": {
+    "width": 1800,
+    "height": 1200,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/experience/02.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/experience/03.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/experience/04.jpg": {
+    "width": 1800,
+    "height": 1100,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/hero/hero-portrait.jpg": {
+    "width": 1080,
+    "height": 1920,
+    "widths": [
+      480,
+      960,
+      1080
+    ]
+  },
+  "/images/hero/hero.jpg": {
+    "width": 2400,
+    "height": 1350,
+    "widths": [
+      480,
+      960,
+      1600,
+      2400
+    ]
+  },
+  "/images/horror/01.jpg": {
+    "width": 2400,
+    "height": 1350,
+    "widths": [
+      480,
+      960,
+      1600,
+      2400
+    ]
+  },
+  "/images/horror/02.jpg": {
+    "width": 1200,
+    "height": 1600,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/team/placeholder-01.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/team/placeholder-02.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/team/placeholder-03.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/team/placeholder-04.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/team/placeholder-05.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/team/placeholder-06.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  }
+}
