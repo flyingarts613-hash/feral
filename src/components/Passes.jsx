@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { m, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
-import { EVENT, isSet } from '../data/event'
+import { EVENT } from '../data/event'
+import { PASSES, inr } from '../data/passes'
 import { PASS_STEPS } from '../data/content'
 import { useOpenPass } from '../lib/usePass'
 import { Fade, Line } from './Reveal'
@@ -62,7 +63,7 @@ function Ticket({ onOpen }) {
     ry.set(0)
   }
 
-  const price = isSet(EVENT.price) ? `₹${EVENT.price}` : 'LIMITED'
+  const price = `FROM ${inr(Math.min(...PASSES.filter((p) => !p.fixed).map((p) => p.group?.price ?? p.price)))}`
 
   return (
     <m.div

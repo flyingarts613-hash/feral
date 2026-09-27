@@ -1,5 +1,5 @@
 // Generates dark, cinematic placeholder imagery (and the OG image, favicon
-// PNGs and sample QR) so the site looks finished before real photography
+// PNGs) so the site looks finished before real photography
 // exists. Swap any file in public/images for a real photo with the same name,
 // then run `npm run images` to re-optimise.
 //
@@ -9,7 +9,6 @@
 
 import { chromium } from 'playwright-core'
 import sharp from 'sharp'
-import QRCode from 'qrcode'
 import { mkdir, readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
@@ -1580,21 +1579,6 @@ if (!only || only === 'og') {
     await page.screenshot({ path: OUT + (size === 180 ? 'apple-touch-icon.png' : 'icon-512.png') })
     console.log(`✓ icon ${size}`)
   }
-
-  // Sample QR — clearly stamped so it never ships by accident.
-  const qrSvg = await QRCode.toString('upi://pay?pa=REPLACE-ME@upi&pn=FERAL', {
-    type: 'svg',
-    margin: 2,
-    color: { dark: '#050505', light: '#f2f0ec' },
-  })
-  const stamp = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720">
-    <rect x="170" y="318" width="380" height="84" fill="#9E0F18"/>
-    <text x="360" y="373" font-family="sans-serif" font-weight="700" font-size="34" letter-spacing="6" fill="#f2f0ec" text-anchor="middle">SAMPLE QR</text></svg>`
-  await sharp(await sharp(Buffer.from(qrSvg)).resize(720, 720).png().toBuffer())
-    .composite([{ input: Buffer.from(stamp) }])
-    .png()
-    .toFile(OUT + 'assets/qr.png')
-  console.log('✓ assets/qr.png')
 }
 
 await browser.close()

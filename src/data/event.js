@@ -19,12 +19,9 @@ export const EVENT = {
     return `${this.venue}, ${this.area}` // CHHATARPUR FARMS, SOUTH DELHI
   },
 
-  // Pass / payment
-  googleFormUrl: '[GOOGLE FORM URL]',
-  upiId: '[UPI ID]',
-  upiName: 'FERAL', // name shown in the payer's UPI app
-  price: '[PRICE]', // e.g. '999' — numbers only, rupees
-  qrCode: '/assets/qr.png',
+  // Pass registration form. Pass types + prices + the payment number
+  // live in src/data/passes.js.
+  googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfv2_Lgyo0cHZi4XCWil6hwiZLwIvKz-fm0_xMvi4XWr8fwHQ/viewform',
 
   // Background music. Drop your own MP3 at public/audio/feral.mp3 (same name)
   // and it's used automatically. Browsers only allow sound after the visitor's

@@ -12,18 +12,16 @@ npm run build     # production build → dist/ (optimises images first)
 
 | What | Where |
 | --- | --- |
-| Date, city, venue, Google Form, UPI ID, price, QR, Instagram, hero media | `src/data/event.js` |
+| Date, city, venue, registration form, Instagram, hero media | `src/data/event.js` |
+| Pass types, prices, 5+ group rate, payment DM number | `src/data/passes.js` |
 | Organisers (names, Instagram links) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
 | Manifesto, "The Night" phrases + images, horror room lines, pass steps | `src/data/content.js` |
 | Instagram + WhatsApp community links | `src/data/event.js` → `instagram` (handle) and `socials` (the two URLs) |
 | Site URL for the OpenGraph image | `.env` → `VITE_SITE_URL` |
 
-Values written as `[PLACEHOLDER]` are placeholders. Optional ones (price,
-venue, Instagram links) stay hidden until you replace them.
-
-**Before going live:** replace `public/assets/qr.png` with your real UPI QR
-(the current one is a stamped sample), and fill in `googleFormUrl` and `upiId`.
+Values written as `[PLACEHOLDER]` are placeholders. Optional ones stay hidden
+until you replace them.
 
 ## Drop in your real assets
 
@@ -70,6 +68,15 @@ data-saver or reduced motion. The image shows first.
 ## Pass flow
 
 Every "GET YOUR PASS" opens a full-screen sheet at `/#pass`. You can link
-that URL directly, for example from an Instagram bio. The sheet has three steps, the QR, the UPI ID
-(copy button, plus a "pay in UPI app" deep link on phones) and **REGISTER →**,
-which opens the Google Form.
+that URL directly, for example from an Instagram bio.
+
+1. **Select pass type**: Boy ₹1599, Girl ₹1499, Group of boys (5+) ₹1499,
+   Group of girls (5+) ₹1399, Couple ₹2949 per couple.
+2. **How many people**: − / + buttons. Boy and Girl drop to the group rate
+   automatically at 5 people; the group passes start at 5; the couple pass
+   has no counter. The per-person price and total update live.
+3. **Step 1 — FILL REGISTRATION FORM →** opens the Google Form (everyone's
+   details, comma-separated).
+4. **Step 2 — DM FOR PAYMENT**: +91 8377098457 (tap to call on phones).
+
+Prices, the group size and the number live in `src/data/passes.js`.

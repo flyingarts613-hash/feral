@@ -26,7 +26,7 @@ export const WAITING = [
 ]
 
 export const PASS_STEPS = [
-  { title: 'FILL THE FORM', note: 'Name, number, Instagram.' },
-  { title: 'MAKE THE PAYMENT', note: 'Scan the QR or pay to the UPI ID.' },
-  { title: 'UPLOAD YOUR PAYMENT PROOF', note: 'Screenshot in the form. Your pass follows.' },
+  { title: 'CHOOSE YOUR PASS', note: 'Boy, girl, group or couple. 5+ pay less.' },
+  { title: 'FILL THE REGISTRATION FORM', note: 'Everyone’s details, comma-separated.' },
+  { title: 'DM FOR PAYMENT', note: '+91 8377098457. Your booking is done.' },
 ]
