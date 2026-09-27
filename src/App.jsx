@@ -16,6 +16,7 @@ import Passes from './components/Passes'
 import Social from './components/Social'
 import Team from './components/Team'
 import Archive from './components/Archive'
+import Safety from './components/Safety'
 import FinalCTA from './components/FinalCTA'
 import PassModal from './components/PassModal'
 import StickyPass from './components/StickyPass'
@@ -59,6 +60,7 @@ export default function App() {
             <Passes />
             <Team />
             <Archive />
+            <Safety />
             <FinalCTA />
           </main>
           <StickyPass />

@@ -21,8 +21,8 @@ export const unitPrice = (pass, qty) => (pass.group && qty >= pass.group.from ? 
 
 export const inr = (n) => '₹' + n.toLocaleString('en-IN')
 
-// Payment: register first, then DM this number.
+// Payment: register first, then DM this number (opens WhatsApp).
 export const PAYMENT = {
   phone: '+91 8377098457',
-  tel: 'tel:+918377098457',
+  whatsapp: 'https://wa.me/918377098457',
 }

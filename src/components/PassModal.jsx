@@ -186,7 +186,7 @@ export default function PassModal({ onClose }) {
             <p className="eyebrow text-bone/50">
               <span className="text-blood">STEP 2</span>&nbsp;&nbsp;DM FOR PAYMENT
             </p>
-            <a href={PAYMENT.tel} data-phone className="display group mt-3 inline-flex items-center gap-3 text-[11vw] leading-none tracking-[0.01em] transition-colors duration-500 hover:text-blood md:text-5xl">
+            <a href={PAYMENT.whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`DM ${PAYMENT.phone} on WhatsApp`} data-phone className="display group mt-3 inline-flex items-center gap-3 text-[11vw] leading-none tracking-[0.01em] transition-colors duration-500 hover:text-blood md:text-5xl">
               {PAYMENT.phone}
               <span className="text-[0.5em] transition-transform duration-500 group-hover:translate-x-1">↗</span>
             </a>

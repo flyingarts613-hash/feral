@@ -28,5 +28,12 @@ export const WAITING = [
 export const PASS_STEPS = [
   { title: 'CHOOSE YOUR PASS', note: 'Boy, girl, group or couple. 5+ pay less.' },
   { title: 'FILL THE REGISTRATION FORM', note: 'Everyone’s details, comma-separated.' },
-  { title: 'DM FOR PAYMENT', note: '+91 8377098457. Your booking is done.' },
+  { title: 'DM FOR PAYMENT', note: '+91 8377098457 on WhatsApp. Your booking is done.', href: 'https://wa.me/918377098457' },
 ]
+
+// SAFETY COMES FIRST — the short reassurance block before the final CTA.
+export const SAFETY = {
+  heading: ['SAFETY', 'COMES FIRST'],
+  copy: 'FERAL is backed by a dedicated team of bouncers and on-ground staff throughout the event. With professional security, proper crowd management and a well-maintained venue location, your safety is something you should have to worry about the least. Come dressed up, come with your people, and enjoy the night.',
+  points: ['Dedicated bouncers & security', 'On-ground event staff', 'Proper crowd management', 'Well-maintained venue', 'Safe & monitored event environment'],
+}

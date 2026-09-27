@@ -14,6 +14,7 @@ npm run build     # production build → dist/ (optimises images first)
 | --- | --- |
 | Date, city, venue, registration form, Instagram, hero media | `src/data/event.js` |
 | Pass types, prices, 5+ group rate, payment DM number | `src/data/passes.js` |
+| Safety section copy + points | `src/data/content.js` → `SAFETY` |
 | Organisers (names, Instagram links) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
 | Manifesto, "The Night" phrases + images, horror room lines, pass steps | `src/data/content.js` |
@@ -77,6 +78,7 @@ that URL directly, for example from an Instagram bio.
    has no counter. The per-person price and total update live.
 3. **Step 1 — FILL REGISTRATION FORM →** opens the Google Form (everyone's
    details, comma-separated).
-4. **Step 2 — DM FOR PAYMENT**: +91 8377098457 (tap to call on phones).
+4. **Step 2 — DM FOR PAYMENT**: +91 8377098457 — opens a WhatsApp chat
+   (https://wa.me/918377098457).
 
 Prices, the group size and the number live in `src/data/passes.js`.

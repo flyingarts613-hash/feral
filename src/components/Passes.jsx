@@ -32,7 +32,13 @@ export default function Passes() {
             <span className="eyebrow text-blood">{String(i + 1).padStart(2, '0')}</span>
             <div>
               <p className="display text-xl tracking-[0.02em] md:text-2xl">{s.title}</p>
-              <p className="mt-1 text-sm text-bone/50">{s.note}</p>
+              {s.href ? (
+                <a href={s.href} target="_blank" rel="noopener noreferrer" className="link-line mt-1 inline-block text-sm text-bone/70 hover:text-bone">
+                  {s.note}
+                </a>
+              ) : (
+                <p className="mt-1 text-sm text-bone/50">{s.note}</p>
+              )}
             </div>
           </div>
         ))}

@@ -15,7 +15,6 @@ import { dirname } from 'node:path'
 const ROOT = new URL('../', import.meta.url).pathname
 const OUT = ROOT + 'public/'
 
-const V = 'PLACEHOLDER · VENUE PHOTO'
 
 const JOBS = [
   // Hero
@@ -40,12 +39,6 @@ const JOBS = [
   ['images/waiting/costumes.jpg', 'costume', 1200, 1500, 28],
   ['images/waiting/horror-room.jpg', 'room', 1200, 1500, 23],
 
-  // Venue — replace with real Chhatarpur Farms photos (same file names)
-  ['images/venue/venue-main.jpg', 'venue', 2400, 1350, 71, V],
-  ['images/venue/venue-02.jpg', 'lights', 1000, 1250, 72, V],
-  ['images/venue/venue-03.jpg', 'lanterns', 1000, 1250, 73, V],
-  ['images/venue/venue-04.jpg', 'canopy', 1200, 900, 74, V],
-
   // Dress-up characters (seed % 11 picks the character)
   ['images/costumes/vampire.jpg', 'character', 900, 1200, 110],
   ['images/costumes/ghost.jpg', 'character', 900, 1200, 111],
@@ -59,24 +52,12 @@ const JOBS = [
   ['images/costumes/angel.jpg', 'character', 900, 1200, 119],
   ['images/costumes/doll.jpg', 'character', 900, 1200, 120],
 
-  // Hell Ichor — replace with the real photo (same file names)
-  ['images/hell-ichor/hell-ichor-main.jpg', 'goblet', 1200, 1500, 91, 'PLACEHOLDER · HELL ICHOR PHOTO'],
+  // Hell Ichor close-up (unused until a real one exists). Venue, Hell Ichor
+  // main, organisers and archive are real photos — not generated.
   ['images/hell-ichor/hell-ichor-detail.jpg', 'swirl', 1200, 900, 92, 'PLACEHOLDER · HELL ICHOR PHOTO'],
 
   // Horror room — what you see through the door
   ['images/horror-room/inside.jpg', 'room', 1200, 1600, 33],
-
-  // Organisers
-  ['images/organisers/organiser-01.jpg', 'costume', 1000, 1333, 41],
-  ['images/organisers/organiser-02.jpg', 'costume', 1000, 1333, 42],
-
-  // Archive
-  ['images/archive/01.jpg', 'flashcrowd', 1200, 1500, 51],
-  ['images/archive/02.jpg', 'party', 1800, 1200, 52],
-  ['images/archive/03.jpg', 'drinks', 1200, 1500, 53],
-  ['images/archive/04.jpg', 'discoball', 1800, 1200, 54],
-  ['images/archive/05.jpg', 'candles', 1200, 1500, 55],
-  ['images/archive/06.jpg', 'flashcrowd', 1800, 1200, 56],
 ]
 
 // ---------------------------------------------------------------------------
