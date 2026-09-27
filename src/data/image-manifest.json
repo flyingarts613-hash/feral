@@ -1,38 +1,36 @@
 {
   "/images/archive/01.jpg": {
-    "width": 1050,
-    "height": 700,
-    "widths": [
-      480,
-      960,
-      1050
-    ]
-  },
-  "/images/archive/02.jpg": {
-    "width": 1050,
-    "height": 700,
-    "widths": [
-      480,
-      960,
-      1050
-    ]
-  },
-  "/images/archive/03.jpg": {
-    "width": 1006,
-    "height": 1257,
-    "widths": [
-      480,
-      960,
-      1006
-    ]
-  },
-  "/images/archive/04.jpg": {
     "width": 1399,
     "height": 933,
     "widths": [
       480,
       960,
       1399
+    ]
+  },
+  "/images/archive/02.jpg": {
+    "width": 700,
+    "height": 874,
+    "widths": [
+      480,
+      700
+    ]
+  },
+  "/images/archive/03.jpg": {
+    "width": 700,
+    "height": 875,
+    "widths": [
+      480,
+      700
+    ]
+  },
+  "/images/archive/04.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
     ]
   },
   "/images/archive/05.jpg": {
@@ -45,38 +43,13 @@
   },
   "/images/archive/06.jpg": {
     "width": 700,
-    "height": 875,
-    "widths": [
-      480,
-      700
-    ]
-  },
-  "/images/archive/07.jpg": {
-    "width": 1200,
-    "height": 1500,
-    "widths": [
-      480,
-      960,
-      1200
-    ]
-  },
-  "/images/archive/08.jpg": {
-    "width": 700,
-    "height": 874,
-    "widths": [
-      480,
-      700
-    ]
-  },
-  "/images/archive/09.jpg": {
-    "width": 700,
     "height": 876,
     "widths": [
       480,
       700
     ]
   },
-  "/images/archive/10.jpg": {
+  "/images/archive/07.jpg": {
     "width": 1179,
     "height": 786,
     "widths": [
@@ -85,7 +58,7 @@
       1179
     ]
   },
-  "/images/archive/11.jpg": {
+  "/images/archive/08.jpg": {
     "width": 910,
     "height": 1137,
     "widths": [
@@ -93,7 +66,7 @@
       910
     ]
   },
-  "/images/archive/12.jpg": {
+  "/images/archive/09.jpg": {
     "width": 994,
     "height": 1242,
     "widths": [
@@ -102,13 +75,40 @@
       994
     ]
   },
-  "/images/archive/13.jpg": {
+  "/images/archive/10.jpg": {
     "width": 1051,
     "height": 700,
     "widths": [
       480,
       960,
       1051
+    ]
+  },
+  "/images/archive/11.jpg": {
+    "width": 1050,
+    "height": 700,
+    "widths": [
+      480,
+      960,
+      1050
+    ]
+  },
+  "/images/archive/12.jpg": {
+    "width": 1050,
+    "height": 700,
+    "widths": [
+      480,
+      960,
+      1050
+    ]
+  },
+  "/images/archive/13.jpg": {
+    "width": 1006,
+    "height": 1257,
+    "widths": [
+      480,
+      960,
+      1006
     ]
   },
   "/images/costumes/angel.jpg": {
