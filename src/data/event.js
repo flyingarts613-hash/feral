@@ -15,6 +15,9 @@ export const EVENT = {
   area: 'SOUTH DELHI',
   venue: 'CHHATARPUR FARMS',
   coordinates: ['28.50° N', '77.17° E'], // shown small in the hero corner
+  get location() {
+    return `${this.venue}, ${this.area}` // CHHATARPUR FARMS, SOUTH DELHI
+  },
 
   // Pass / payment
   googleFormUrl: '[GOOGLE FORM URL]',

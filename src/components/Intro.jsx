@@ -25,14 +25,18 @@ export default function Intro({ onDone }) {
       {show && (
         <m.div
           key="intro"
-          className="fixed inset-0 z-[90] grid place-items-center bg-ink"
-          initial={{ clipPath: 'inset(0% 0% 0% 0%)' }}
-          exit={{ clipPath: 'inset(0% 0% 100% 0%)' }}
-          transition={{ duration: reduced ? 0.01 : 1, ease: [0.76, 0, 0.24, 1] }}
+          className="fixed inset-0 z-[90] grid place-items-center overflow-hidden bg-ink"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, filter: reduced ? 'none' : 'blur(6px)' }}
+          transition={{ duration: reduced ? 0.01 : 1.2, ease: [0.65, 0, 0.35, 1] }}
           aria-hidden="true"
         >
-          <div className="flex flex-col items-center gap-5 px-6 text-center">
-            <span className="whisper display text-[10vw] leading-none tracking-[0.02em] md:text-6xl">
+          {/* Something standing in the dark behind the words — barely there. */}
+          <div className="intro-figure pointer-events-none absolute inset-0 bg-[url('/images/archive/01-960.webp')] bg-cover bg-center grayscale" />
+          <div className="fog fog-intro pointer-events-none absolute inset-x-0 bottom-0 h-1/2" />
+
+          <div className="relative flex flex-col items-center gap-5 px-6 text-center">
+            <span className="whisper display text-[8vw] leading-none tracking-[0.02em] md:text-6xl">
               DON&apos;T LOOK BEHIND YOU<span className="text-blood">.</span>
             </span>
             <span className="relative h-px w-16 overflow-hidden bg-bone/15">

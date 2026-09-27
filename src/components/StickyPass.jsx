@@ -35,11 +35,15 @@ export default function StickyPass() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <button onClick={openPass} className="flex h-14 w-full items-center justify-between border border-bone/15 bg-ink/90 px-5 text-bone">
-            <span className="eyebrow flex items-center gap-3 text-bone/50">
-              <span className="h-1.5 w-1.5 bg-blood" />
-              {EVENT.dateShort} / {EVENT.city}
+            <span className="flex items-center gap-3 text-left">
+              <span className="h-1.5 w-1.5 shrink-0 bg-blood" />
+              <span className="font-sans text-[9px] font-medium uppercase leading-[1.5] tracking-[0.22em] text-bone/55">
+                {EVENT.dateShort}
+                <br />
+                {EVENT.venue}
+              </span>
             </span>
-            <span className="display text-xl tracking-[0.03em]">GET YOUR PASS →</span>
+            <span className="display shrink-0 text-xl tracking-[0.03em]">GET YOUR PASS →</span>
           </button>
         </m.div>
       )}

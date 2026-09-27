@@ -165,11 +165,25 @@
 }
 .eyes {
   opacity: 0;
-  animation: eyes 14s ease-in-out infinite;
+  animation: eyes 16s ease-in-out infinite;
   filter: drop-shadow(0 0 4px rgba(255, 30, 30, 0.9)) drop-shadow(0 0 14px rgba(200, 10, 20, 0.6));
 }
 .eye {
-  animation: blink 14s ease-in-out infinite;
+  animation: blink 16s ease-in-out infinite;
+}
+
+/* Intro: a figure you only half see, and thinner fog. */
+@keyframes intro-figure {
+  0%, 30% { opacity: 0; }
+  100% { opacity: 0.14; }
+}
+.intro-figure {
+  opacity: 0;
+  filter: grayscale(1) blur(3px);
+  animation: intro-figure 1.8s ease-in both;
+}
+.fog-intro {
+  opacity: 0.08;
 }
 
 /* Intro whisper: a word that won't stay lit. */
@@ -183,6 +197,31 @@
 }
 .whisper {
   animation: whisper 1.6s linear both;
+}
+
+/* Phones: same atmosphere, less work for the GPU. */
+@media (max-width: 767px) {
+  .fog {
+    filter: none;
+    opacity: 0.09;
+    animation-duration: 110s;
+  }
+  .fog-intro {
+    opacity: 0.06;
+  }
+  .flicker {
+    animation-name: flicker-soft;
+  }
+  .eyes {
+    filter: drop-shadow(0 0 5px rgba(220, 20, 25, 0.8));
+  }
+}
+@keyframes flicker-soft {
+  0%, 88%, 100% { opacity: 0; }
+  89% { opacity: 0.35; }
+  89.6% { opacity: 0.05; }
+  90.4% { opacity: 0.45; }
+  91.2% { opacity: 0; }
 }
 
 @keyframes scroll-cue {
@@ -204,7 +243,8 @@
     animation: none;
   }
   .flicker,
-  .eyes {
+  .eyes,
+  .intro-figure {
     display: none;
   }
   html {

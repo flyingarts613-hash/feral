@@ -362,7 +362,7 @@ const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromi
 const page = await browser.newPage()
 
 for (const [file, scene, w, h, seed] of JOBS) {
-  if (only && !file.includes(only)) continue
+  if (only && (only === 'og' || !file.includes(only))) continue
   const url = await page.evaluate(
     ([fn, ...args]) => new Function(`return (${fn})`)()(...args),
     [paint.toString(), scene, w, h, seed],
@@ -375,7 +375,7 @@ for (const [file, scene, w, h, seed] of JOBS) {
   console.log('✓', file)
 }
 
-if (!only) {
+if (!only || only === 'og') {
   // OpenGraph image + favicons, set in the real display face.
   const anton = (await readFile(ROOT + 'node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2')).toString('base64')
   const hero = (await sharp(OUT + 'images/hero/hero.jpg').resize(1200, 630, { fit: 'cover' }).jpeg().toBuffer()).toString('base64')
@@ -386,8 +386,8 @@ if (!only) {
     .og{position:relative;width:1200px;height:630px;overflow:hidden;background:#050505 url(data:image/jpeg;base64,${hero}) center/cover;color:#F2F0EC;font-family:A}
     .og:after{content:"";position:absolute;inset:0;background:rgba(5,5,5,.45)}
     h1{position:absolute;inset:0;display:grid;place-items:center;font-size:360px;font-weight:400;line-height:1;letter-spacing:-4px;z-index:1}
-    p{position:absolute;left:0;right:0;bottom:48px;text-align:center;font:500 20px/1 system-ui,sans-serif;letter-spacing:.5em;z-index:1}
-    </style><div class="og"><h1>FERAL</h1><p>HALLOWEEN 2026 &nbsp;·&nbsp; DELHI</p></div>`)
+    p{position:absolute;left:0;right:0;bottom:48px;text-align:center;font:500 18px/1 system-ui,sans-serif;letter-spacing:.32em;z-index:1}
+    </style><div class="og"><h1>FERAL</h1><p>28.10.26 &nbsp;·&nbsp; CHHATARPUR FARMS, SOUTH DELHI</p></div>`)
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: OUT + 'og.jpg', type: 'jpeg', quality: 86 })
   console.log('✓ og.jpg')

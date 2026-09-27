@@ -52,8 +52,8 @@ export default function Hero({ ready }) {
       {/* A failing bulb, low fog, something watching from the crowd */}
       <div className="flicker pointer-events-none absolute inset-0 bg-ink" />
       <div className="fog pointer-events-none absolute inset-x-0 bottom-0 h-[55%]" />
-      <Eyes className="left-[14%] top-[71%] md:left-[18%] md:top-[66%]" delay="-0.8s" />
-      <Eyes className="right-[12%] top-[78%] hidden md:block" delay="6s" small />
+      <Eyes className="left-[14%] top-[71%] md:left-[18%] md:top-[66%]" delay="-1.6s" />
+      <Eyes className="right-[12%] top-[78%] hidden md:block" delay="8s" small />
 
       {/* Type */}
       <m.div
@@ -61,13 +61,13 @@ export default function Hero({ ready }) {
         style={{ y: titleY, opacity: fade }}
       >
         <h1 className="display w-full overflow-hidden text-[44vw] leading-[0.78] md:text-[min(36vw,64vh)]">
-          <span className="sr-only">FERAL — Halloween 2026, Delhi</span>
+          <span className="sr-only">{`FERAL — Halloween 2026, ${EVENT.date}, ${EVENT.location}`}</span>
           <span aria-hidden="true" className="flex justify-center">
             {'FERAL'.split('').map((ch, i) => (
               <m.span
                 key={i}
                 className="inline-block"
-                initial={{ y: '100%' }}
+                initial={{ y: '118%' }}
                 animate={ready ? { y: '0%' } : {}}
                 transition={{ duration: 1.4, delay: 0.15 + i * 0.06, ease: EASE }}
               >
@@ -86,11 +86,7 @@ export default function Hero({ ready }) {
           <p className="eyebrow text-bone/60">{EVENT.edition}</p>
           <div className="flex flex-col items-center gap-2.5">
             <p className="display text-2xl tracking-[0.04em] md:text-3xl">{EVENT.date}</p>
-            <p className="eyebrow text-bone/70">
-              {EVENT.venue}
-              <span className="mx-3 text-blood">/</span>
-              {EVENT.area}
-            </p>
+            <p className="eyebrow text-bone/80 md:text-xs">{EVENT.location}</p>
           </div>
           <button
             onClick={openPass}

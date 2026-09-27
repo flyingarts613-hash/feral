@@ -20,12 +20,8 @@ export default function FinalCTA() {
 
         <Fade delay={0.3} className="mt-10 flex flex-col items-center gap-8 md:mt-14">
           <div className="flex flex-col items-center gap-2">
-            <p className="display text-3xl tracking-[0.04em] md:text-4xl">{EVENT.dateShort}</p>
-            <p className="eyebrow text-bone/60">
-              {EVENT.venue}
-              <span className="mx-3 text-blood">/</span>
-              {EVENT.area}
-            </p>
+            <p className="display text-3xl tracking-[0.04em] md:text-4xl">{EVENT.date}</p>
+            <p className="eyebrow text-bone/60">{EVENT.location}</p>
           </div>
           <button
             onClick={openPass}
