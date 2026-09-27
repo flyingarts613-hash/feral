@@ -56,7 +56,17 @@
       1800
     ]
   },
-  "/images/experience/01.jpg": {
+  "/images/experience/04.jpg": {
+    "width": 1800,
+    "height": 1100,
+    "widths": [
+      480,
+      960,
+      1600,
+      1800
+    ]
+  },
+  "/images/experience/dj.jpg": {
     "width": 1800,
     "height": 1200,
     "widths": [
@@ -66,7 +76,7 @@
       1800
     ]
   },
-  "/images/experience/02.jpg": {
+  "/images/experience/games.jpg": {
     "width": 1200,
     "height": 1500,
     "widths": [
@@ -75,23 +85,13 @@
       1200
     ]
   },
-  "/images/experience/03.jpg": {
+  "/images/experience/horror-room.jpg": {
     "width": 1200,
     "height": 1500,
     "widths": [
       480,
       960,
       1200
-    ]
-  },
-  "/images/experience/04.jpg": {
-    "width": 1800,
-    "height": 1100,
-    "widths": [
-      480,
-      960,
-      1600,
-      1800
     ]
   },
   "/images/hero/hero-portrait.jpg": {

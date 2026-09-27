@@ -26,6 +26,10 @@ export const EVENT = {
   price: '[PRICE]', // e.g. '999' — numbers only, rupees
   qrCode: '/assets/qr.png',
 
+  // Background music: a local, seamlessly looping track. Starts on the first
+  // tap/click/key (browsers block sound before that); visitors can mute it.
+  music: { src: '/audio/feral-ambient.mp3', volume: 0.22 },
+
   instagram: '[INSTAGRAM]', // handle without @, e.g. 'feral.delhi'
 
   // Hero media. `video` is optional (mp4, keep it short + < 4 MB);

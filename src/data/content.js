@@ -10,10 +10,11 @@ export const MANIFESTO = [
 // THE NIGHT. — phrases, some carrying an image.
 // align: 'left' | 'right' | 'full'   ·   ratio: CSS aspect-ratio
 export const EXPERIENCE = [
-  { word: 'MUSIC.', image: '/images/experience/01.jpg', align: 'full', ratio: '3 / 2' },
+  { word: 'MUSIC.', image: '/images/experience/dj.jpg', align: 'full', ratio: '3 / 2' },
   { word: '100 PEOPLE.' },
-  { word: 'HALLOWEEN.', image: '/images/experience/02.jpg', align: 'right', ratio: '4 / 5' },
-  { word: 'DARK ROOMS.', image: '/images/experience/03.jpg', align: 'left', ratio: '4 / 5' },
+  { word: 'GAMES.', image: '/images/experience/games.jpg', align: 'right', ratio: '4 / 5' },
+  { word: 'HALLOWEEN.' },
+  { word: 'DARK ROOMS.', image: '/images/experience/horror-room.jpg', align: 'left', ratio: '4 / 5' },
   { word: 'LOUD NIGHTS.' },
   { word: 'NO ORDINARY CROWD.', image: '/images/experience/04.jpg', align: 'full', ratio: '16 / 10' },
 ]

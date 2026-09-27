@@ -20,9 +20,9 @@ const JOBS = [
   ['images/hero/hero.jpg', 'crowd', 2400, 1350, 11],
   ['images/hero/hero-portrait.jpg', 'crowd', 1080, 1920, 12],
 
-  ['images/experience/01.jpg', 'crowd', 1800, 1200, 21],
-  ['images/experience/02.jpg', 'mask', 1200, 1500, 22],
-  ['images/experience/03.jpg', 'hands', 1200, 1500, 23],
+  ['images/experience/dj.jpg', 'dj', 1800, 1200, 21],
+  ['images/experience/games.jpg', 'games', 1200, 1500, 22],
+  ['images/experience/horror-room.jpg', 'room', 1200, 1500, 23],
   ['images/experience/04.jpg', 'figure', 1800, 1100, 24],
 
   ['images/horror/01.jpg', 'corridor', 2400, 1350, 31],
@@ -293,6 +293,263 @@ function paint(scene, W, H, seed) {
           x.restore()
         }
       })
+    },
+
+    // DJ behind the decks: laptop glow from below, beams, phones up in the crowd.
+    dj() {
+      const cx = W * (0.48 + r() * 0.04)
+      const k = H / 1000
+      const deskY = H * 0.56
+      glow(cx, H * 0.24, Math.max(W, H) * 0.6, RED, 0.85, 0.75)
+      glow(cx, H * 0.14, Math.max(W, H) * 0.16, [255, 110, 90], 0.28)
+      for (let i = 0; i < 7; i++) {
+        blur(16 * U, () => {
+          x.globalCompositeOperation = 'screen'
+          x.fillStyle = `rgba(255,215,205,${0.025 + r() * 0.04})`
+          const bx = W * (r() * 1.2 - 0.1)
+          x.beginPath()
+          x.moveTo(cx + (r() - 0.5) * 80 * U, H * 0.08)
+          x.lineTo(bx - 50 * U, H)
+          x.lineTo(bx + 70 * U, H)
+          x.fill()
+        })
+      }
+      smoke(0.3, [120, 25, 30], 18)
+      // DJ: rim light, headphones, one hand up
+      const dk = k * 1.9
+      const ny = deskY - 170 * k
+      const dj = (fill) => {
+        person(cx, ny, dk, fill, 0)
+        x.save()
+        x.translate(cx + 58 * dk, ny + 40 * dk)
+        x.rotate(0.32)
+        x.beginPath()
+        x.roundRect(-10 * dk, -150 * dk, 20 * dk, 170 * dk, 10 * dk)
+        x.ellipse(0, -154 * dk, 14 * dk, 19 * dk, 0, 0, Math.PI * 2)
+        x.fill()
+        x.restore()
+      }
+      blur(20 * U, () => dj('rgba(210,30,40,0.75)'))
+      blur(3 * U, () => {
+        dj('#060304')
+        x.strokeStyle = '#060304'
+        x.lineWidth = 9 * dk
+        x.beginPath()
+        x.arc(cx, ny - 42 * dk, 30 * dk, Math.PI * 1.08, Math.PI * 1.92)
+        x.stroke()
+        x.fillStyle = '#060304'
+        for (const d of [-1, 1]) {
+          x.beginPath()
+          x.ellipse(cx + d * 25 * dk, ny - 36 * dk, 9 * dk, 14 * dk, 0, 0, Math.PI * 2)
+          x.fill()
+        }
+      })
+      glow(cx - 10 * k, deskY - 20 * k, 220 * k, [200, 205, 220], 0.2, 0.6)
+      // booth: a slim table front, decks, laptop
+      blur(2 * U, () => {
+        x.fillStyle = '#070506'
+        x.fillRect(W * 0.16, deskY, W * 0.68, H * 0.13)
+        x.fillStyle = 'rgba(190,25,35,0.6)'
+        x.fillRect(W * 0.16, deskY, W * 0.68, 3 * k)
+        for (const [dx, dw] of [[-0.25, 0.14], [0.11, 0.14], [-0.06, 0.12]]) {
+          x.fillStyle = '#120c0d'
+          x.fillRect(cx + W * dx, deskY - 18 * k, W * dw, 18 * k)
+        }
+        x.strokeStyle = 'rgba(255,230,220,0.2)'
+        x.lineWidth = 2 * k
+        for (const dx of [-0.18, 0.18]) {
+          x.beginPath()
+          x.ellipse(cx + W * dx, deskY - 20 * k, W * 0.05, 7 * k, 0, 0, Math.PI * 2)
+          x.stroke()
+        }
+        x.fillStyle = '#0d0b0c'
+        x.fillRect(cx - 80 * k, deskY - 110 * k, 160 * k, 95 * k)
+      })
+      glow(cx, deskY - 62 * k, 130 * k, [230, 235, 245], 0.12)
+      // crowd against a low red floor wash
+      glow(W * 0.5, H * 0.8, W * 0.7, [120, 12, 20], 0.55, 0.35)
+      blur(6 * U, () => {
+        for (let px = -40 * k; px < W + 60 * k; px += 115 * k * (0.8 + r() * 0.4)) {
+          const kk = k * (1.35 + r() * 0.3)
+          person(px, H * (0.86 + r() * 0.04), kk, '#020101', r() < 0.3 ? (r() < 0.5 ? -1 : 1) : 0)
+        }
+      })
+      for (let i = 0; i < 4; i++) {
+        const px = W * (0.12 + i * 0.22 + r() * 0.08)
+        const py = H * (0.72 + r() * 0.06)
+        blur(1.5 * U, () => {
+          x.fillStyle = '#020101'
+          x.fillRect(px - 6 * k, py + 20 * k, 12 * k, H)
+          x.fillStyle = 'rgba(235,238,245,0.8)'
+          x.beginPath()
+          x.roundRect(px - 15 * k, py - 28 * k, 30 * k, 54 * k, 4 * k)
+          x.fill()
+        })
+        glow(px, py, 70 * k, [230, 235, 250], 0.2)
+      }
+    },
+
+    // Top-down card table under one red lamp: cards, dice, a candle.
+    games() {
+      const k = Math.min(W, H) / 1000
+      x.fillStyle = '#0a0808'
+      x.fillRect(0, 0, W, H)
+      glow(W * 0.5, H * 0.46, Math.max(W, H) * 0.55, [150, 20, 28], 0.75)
+      glow(W * 0.5, H * 0.46, Math.max(W, H) * 0.3, [200, 150, 130], 0.18)
+      const card = (cx, cy, rot, label, red) => {
+        x.save()
+        x.translate(cx, cy)
+        x.rotate(rot)
+        x.shadowColor = 'rgba(0,0,0,0.8)'
+        x.shadowBlur = 30 * k
+        x.shadowOffsetY = 12 * k
+        x.fillStyle = '#d9d3cb'
+        x.beginPath()
+        x.roundRect(-105 * k, -150 * k, 210 * k, 300 * k, 14 * k)
+        x.fill()
+        x.shadowColor = 'transparent'
+        x.fillStyle = red ? '#8e1119' : '#151212'
+        x.font = `700 ${46 * k}px Georgia, serif`
+        x.textAlign = 'left'
+        x.fillText(label[0], -88 * k, -98 * k)
+        x.font = `${40 * k}px Georgia, serif`
+        x.fillText(label[1], -86 * k, -52 * k)
+        x.font = `${150 * k}px Georgia, serif`
+        x.textAlign = 'center'
+        x.fillText(label[1], 0, 55 * k)
+        x.restore()
+      }
+      card(W * 0.34, H * 0.4, -0.35, ['A', '♠'], false)
+      card(W * 0.5, H * 0.37, 0.08, ['Q', '♥'], true)
+      card(W * 0.66, H * 0.43, 0.42, ['K', '♠'], false)
+      card(W * 0.28, H * 0.7, 2.6, ['7', '♥'], true)
+      const die = (cx, cy, rot, n) => {
+        x.save()
+        x.translate(cx, cy)
+        x.rotate(rot)
+        x.shadowColor = 'rgba(0,0,0,0.85)'
+        x.shadowBlur = 24 * k
+        x.shadowOffsetY = 10 * k
+        x.fillStyle = '#7d0c14'
+        x.beginPath()
+        x.roundRect(-45 * k, -45 * k, 90 * k, 90 * k, 16 * k)
+        x.fill()
+        x.shadowColor = 'transparent'
+        x.fillStyle = 'rgba(255,120,110,0.35)'
+        x.beginPath()
+        x.roundRect(-45 * k, -45 * k, 90 * k, 22 * k, 16 * k)
+        x.fill()
+        x.fillStyle = '#efe9e2'
+        const P = { 1: [[0, 0]], 3: [[-1, -1], [0, 0], [1, 1]], 5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] }[n]
+        for (const [a, b] of P) {
+          x.beginPath()
+          x.arc(a * 22 * k, b * 22 * k, 8 * k, 0, Math.PI * 2)
+          x.fill()
+        }
+        x.restore()
+      }
+      die(W * 0.57, H * 0.66, 0.5, 6)
+      die(W * 0.7, H * 0.62, -0.3, 1)
+      // candle, top-down: wax disc + flame glow
+      const ccx = W * 0.78
+      const ccy = H * 0.8
+      x.fillStyle = '#cfc6bb'
+      x.beginPath()
+      x.arc(ccx, ccy, 42 * k, 0, Math.PI * 2)
+      x.fill()
+      glow(ccx, ccy, 220 * k, [255, 170, 110], 0.55)
+      glow(ccx, ccy, 40 * k, [255, 235, 200], 0.9)
+      // chips
+      for (let i = 0; i < 6; i++) {
+        x.fillStyle = i % 2 ? '#1a1415' : '#6a0a11'
+        x.beginPath()
+        x.arc(W * 0.42 + i * 6 * k, H * 0.82 - i * 5 * k, 34 * k, 0, Math.PI * 2)
+        x.fill()
+        x.strokeStyle = 'rgba(240,230,220,0.35)'
+        x.setLineDash([8 * k, 8 * k])
+        x.lineWidth = 4 * k
+        x.stroke()
+        x.setLineDash([])
+      }
+      smoke(0.12, [120, 100, 100], 10)
+    },
+
+    // The horror room: one bulb, one chair, one camera, something in the doorway.
+    room() {
+      const k = Math.min(W, H) / 1000
+      const bx = W * 0.5
+      const by = H * 0.3
+      const floorY = H * 0.68
+      x.fillStyle = '#0b0a0a'
+      x.fillRect(0, 0, W, floorY)
+      x.fillStyle = '#080707'
+      x.fillRect(0, floorY, W, H - floorY)
+      smoke(0.35, [40, 36, 34], 22, 'source-over')
+      glow(bx, by + 60 * k, Math.max(W, H) * 0.55, [120, 110, 100], 0.55)
+      glow(bx, floorY + 60 * k, W * 0.45, [110, 100, 92], 0.35, 0.25)
+      // doorway, slightly open, red spill
+      const dx = W * 0.8
+      x.fillStyle = '#030202'
+      x.fillRect(dx, floorY - 520 * k, 170 * k, 520 * k)
+      glow(dx + 20 * k, floorY - 250 * k, 200 * k, [150, 10, 20], 0.5, 2.2)
+      blur(3 * U, () => person(dx + 90 * k, floorY - 380 * k, k * 1.1, 'rgba(0,0,0,0.9)'))
+      x.fillStyle = '#100d0d'
+      x.beginPath()
+      x.moveTo(dx - 4 * k, floorY - 520 * k)
+      x.lineTo(dx + 60 * k, floorY - 505 * k)
+      x.lineTo(dx + 60 * k, floorY + 10 * k)
+      x.lineTo(dx - 4 * k, floorY)
+      x.fill()
+      // cord + bulb
+      x.strokeStyle = '#050404'
+      x.lineWidth = 4 * k
+      x.beginPath()
+      x.moveTo(bx, 0)
+      x.lineTo(bx, by - 30 * k)
+      x.stroke()
+      glow(bx, by, 260 * k, [255, 220, 190], 0.45)
+      glow(bx, by, 60 * k, [255, 245, 230], 0.95)
+      // chair and its shadow
+      const cx0 = bx - 10 * k
+      const seatY = floorY - 110 * k
+      blur(22 * U, () => {
+        x.fillStyle = 'rgba(0,0,0,0.75)'
+        x.beginPath()
+        x.ellipse(cx0 + 10 * k, floorY + 45 * k, 170 * k, 30 * k, 0, 0, Math.PI * 2)
+        x.fill()
+      })
+      blur(1.5 * U, () => {
+        x.fillStyle = '#050404'
+        x.fillRect(cx0 - 80 * k, seatY, 160 * k, 16 * k)
+        for (const lx of [-74, 62]) x.fillRect(cx0 + lx * k, seatY, 12 * k, 110 * k)
+        for (const lx of [-74, 62]) x.fillRect(cx0 + lx * k, seatY - 190 * k, 12 * k, 190 * k)
+        for (const yy of [-180, -130, -80]) x.fillRect(cx0 - 74 * k, seatY + yy * k, 148 * k, 12 * k)
+      })
+      x.fillStyle = 'rgba(200,190,180,0.12)'
+      x.fillRect(cx0 - 80 * k, seatY, 160 * k, 3 * k)
+      // tripod camera, foreground left, red REC light
+      const tx = W * 0.16
+      const ty = H * 0.62
+      blur(4 * U, () => {
+        x.strokeStyle = '#020101'
+        x.lineWidth = 12 * k
+        for (const a of [-0.28, 0, 0.3]) {
+          x.beginPath()
+          x.moveTo(tx, ty)
+          x.lineTo(tx + Math.sin(a) * 600 * k, ty + Math.cos(a) * 600 * k)
+          x.stroke()
+        }
+        x.fillStyle = '#020101'
+        x.beginPath()
+        x.roundRect(tx - 110 * k, ty - 150 * k, 220 * k, 140 * k, 10 * k)
+        x.fill()
+        x.fillRect(tx + 100 * k, ty - 115 * k, 80 * k, 70 * k)
+      })
+      x.fillStyle = '#ff2a2a'
+      x.beginPath()
+      x.arc(tx - 75 * k, ty - 118 * k, 8 * k, 0, Math.PI * 2)
+      x.fill()
+      glow(tx - 75 * k, ty - 118 * k, 40 * k, [255, 30, 30], 0.8)
     },
 
     // Low-key monochrome portrait: mostly shadow, one rim of light.

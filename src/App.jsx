@@ -11,6 +11,7 @@ import Archive from './components/Archive'
 import FinalCTA from './components/FinalCTA'
 import PassModal from './components/PassModal'
 import StickyPass from './components/StickyPass'
+import SoundToggle from './components/SoundToggle'
 import { initSmoothScroll, lockScroll } from './lib/scroll'
 import { PassContext, usePass } from './lib/usePass'
 
@@ -45,6 +46,7 @@ export default function App() {
             <FinalCTA />
           </main>
           <StickyPass />
+          <SoundToggle />
           <AnimatePresence>{open && <PassModal onClose={closePass} />}</AnimatePresence>
           <div className="grain" aria-hidden="true" />
         </PassContext.Provider>

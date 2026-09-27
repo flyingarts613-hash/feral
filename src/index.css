@@ -41,6 +41,21 @@
   }
 }
 
+/* Base colours and font kept outside @layer on purpose: an unlayered reset
+   from a host page (e.g. an embed wrapper) would otherwise win over layered
+   rules and repaint inherited text dark on a light ground. */
+:root {
+  color-scheme: dark;
+}
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 @layer components {
   /* Condensed display type — the brand. */
   .display {
@@ -224,6 +239,20 @@
   91.2% { opacity: 0; }
 }
 
+/* Sound switch: four hairlines that breathe while music plays. */
+.sound-bars > span {
+  height: 3px;
+  transition: height 0.6s var(--ease-expo);
+}
+.sound-bars.is-on > span {
+  animation: sound-bar 1.4s ease-in-out infinite alternate;
+}
+@keyframes sound-bar {
+  0% { height: 3px; }
+  50% { height: 12px; }
+  100% { height: 5px; }
+}
+
 @keyframes scroll-cue {
   0% { transform: scaleY(0); transform-origin: top; }
   45% { transform: scaleY(1); transform-origin: top; }
@@ -239,8 +268,12 @@
   .leak,
   .scroll-cue,
   .fog,
-  .whisper {
+  .whisper,
+  .sound-bars.is-on > span {
     animation: none;
+  }
+  .sound-bars.is-on > span {
+    height: 8px;
   }
   .flicker,
   .eyes,
