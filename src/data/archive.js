@@ -6,4 +6,13 @@ export const ARCHIVE = [
   { title: 'FERAL 002', image: '/images/archive/02.jpg' },
   { title: 'FERAL 003', image: '/images/archive/03.jpg' },
   { title: 'FERAL 004', image: '/images/archive/04.jpg' },
+  { title: 'FERAL 005', image: '/images/archive/05.jpg' },
+  { title: 'FERAL 006', image: '/images/archive/06.jpg' },
+  { title: 'FERAL 007', image: '/images/archive/07.jpg' },
+  { title: 'FERAL 008', image: '/images/archive/08.jpg' },
+  { title: 'FERAL 009', image: '/images/archive/09.jpg' },
+  { title: 'FERAL 010', image: '/images/archive/10.jpg' },
+  { title: 'FERAL 011', image: '/images/archive/11.jpg' },
+  { title: 'FERAL 012', image: '/images/archive/12.jpg' },
+  { title: 'FERAL 013', image: '/images/archive/13.jpg' },
 ]
