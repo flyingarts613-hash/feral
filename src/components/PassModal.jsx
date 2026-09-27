@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { m } from 'framer-motion'
 import { EVENT, isSet } from '../data/event'
 import { PASS_STEPS } from '../data/content'
+import { asset } from '../lib/image'
 
 const EASE = [0.76, 0, 0.24, 1]
 
@@ -98,7 +99,7 @@ export default function PassModal({ onClose }) {
             </div>
 
             <div className="w-full max-w-[340px] bg-bone p-3">
-              <img src={EVENT.qrCode} alt={`UPI QR code for ${EVENT.upiId}`} className="aspect-square w-full" />
+              <img src={asset(EVENT.qrCode)} alt={`UPI QR code for ${EVENT.upiId}`} className="aspect-square w-full" />
             </div>
 
             <div className="w-full">

@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { imageProps } from '../lib/image'
+import { asset, imageProps } from '../lib/image'
 
 // Responsive, lazy by default, fades in when decoded.
 export default function Img({ src, alt = '', sizes = '100vw', priority = false, className = '', ...rest }) {
   const [loaded, setLoaded] = useState(false)
   return (
     <img
-      src={src}
+      src={asset(src)}
       alt={alt}
       sizes={sizes}
       {...imageProps(src)}

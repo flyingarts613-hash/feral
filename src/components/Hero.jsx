@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { m, useReducedMotion, useScroll } from 'framer-motion'
 import { useRange } from '../lib/motion'
 import { EVENT } from '../data/event'
-import { imageProps } from '../lib/image'
+import { asset, imageProps } from '../lib/image'
 import { useOpenPass } from '../lib/usePass'
 import { nightsLeft } from '../lib/countdown'
 
@@ -31,9 +31,9 @@ export default function Hero({ ready }) {
           transition={{ duration: 2.8, ease: EASE }}
         >
           <picture>
-            <source media="(max-width: 767px) and (orientation: portrait)" srcSet={mobile.srcSet ?? EVENT.hero.imageMobile} sizes="100vw" />
+            <source media="(max-width: 767px) and (orientation: portrait)" srcSet={mobile.srcSet ?? asset(EVENT.hero.imageMobile)} sizes="100vw" />
             <img
-              src={EVENT.hero.image}
+              src={asset(EVENT.hero.image)}
               srcSet={desktop.srcSet}
               sizes="100vw"
               alt=""
@@ -141,7 +141,7 @@ function HeroVideo({ src }) {
   if (!load) return null
   return (
     <video
-      src={src}
+      src={asset(src)}
       muted
       loop
       playsInline

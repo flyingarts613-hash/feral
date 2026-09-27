@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
+import { asset } from '../lib/image'
 
 // Black curtain with a flickering warning while the display face loads, then lifts.
 export default function Intro({ onDone }) {
@@ -32,7 +33,10 @@ export default function Intro({ onDone }) {
           aria-hidden="true"
         >
           {/* Something standing in the dark behind the words — barely there. */}
-          <div className="intro-figure pointer-events-none absolute inset-0 bg-[url('/images/archive/01-960.webp')] bg-cover bg-center grayscale" />
+          <div
+            className="intro-figure pointer-events-none absolute inset-0 bg-cover bg-center grayscale"
+            style={{ backgroundImage: `url(${asset('/images/archive/01-960.webp')})` }}
+          />
           <div className="fog fog-intro pointer-events-none absolute inset-x-0 bottom-0 h-1/2" />
 
           <div className="relative flex flex-col items-center gap-5 px-6 text-center">

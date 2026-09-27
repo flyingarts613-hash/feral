@@ -1,6 +1,9 @@
 import manifest from '../data/image-manifest.json'
 
-const variant = (src, w) => src.replace(/\.[a-z0-9]+$/i, `-${w}.webp`)
+// Public-folder path ('/images/x.jpg') → URL that respects Vite's `base`.
+export const asset = (path) => (path ? import.meta.env.BASE_URL + path.replace(/^\//, '') : path)
+
+const variant = (src, w) => asset(src.replace(/\.[a-z0-9]+$/i, `-${w}.webp`))
 
 // { srcSet, width, height } for an image in public/images, if optimised.
 export function imageProps(src) {
