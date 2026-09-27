@@ -31,16 +31,18 @@ Every photo and the music are plain files: overwrite them with the same name, ru
 
 | What | Where |
 | --- | --- |
+| **Hell Ichor** (the real drink photo) | `public/images/hell-ichor/hell-ichor-main.jpg` (portrait 4:5) and `hell-ichor-detail.jpg` (close-up, 4:3). Copy in `src/data/experiences.js` |
+| **Horror room** (seen through the door) | `public/images/horror-room/inside.jpg` (3:4). Copy in `src/data/experiences.js` |
+| **Who are you tonight?** characters | `public/images/costumes/vampire.jpg`, `clown.jpg`, `demon.jpg`, `ghost.jpg`, `witch.jpg`, `zombie.jpg`, `skeleton.jpg`, `killer.jpg`, `creature.jpg`, `angel.jpg`, `doll.jpg` (3:4). Names, lines, colours in `src/data/experiences.js` — add or remove a character by editing that list |
 | Venue photos (Chhatarpur Farms) | `public/images/venue/venue-main.jpg` (wide), `venue-02.jpg`, `venue-03.jpg` (portrait), `venue-04.jpg` (4:3). Captions + maps link in `src/data/venue.js` |
 | Party photos | `public/images/party/party-main.jpg` (the big one after the hero), `strip-01…08.jpg` (the flash strip) — list in `src/data/gallery.js` |
 | What's waiting | `public/images/waiting/dj.jpg`, `dancing.jpg`, `games.jpg`, `costumes.jpg`, `horror-room.jpg` — lines in `src/data/content.js` |
-| Costume portraits | `public/images/costumes/costume-01…04.jpg` — labels in `src/data/gallery.js` |
-| Organisers | `public/images/team/…` — names in `src/data/team.js` |
+| Organisers | `public/images/organisers/organiser-01…06.jpg` — names + roles in `src/data/team.js` |
 | Archive | `public/images/archive/…` — list in `src/data/archive.js` |
 | Music | `public/audio/feral.mp3` (any MP3; it loops, fades in at low volume, starts on the visitor's first tap/click/key) |
 
-The current images are generated placeholders; the venue ones are stamped
-"PLACEHOLDER · VENUE PHOTO" so they can't be mistaken for the real place.
+The current images are generated placeholders; the venue and Hell Ichor ones
+are stamped "PLACEHOLDER" so they can't be mistaken for the real thing.
 `npm run placeholders` / `node scripts/generate-music.mjs` regenerate them.
 
 ## Images

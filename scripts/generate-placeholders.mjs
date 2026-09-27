@@ -47,23 +47,33 @@ const JOBS = [
   ['images/venue/venue-03.jpg', 'lanterns', 1000, 1250, 73, V],
   ['images/venue/venue-04.jpg', 'canopy', 1200, 900, 74, V],
 
-  // Costumes
-  ['images/costumes/costume-01.jpg', 'costume', 900, 1200, 80],
-  ['images/costumes/costume-02.jpg', 'costume', 900, 1200, 81],
-  ['images/costumes/costume-03.jpg', 'costume', 900, 1200, 82],
-  ['images/costumes/costume-04.jpg', 'costume', 900, 1200, 83],
+  // Dress-up characters (seed % 11 picks the character)
+  ['images/costumes/vampire.jpg', 'character', 900, 1200, 110],
+  ['images/costumes/ghost.jpg', 'character', 900, 1200, 111],
+  ['images/costumes/clown.jpg', 'character', 900, 1200, 112],
+  ['images/costumes/zombie.jpg', 'character', 900, 1200, 113],
+  ['images/costumes/witch.jpg', 'character', 900, 1200, 114],
+  ['images/costumes/skeleton.jpg', 'character', 900, 1200, 115],
+  ['images/costumes/demon.jpg', 'character', 900, 1200, 116],
+  ['images/costumes/killer.jpg', 'character', 900, 1200, 117],
+  ['images/costumes/creature.jpg', 'character', 900, 1200, 118],
+  ['images/costumes/angel.jpg', 'character', 900, 1200, 119],
+  ['images/costumes/doll.jpg', 'character', 900, 1200, 120],
 
-  // Horror room
-  ['images/horror/01.jpg', 'corridor', 2400, 1350, 31],
-  ['images/horror/02.jpg', 'mask', 1200, 1600, 32],
+  // Hell Ichor — replace with the real photo (same file names)
+  ['images/hell-ichor/hell-ichor-main.jpg', 'goblet', 1200, 1500, 91, 'PLACEHOLDER · HELL ICHOR PHOTO'],
+  ['images/hell-ichor/hell-ichor-detail.jpg', 'swirl', 1200, 900, 92, 'PLACEHOLDER · HELL ICHOR PHOTO'],
 
-  // Team
-  ['images/team/placeholder-01.jpg', 'costume', 1000, 1333, 41],
-  ['images/team/placeholder-02.jpg', 'costume', 1000, 1333, 42],
-  ['images/team/placeholder-03.jpg', 'costume', 1000, 1333, 43],
-  ['images/team/placeholder-04.jpg', 'costume', 1000, 1333, 44],
-  ['images/team/placeholder-05.jpg', 'costume', 1000, 1333, 45],
-  ['images/team/placeholder-06.jpg', 'costume', 1000, 1333, 46],
+  // Horror room — what you see through the door
+  ['images/horror-room/inside.jpg', 'room', 1200, 1600, 33],
+
+  // Organisers
+  ['images/organisers/organiser-01.jpg', 'costume', 1000, 1333, 41],
+  ['images/organisers/organiser-02.jpg', 'costume', 1000, 1333, 42],
+  ['images/organisers/organiser-03.jpg', 'costume', 1000, 1333, 43],
+  ['images/organisers/organiser-04.jpg', 'costume', 1000, 1333, 44],
+  ['images/organisers/organiser-05.jpg', 'costume', 1000, 1333, 45],
+  ['images/organisers/organiser-06.jpg', 'costume', 1000, 1333, 46],
 
   // Archive
   ['images/archive/01.jpg', 'flashcrowd', 1200, 1500, 51],
@@ -1133,6 +1143,331 @@ function paint(scene, W, H, seed, stamp) {
       branch(W * 0.5, H * 1.05, -Math.PI / 2, 380 * k, 8)
       branch(-20, H * 0.9, -Math.PI / 3, 300 * k, 7)
       branch(W + 20, H * 0.9, (-Math.PI * 2) / 3, 300 * k, 7)
+    },
+
+    // ── HELL ICHOR (placeholder for the real product photo) ─────────────────
+    // One goblet on black stone: dark red liquid glowing at the surface,
+    // gold rim light, smoke rising.
+    goblet() {
+      const k = Math.min(W, H) / 1000
+      const cx = W * 0.5
+      const baseY = H * 0.8
+      glow(cx, H * 0.35, Math.max(W, H) * 0.55, [120, 8, 16], 0.7)
+      glow(cx + 180 * k, H * 0.2, Math.max(W, H) * 0.3, [200, 140, 60], 0.25)
+      // stone surface
+      const st = x.createLinearGradient(0, baseY, 0, H)
+      st.addColorStop(0, '#15100f')
+      st.addColorStop(1, '#040303')
+      x.fillStyle = st
+      x.fillRect(0, baseY, W, H - baseY)
+      x.strokeStyle = 'rgba(120,100,90,0.08)'
+      for (let i = 0; i < 14; i++) {
+        x.lineWidth = (1 + r() * 2) * k
+        x.beginPath()
+        x.moveTo(r() * W, baseY + r() * (H - baseY))
+        x.bezierCurveTo(r() * W, baseY + r() * 200 * k, r() * W, H, r() * W, baseY + r() * (H - baseY))
+        x.stroke()
+      }
+      // goblet body
+      const bw = 190 * k
+      const top = baseY - 560 * k
+      const bowlH = 300 * k
+      const goblet = (fillBowl) => {
+        x.beginPath()
+        x.moveTo(cx - bw, top)
+        x.bezierCurveTo(cx - bw, top + bowlH * 0.9, cx - 40 * k, top + bowlH, cx - 22 * k, top + bowlH + 20 * k)
+        x.lineTo(cx - 14 * k, baseY - 60 * k)
+        x.bezierCurveTo(cx - 20 * k, baseY - 30 * k, cx - 130 * k, baseY - 20 * k, cx - 130 * k, baseY)
+        x.lineTo(cx + 130 * k, baseY)
+        x.bezierCurveTo(cx + 130 * k, baseY - 20 * k, cx + 20 * k, baseY - 30 * k, cx + 14 * k, baseY - 60 * k)
+        x.lineTo(cx + 22 * k, top + bowlH + 20 * k)
+        x.bezierCurveTo(cx + 40 * k, top + bowlH, cx + bw, top + bowlH * 0.9, cx + bw, top)
+        x.closePath()
+        fillBowl()
+      }
+      goblet(() => {
+        const g = x.createLinearGradient(cx - bw, 0, cx + bw, 0)
+        g.addColorStop(0, '#2a0508')
+        g.addColorStop(0.45, '#100203')
+        g.addColorStop(0.8, '#3a0a0c')
+        g.addColorStop(1, '#120203')
+        x.fillStyle = g
+        x.fill()
+      })
+      // liquid surface (glowing)
+      const ly = top + 60 * k
+      glow(cx, ly, 260 * k, [230, 30, 45], 0.55, 0.35)
+      x.fillStyle = '#b3121f'
+      x.beginPath()
+      x.ellipse(cx, ly, bw * 0.93, 26 * k, 0, 0, Math.PI * 2)
+      x.fill()
+      const sheen = x.createRadialGradient(cx - 50 * k, ly - 6 * k, 0, cx, ly, bw)
+      sheen.addColorStop(0, 'rgba(255,120,110,0.9)')
+      sheen.addColorStop(1, 'rgba(120,0,10,0)')
+      x.fillStyle = sheen
+      x.beginPath()
+      x.ellipse(cx, ly, bw * 0.93, 26 * k, 0, 0, Math.PI * 2)
+      x.fill()
+      // gold rim + edge lights
+      x.strokeStyle = 'rgba(230,185,110,0.9)'
+      x.lineWidth = 4 * k
+      x.beginPath()
+      x.ellipse(cx, top, bw, 30 * k, 0, Math.PI, Math.PI * 2)
+      x.stroke()
+      x.strokeStyle = 'rgba(230,185,110,0.45)'
+      x.beginPath()
+      x.ellipse(cx, top, bw, 30 * k, 0, 0, Math.PI)
+      x.stroke()
+      blur(3 * U, () => {
+        x.strokeStyle = 'rgba(245,200,130,0.75)'
+        x.lineWidth = 6 * k
+        x.beginPath()
+        x.moveTo(cx + bw - 8 * k, top + 20 * k)
+        x.bezierCurveTo(cx + bw - 8 * k, top + bowlH * 0.8, cx + 50 * k, top + bowlH, cx + 22 * k, top + bowlH + 30 * k)
+        x.stroke()
+        x.strokeStyle = 'rgba(255,255,255,0.35)'
+        x.lineWidth = 10 * k
+        x.beginPath()
+        x.moveTo(cx - bw + 30 * k, top + 60 * k)
+        x.bezierCurveTo(cx - bw + 36 * k, top + 170 * k, cx - bw + 70 * k, top + 230 * k, cx - bw + 100 * k, top + 260 * k)
+        x.stroke()
+      })
+      x.fillStyle = 'rgba(230,185,110,0.6)'
+      x.fillRect(cx - 130 * k, baseY - 4 * k, 260 * k, 4 * k)
+      // reflection
+      x.save()
+      x.globalAlpha = 0.12
+      x.translate(0, baseY * 2)
+      x.scale(1, -1)
+      x.drawImage(c, 0, baseY - 400 * k, W, 400 * k, 0, baseY - 400 * k, W, 400 * k)
+      x.restore()
+      // smoke rising off the surface
+      for (let i = 0; i < 5; i++) {
+        blur(18 * U, () => {
+          x.strokeStyle = `rgba(230,220,215,${0.06 + r() * 0.06})`
+          x.lineWidth = (18 + r() * 30) * k
+          x.beginPath()
+          let sx = cx + (r() - 0.5) * 120 * k
+          let sy = ly
+          x.moveTo(sx, sy)
+          for (let j = 0; j < 6; j++) {
+            const nx = sx + (r() - 0.5) * 160 * k
+            const ny = sy - (60 + r() * 60) * k
+            x.quadraticCurveTo(sx + (r() - 0.5) * 200 * k, (sy + ny) / 2, nx, ny)
+            sx = nx
+            sy = ny
+          }
+          x.stroke()
+        })
+      }
+      sparks(26, [cx - 300 * k, top - 400 * k, 600 * k, 500 * k], () => 'rgba(255,190,120,0.7)')
+    },
+
+    // Macro: dark red swirling into black, flecks of gold.
+    swirl() {
+      const k = Math.min(W, H) / 1000
+      x.fillStyle = '#080203'
+      x.fillRect(0, 0, W, H)
+      for (let i = 0; i < 26; i++) {
+        blur((6 + r() * 20) * U, () => {
+          x.strokeStyle = `rgba(${150 + r() * 80},${r() * 20},${10 + r() * 20},${0.25 + r() * 0.4})`
+          x.lineWidth = (10 + r() * 60) * k
+          x.beginPath()
+          const cx = W * (0.3 + r() * 0.4)
+          const cy = H * (0.3 + r() * 0.4)
+          x.arc(cx, cy, (80 + r() * 380) * k, r() * 6, r() * 6 + 2 + r() * 3)
+          x.stroke()
+        })
+      }
+      glow(W * 0.55, H * 0.45, Math.max(W, H) * 0.35, [220, 40, 50], 0.35)
+      for (let i = 0; i < 160; i++) glow(W * r(), H * r(), (2 + r() * 7) * k, [240, 190, 110], 0.5 + r() * 0.5)
+    },
+
+    // ── DRESS-UP: character portraits, each with its own light ──────────────
+    character() {
+      const CH = {
+        vampire: [170, 10, 25], ghost: [150, 190, 220], clown: [230, 120, 30], zombie: [110, 170, 60],
+        witch: [140, 70, 200], skeleton: [225, 215, 195], demon: [220, 30, 20], killer: [120, 140, 160],
+        creature: [220, 150, 40], angel: [210, 170, 90], doll: [220, 80, 150],
+      }
+      const kind = Object.keys(CH)[seed % 11]
+      const col = CH[kind]
+      const rgba = (a) => `rgba(${col[0]},${col[1]},${col[2]},${a})`
+      const px = W * 0.5
+      const k = W / 330
+      const py = H * 0.52
+      const hy = headY(py, k)
+      // nightlife bokeh + accent light
+      for (let i = 0; i < 18; i++) glow(W * r(), H * r() * 0.7, (20 + r() * 60) * k * 0.3, r() < 0.5 ? col : [255, 200, 150], 0.25 + r() * 0.25)
+      glow(px + 50 * k, py - 90 * k, Math.max(W, H) * 0.55, col, 0.75)
+      smoke(0.14, [110, 100, 100], 10)
+      const tilt = kind === 'zombie' ? 0.18 : 0
+      const shape = (fill) => {
+        x.save()
+        x.translate(px, py)
+        x.rotate(tilt)
+        x.translate(-px, -py)
+        if (kind === 'angel') {
+          x.fillStyle = fill
+          for (const d of [-1, 1]) {
+            x.beginPath()
+            x.moveTo(px + d * 30 * k, py + 20 * k)
+            x.bezierCurveTo(px + d * 170 * k, py - 160 * k, px + d * 150 * k, py - 20 * k, px + d * 160 * k, py + 200 * k)
+            x.bezierCurveTo(px + d * 100 * k, py + 120 * k, px + d * 60 * k, py + 80 * k, px + d * 30 * k, py + 20 * k)
+            x.fill()
+          }
+        }
+        if (kind === 'vampire') {
+          x.fillStyle = fill
+          for (const d of [-1, 1]) {
+            x.beginPath()
+            x.moveTo(px + d * 14 * k, py + 12 * k)
+            x.lineTo(px + d * 44 * k, hy - 22 * k)
+            x.lineTo(px + d * 58 * k, py + 30 * k)
+            x.fill()
+          }
+        }
+        person(px, py, k, fill)
+        if (kind === 'demon') horns(px, py, k, fill)
+        if (kind === 'witch') witchHat(px, py, k, fill)
+        if (kind === 'clown') {
+          x.fillStyle = fill
+          x.beginPath()
+          x.moveTo(px - 16 * k, hy - 24 * k)
+          x.lineTo(px + 6 * k, hy - 96 * k)
+          x.lineTo(px + 22 * k, hy - 22 * k)
+          x.fill()
+          x.beginPath()
+          x.arc(px + 6 * k, hy - 98 * k, 9 * k, 0, Math.PI * 2)
+          x.fill()
+          for (let i = 0; i < 14; i++) {
+            const a = (i / 14) * Math.PI * 2
+            x.beginPath()
+            x.arc(px + Math.cos(a) * 46 * k, py + 6 * k + Math.sin(a) * 14 * k, 14 * k, 0, Math.PI * 2)
+            x.fill()
+          }
+        }
+        if (kind === 'killer') {
+          x.fillStyle = fill
+          x.beginPath()
+          x.moveTo(px - 40 * k, py + 20 * k)
+          x.quadraticCurveTo(px - 46 * k, hy - 60 * k, px, hy - 52 * k)
+          x.quadraticCurveTo(px + 46 * k, hy - 60 * k, px + 40 * k, py + 20 * k)
+          x.fill()
+        }
+        if (kind === 'creature') {
+          x.strokeStyle = fill
+          x.lineWidth = 5 * k
+          for (const d of [-1, 1]) {
+            x.beginPath()
+            x.moveTo(px + d * 12 * k, hy - 22 * k)
+            x.lineTo(px + d * 50 * k, hy - 80 * k)
+            x.lineTo(px + d * 80 * k, hy - 110 * k)
+            x.moveTo(px + d * 40 * k, hy - 64 * k)
+            x.lineTo(px + d * 30 * k, hy - 104 * k)
+            x.moveTo(px + d * 62 * k, hy - 92 * k)
+            x.lineTo(px + d * 92 * k, hy - 84 * k)
+            x.stroke()
+          }
+        }
+        if (kind === 'doll') {
+          x.fillStyle = fill
+          for (const d of [-1, 1]) {
+            x.beginPath()
+            x.moveTo(px, hy - 28 * k)
+            x.lineTo(px + d * 34 * k, hy - 50 * k)
+            x.lineTo(px + d * 30 * k, hy - 14 * k)
+            x.fill()
+          }
+        }
+        x.restore()
+      }
+      blur(16 * U, () => shape(rgba(0.9)))
+      blur(3 * U, () => shape('#0b0909'))
+      // faces: each character gets its own face treatment
+      x.save()
+      x.translate(px, py)
+      x.rotate(tilt)
+      x.translate(-px, -py)
+      const face = (fill) => {
+        x.fillStyle = fill
+        x.beginPath()
+        x.ellipse(px, hy, 21 * k, 27 * k, 0, 0, Math.PI * 2)
+        x.fill()
+      }
+      const eyes = (fill, rx = 5, ry = 3) => {
+        x.fillStyle = fill
+        for (const d of [-1, 1]) {
+          x.beginPath()
+          x.ellipse(px + d * 8.5 * k, hy - 3 * k, rx * k, ry * k, d * 0.15, 0, Math.PI * 2)
+          x.fill()
+        }
+      }
+      blur(2 * U, () => {
+        if (['ghost', 'skeleton', 'killer', 'clown', 'doll'].includes(kind)) {
+          const g = x.createRadialGradient(px - 8 * k, hy - 8 * k, 0, px, hy, 30 * k)
+          g.addColorStop(0, '#e8e2da')
+          g.addColorStop(1, '#6a625c')
+          face(g)
+        } else face(rgba(0.25))
+        if (kind === 'skeleton' || kind === 'killer') eyes('#050404', 6, 5)
+        if (kind === 'skeleton') {
+          x.fillStyle = '#050404'
+          x.beginPath()
+          x.moveTo(px, hy + 4 * k)
+          x.lineTo(px - 3 * k, hy + 10 * k)
+          x.lineTo(px + 3 * k, hy + 10 * k)
+          x.fill()
+          for (let i = -3; i <= 3; i++) x.fillRect(px + i * 3.2 * k, hy + 15 * k, 1.2 * k, 6 * k)
+        }
+        if (kind === 'clown') {
+          eyes('#0a0a0a', 3.5, 3.5)
+          x.fillStyle = '#c2121c'
+          x.beginPath()
+          x.arc(px, hy + 5 * k, 4 * k, 0, Math.PI * 2)
+          x.fill()
+          x.beginPath()
+          x.ellipse(px, hy + 15 * k, 9 * k, 3 * k, 0, 0, Math.PI)
+          x.fill()
+        }
+        if (kind === 'doll') {
+          eyes('#0a0a0a', 4, 4)
+          x.fillStyle = 'rgba(230,90,140,0.6)'
+          for (const d of [-1, 1]) {
+            x.beginPath()
+            x.arc(px + d * 12 * k, hy + 8 * k, 4 * k, 0, Math.PI * 2)
+            x.fill()
+          }
+          x.strokeStyle = '#2a2020'
+          x.lineWidth = 0.8 * k
+          x.beginPath()
+          x.moveTo(px + 5 * k, hy - 26 * k)
+          x.lineTo(px + 9 * k, hy - 10 * k)
+          x.lineTo(px + 5 * k, hy)
+          x.stroke()
+        }
+        if (kind === 'ghost') eyes('#1a1c22', 5, 4)
+      })
+      if (['vampire', 'demon', 'creature', 'zombie', 'witch', 'angel'].includes(kind)) {
+        const ec = kind === 'zombie' ? [180, 230, 90] : kind === 'witch' ? [200, 150, 255] : kind === 'angel' ? [255, 220, 150] : kind === 'creature' ? [255, 180, 40] : [255, 40, 40]
+        for (const d of [-1, 1]) glow(px + d * 8.5 * k, hy - 3 * k, 6 * k, ec, 1)
+      }
+      x.restore()
+      if (kind === 'ghost') {
+        blur(4 * U, () => {
+          const g = x.createLinearGradient(0, hy - 40 * k, 0, H)
+          g.addColorStop(0, 'rgba(225,235,245,0.5)')
+          g.addColorStop(1, 'rgba(225,235,245,0.04)')
+          x.fillStyle = g
+          x.beginPath()
+          x.moveTo(px, hy - 36 * k)
+          x.quadraticCurveTo(px - 70 * k, hy, px - 120 * k, H)
+          x.lineTo(px + 120 * k, H)
+          x.quadraticCurveTo(px + 70 * k, hy, px, hy - 36 * k)
+          x.fill()
+        })
+      }
+      glow(px - 14 * k, hy, 40 * k, [255, 245, 235], 0.2)
     },
 
     // Low-key monochrome portrait: mostly shadow, one rim of light.

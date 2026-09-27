@@ -28,7 +28,7 @@ export default function Venue() {
             </Line>
           </h2>
         </div>
-        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(02)</p>
+        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(04)</p>
       </div>
 
       <MainFrame />

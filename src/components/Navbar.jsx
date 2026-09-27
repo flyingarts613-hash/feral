@@ -4,10 +4,21 @@ import { EVENT, isSet } from '../data/event'
 import { lockScroll, scrollToId } from '../lib/scroll'
 import { useOpenPass } from '../lib/usePass'
 
+// Desktop nav — the three signature experiences, the venue, passes.
 const LINKS = [
-  ["WHAT'S WAITING", 'waiting'],
+  ['DRESS UP', 'dress-up'],
+  ['HELL ICHOR', 'hell-ichor'],
+  ['HORROR ROOM', 'horror-room'],
   ['VENUE', 'venue'],
   ['PASSES', 'passes'],
+]
+// Phone menu — everything (PASS → opens the pass sheet itself).
+const MENU = [
+  ['DRESS UP', 'dress-up'],
+  ['HELL ICHOR', 'hell-ichor'],
+  ['HORROR ROOM', 'horror-room'],
+  ['VENUE', 'venue'],
+  ["WHAT'S WAITING", 'waiting'],
   ['TEAM', 'team'],
   ['ARCHIVE', 'archive'],
 ]
@@ -81,12 +92,12 @@ export default function Navbar() {
             </div>
 
             <nav className="mt-auto flex flex-col" aria-label="Menu">
-              {LINKS.map(([label, id], i) => (
+              {MENU.map(([label, id], i) => (
                 <MenuItem key={id} i={i} onClick={() => go(id)}>
                   {label}
                 </MenuItem>
               ))}
-              <MenuItem i={LINKS.length} onClick={pass} accent>
+              <MenuItem i={MENU.length} onClick={pass} accent>
                 PASS →
               </MenuItem>
             </nav>
@@ -120,7 +131,7 @@ function MenuItem({ children, i, onClick, accent }) {
     <span className="block overflow-hidden">
       <m.button
         onClick={onClick}
-        className={`display block py-1 text-left text-[14vw] leading-[0.9] md:text-[9vw] ${accent ? 'text-blood' : ''}`}
+        className={`display block py-1 text-left text-[11vw] leading-[0.92] md:text-[7vw] ${accent ? 'text-blood' : ''}`}
         initial={{ y: '100%' }}
         animate={{ y: '0%' }}
         transition={{ delay: 0.25 + i * 0.06, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}

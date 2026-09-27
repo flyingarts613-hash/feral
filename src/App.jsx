@@ -9,9 +9,10 @@ import PartyBreak from './components/PartyBreak'
 import PhotoStrip from './components/PhotoStrip'
 import Waiting from './components/Waiting'
 import Venue from './components/Venue'
-import Costumes from './components/Costumes'
+import DressUp from './components/DressUp'
+import HellIchor from './components/HellIchor'
+import HorrorRoom from './components/HorrorRoom'
 import Passes from './components/Passes'
-import HorrorWorld from './components/HorrorWorld'
 import Team from './components/Team'
 import Archive from './components/Archive'
 import FinalCTA from './components/FinalCTA'
@@ -48,10 +49,11 @@ export default function App() {
             <PartyBreak />
             <Manifesto />
             <PhotoStrip />
-            <Waiting />
+            <DressUp />
+            <HellIchor />
+            <HorrorRoom />
             <Venue />
-            <Costumes />
-            <HorrorWorld />
+            <Waiting />
             <Passes />
             <Team />
             <Archive />

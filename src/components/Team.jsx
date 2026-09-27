@@ -20,7 +20,7 @@ export default function Team() {
             FERAL.
           </Line>
         </h2>
-        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(06)</p>
+        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(07)</p>
       </div>
 
       <div className="flex flex-col gap-[14vh] md:gap-[20vh]">

@@ -160,3 +160,36 @@ export function beatPhase() {
   const beats = ((ctx.currentTime - startedAt) * bpm) / 60
   return beats - Math.floor(beats)
 }
+
+// A short door creak — only when the visitor already has sound on.
+export function creak() {
+  if (state !== 'on' || !ctx) return
+  const t = ctx.currentTime
+  const dur = 1.4
+  const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate)
+  const d = buf.getChannelData(0)
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1
+  const src = ctx.createBufferSource()
+  src.buffer = buf
+  const bp = ctx.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.Q.value = 18
+  bp.frequency.setValueAtTime(420, t)
+  bp.frequency.exponentialRampToValueAtTime(980, t + dur * 0.6)
+  bp.frequency.exponentialRampToValueAtTime(600, t + dur)
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.exponentialRampToValueAtTime(0.5, t + 0.08)
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+  // the judder of old hinges
+  const lfo = ctx.createOscillator()
+  const lfoAmt = ctx.createGain()
+  lfo.frequency.value = 22
+  lfoAmt.gain.value = 0.35
+  lfo.connect(lfoAmt).connect(g.gain)
+  src.connect(bp).connect(g).connect(ctx.destination)
+  src.start(t)
+  lfo.start(t)
+  src.stop(t + dur)
+  lfo.stop(t + dur)
+}

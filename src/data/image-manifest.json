@@ -56,7 +56,7 @@
       1800
     ]
   },
-  "/images/costumes/costume-01.jpg": {
+  "/images/costumes/angel.jpg": {
     "width": 900,
     "height": 1200,
     "widths": [
@@ -64,7 +64,7 @@
       900
     ]
   },
-  "/images/costumes/costume-02.jpg": {
+  "/images/costumes/clown.jpg": {
     "width": 900,
     "height": 1200,
     "widths": [
@@ -72,7 +72,7 @@
       900
     ]
   },
-  "/images/costumes/costume-03.jpg": {
+  "/images/costumes/creature.jpg": {
     "width": 900,
     "height": 1200,
     "widths": [
@@ -80,12 +80,86 @@
       900
     ]
   },
-  "/images/costumes/costume-04.jpg": {
+  "/images/costumes/demon.jpg": {
     "width": 900,
     "height": 1200,
     "widths": [
       480,
       900
+    ]
+  },
+  "/images/costumes/doll.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/ghost.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/killer.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/skeleton.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/vampire.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/witch.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/costumes/zombie.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
+    ]
+  },
+  "/images/hell-ichor/hell-ichor-detail.jpg": {
+    "width": 1200,
+    "height": 900,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/hell-ichor/hell-ichor-main.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
     ]
   },
   "/images/hero/hero-portrait.jpg": {
@@ -107,23 +181,67 @@
       2400
     ]
   },
-  "/images/horror/01.jpg": {
-    "width": 2400,
-    "height": 1350,
-    "widths": [
-      480,
-      960,
-      1600,
-      2400
-    ]
-  },
-  "/images/horror/02.jpg": {
+  "/images/horror-room/inside.jpg": {
     "width": 1200,
     "height": 1600,
     "widths": [
       480,
       960,
       1200
+    ]
+  },
+  "/images/organisers/organiser-01.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/organisers/organiser-02.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/organisers/organiser-03.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/organisers/organiser-04.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/organisers/organiser-05.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/organisers/organiser-06.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
     ]
   },
   "/images/party/party-main.jpg": {
@@ -202,60 +320,6 @@
   "/images/party/strip-08.jpg": {
     "width": 1000,
     "height": 1250,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-01.jpg": {
-    "width": 1000,
-    "height": 1333,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-02.jpg": {
-    "width": 1000,
-    "height": 1333,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-03.jpg": {
-    "width": 1000,
-    "height": 1333,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-04.jpg": {
-    "width": 1000,
-    "height": 1333,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-05.jpg": {
-    "width": 1000,
-    "height": 1333,
-    "widths": [
-      480,
-      960,
-      1000
-    ]
-  },
-  "/images/team/placeholder-06.jpg": {
-    "width": 1000,
-    "height": 1333,
     "widths": [
       480,
       960,

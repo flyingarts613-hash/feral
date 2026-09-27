@@ -25,11 +25,6 @@ export const WAITING = [
   { title: 'THE HORROR ROOM', note: 'ONE ROOM. ONE CAMERA.', image: '/images/waiting/horror-room.jpg' },
 ]
 
-export const HORROR = {
-  images: ['/images/horror/01.jpg', '/images/horror/02.jpg'],
-  lines: ['ONE ROOM.', 'ONE CAMERA.', 'ONE VERY BAD IDEA.'],
-}
-
 export const PASS_STEPS = [
   { title: 'FILL THE FORM', note: 'Name, number, Instagram.' },
   { title: 'MAKE THE PAYMENT', note: 'Scan the QR or pay to the UPI ID.' },
