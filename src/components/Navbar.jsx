@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
-import { EVENT, isSet } from '../data/event'
+import { EVENT } from '../data/event'
 import { lockScroll, scrollToId } from '../lib/scroll'
 import { useOpenPass } from '../lib/usePass'
+import { InstagramIcon, WhatsAppIcon } from './Icons'
 
 // Desktop nav — the three signature experiences, the venue, passes.
 const LINKS = [
@@ -55,20 +56,24 @@ export default function Navbar() {
           FERAL
         </button>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Main">
-          {LINKS.map(([label, id]) => (
-            <button key={id} onClick={() => go(id)} className="eyebrow link-line pb-0.5 opacity-70 transition-opacity hover:opacity-100">
-              {label}
+        <div className="flex items-center">
+          <nav className="hidden items-center gap-6 lg:flex xl:gap-8" aria-label="Main">
+            {LINKS.map(([label, id]) => (
+              <button key={id} onClick={() => go(id)} className="eyebrow link-line pb-0.5 opacity-70 transition-opacity hover:opacity-100">
+                {label}
+              </button>
+            ))}
+            <button onClick={pass} className="eyebrow link-line pb-0.5">
+              GET YOUR PASS →
             </button>
-          ))}
-          <button onClick={pass} className="eyebrow link-line pb-0.5">
-            GET YOUR PASS →
-          </button>
-        </nav>
+          </nav>
 
-        <button onClick={() => setMenu(true)} className="eyebrow -mr-3 p-3 lg:hidden" aria-expanded={menu} aria-controls="menu">
-          MENU
-        </button>
+          <Socials className="lg:ml-6 lg:border-l lg:border-bone/15 lg:pl-3" />
+
+          <button onClick={() => setMenu(true)} className="eyebrow -mr-3 p-3 lg:hidden" aria-expanded={menu} aria-controls="menu">
+            MENU
+          </button>
+        </div>
       </header>
 
       <AnimatePresence>
@@ -113,11 +118,14 @@ export default function Navbar() {
                 <br />
                 {EVENT.location}
               </span>
-              {isSet(EVENT.instagram) && (
-                <a href={`https://instagram.com/${EVENT.instagram}`} target="_blank" rel="noreferrer">
-                  INSTAGRAM
+              <span className="flex flex-col items-end gap-2">
+                <a href={EVENT.socials.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-bone/80">
+                  <InstagramIcon className="h-4 w-4" /> @{EVENT.instagram}
                 </a>
-              )}
+                <a href={EVENT.socials.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-bone/80">
+                  <WhatsAppIcon className="h-4 w-4" /> COMMUNITY
+                </a>
+              </span>
             </m.div>
           </m.div>
         )}
@@ -139,5 +147,20 @@ function MenuItem({ children, i, onClick, accent }) {
         {children}
       </m.button>
     </span>
+  )
+}
+
+// Small, always-there links to Instagram and the WhatsApp community.
+function Socials({ className = '' }) {
+  const link = 'grid h-10 w-10 place-items-center text-bone/70 transition-colors duration-300 hover:text-bone'
+  return (
+    <div className={`flex items-center ${className}`}>
+      <a href={EVENT.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label={`FERAL on Instagram, @${EVENT.instagram}`} className={link} data-social="instagram">
+        <InstagramIcon className="h-[18px] w-[18px]" />
+      </a>
+      <a href={EVENT.socials.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Join the FERAL WhatsApp community" className={link} data-social="whatsapp">
+        <WhatsAppIcon className="h-[18px] w-[18px]" />
+      </a>
+    </div>
   )
 }

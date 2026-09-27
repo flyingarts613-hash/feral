@@ -182,7 +182,7 @@ export default function DressUp() {
             {DRESS_UP.shuffle} <span aria-hidden="true">↻</span>
           </button>
           {isSet(EVENT.instagram) ? (
-            <a href={`https://instagram.com/${EVENT.instagram}`} target="_blank" rel="noreferrer" className="eyebrow link-line pb-1">
+            <a href={EVENT.socials.instagram} target="_blank" rel="noopener noreferrer" className="eyebrow link-line pb-1">
               {DRESS_UP.share} ↗
             </a>
           ) : (

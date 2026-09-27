@@ -16,6 +16,7 @@ npm run build     # production build → dist/ (optimises images first)
 | Team (event heads, coordinators) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
 | Manifesto, "The Night" phrases + images, horror room lines, pass steps | `src/data/content.js` |
+| Instagram + WhatsApp community links | `src/data/event.js` → `instagram` (handle) and `socials` (the two URLs) |
 | Site URL for the OpenGraph image | `.env` → `VITE_SITE_URL` |
 
 Values written as `[PLACEHOLDER]` are placeholders. Optional ones (price,

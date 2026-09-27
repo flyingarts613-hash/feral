@@ -15,3 +15,9 @@ export const STRIP = [
   '/images/party/strip-07.jpg',
   '/images/party/strip-08.jpg',
 ]
+
+// Photos behind the Instagram / WhatsApp cards (FOLLOW THE FERAL).
+export const SOCIAL_IMAGES = {
+  instagram: '/images/party/strip-05.jpg',
+  whatsapp: '/images/party/strip-01.jpg',
+}

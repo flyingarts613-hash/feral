@@ -31,7 +31,13 @@ export const EVENT = {
   // first tap/click/key — it starts then, fading in; they can switch it off.
   music: { src: '/audio/feral.mp3', volume: 0.25 },
 
-  instagram: '[INSTAGRAM]', // handle without @, e.g. 'feral.delhi'
+  // Official FERAL links — used by the header icons, the FOLLOW THE FERAL
+  // section, the menu, the dress-up section and the closing block.
+  instagram: 'feral1.0', // handle, shown as @feral1.0
+  socials: {
+    instagram: 'https://www.instagram.com/feral1.0?stkn=ZGJ0MXJzZ2x5OHJp',
+    whatsapp: 'https://chat.whatsapp.com/LKk21NhhYEj6emJPiu5OQ0',
+  },
 
   // Hero media. `video` is optional (mp4, keep it short + < 4 MB);
   // it only loads after the page is idle, the image is shown first.

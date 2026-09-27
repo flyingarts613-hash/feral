@@ -13,6 +13,7 @@ import DressUp from './components/DressUp'
 import HellIchor from './components/HellIchor'
 import HorrorRoom from './components/HorrorRoom'
 import Passes from './components/Passes'
+import Social from './components/Social'
 import Team from './components/Team'
 import Archive from './components/Archive'
 import FinalCTA from './components/FinalCTA'
@@ -54,6 +55,7 @@ export default function App() {
             <HorrorRoom />
             <Venue />
             <Waiting />
+            <Social />
             <Passes />
             <Team />
             <Archive />
