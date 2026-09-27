@@ -1,8 +1,10 @@
-import { m } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, m } from 'framer-motion'
 import { TEAM } from '../data/team'
 import { isSet } from '../data/event'
 import { Line } from './Reveal'
 import Img from './Img'
+import { InstagramIcon } from './Icons'
 
 // Layout per group: heads are big and side by side, coordinators smaller and staggered.
 const GRID = {
@@ -47,9 +49,29 @@ export default function Team() {
   )
 }
 
+// Instagram handle from a profile URL (or a bare handle).
+const handleOf = (ig) => ig.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/[/?#].*$/, '').replace('@', '')
+const urlOf = (ig) => (ig.startsWith('http') ? ig : `https://www.instagram.com/${handleOf(ig)}/`)
+
 function Portrait({ member, sizes, big }) {
   const hasIg = isSet(member.instagram)
-  const Tag = hasIg ? 'a' : 'div'
+  const hasRole = isSet(member.role)
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  // Tap/click elsewhere or Escape closes the Instagram option.
+  useEffect(() => {
+    if (!open) return
+    const away = (e) => !ref.current?.contains(e.target) && setOpen(false)
+    const esc = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('pointerdown', away)
+    document.addEventListener('keydown', esc)
+    return () => {
+      document.removeEventListener('pointerdown', away)
+      document.removeEventListener('keydown', esc)
+    }
+  }, [open])
+
   return (
     <m.div
       initial={{ opacity: 0, y: 40 }}
@@ -57,9 +79,17 @@ function Portrait({ member, sizes, big }) {
       viewport={{ once: true, margin: '0px 0px -10% 0px' }}
       transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
     >
-      <Tag
-        {...(hasIg && { href: `https://instagram.com/${member.instagram.replace('@', '')}`, target: '_blank', rel: 'noreferrer' })}
-        className="group block"
+      <div
+        ref={ref}
+        {...(hasIg && {
+          role: 'button',
+          tabIndex: 0,
+          'aria-expanded': open,
+          'aria-label': `${member.name} — Instagram`,
+          onClick: () => setOpen((o) => !o),
+          onKeyDown: (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setOpen((o) => !o)),
+        })}
+        className={`group block ${hasIg ? 'cursor-pointer' : ''}`}
       >
         <div className="relative aspect-[3/4] overflow-hidden bg-coal">
           <Img
@@ -81,15 +111,45 @@ function Portrait({ member, sizes, big }) {
                 {member.name}
               </p>
             </div>
-            <div className="overflow-hidden">
-              <p className="eyebrow mt-2 translate-y-0 text-bone/70 transition-transform delay-75 duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:translate-y-0">
-                {member.role}
-                {hasIg && <span className="ml-2 text-bone/40">↗</span>}
-              </p>
-            </div>
+            {(hasRole || hasIg) && (
+              <div className="overflow-hidden">
+                <p className="eyebrow mt-2 translate-y-0 text-bone/70 transition-transform delay-75 duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:translate-y-0">
+                  {hasRole && member.role}
+                  {hasIg && <span className={hasRole ? 'ml-2 text-bone/40' : 'text-bone/55'}>{hasRole ? '↗' : 'INSTAGRAM ↗'}</span>}
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* the Instagram option, on tap/click */}
+          <AnimatePresence>
+            {hasIg && open && (
+              <m.div
+                className="absolute inset-x-3 top-3 flex items-center justify-between gap-3 border border-bone/15 bg-ink/85 p-3 backdrop-blur-sm md:inset-x-5 md:top-5 md:p-4"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <span className="flex min-w-0 items-center gap-2.5 text-bone">
+                  <InstagramIcon className="h-5 w-5 shrink-0" />
+                  <span className="eyebrow truncate normal-case tracking-[0.12em] text-bone/80">@{handleOf(member.instagram)}</span>
+                </span>
+                <a
+                  href={urlOf(member.instagram)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  data-social="instagram"
+                  className="display shrink-0 bg-bone px-3 py-2 text-sm tracking-[0.05em] text-ink transition-colors duration-300 hover:bg-blood hover:text-bone md:text-base"
+                >
+                  OPEN INSTAGRAM ↗
+                </a>
+              </m.div>
+            )}
+          </AnimatePresence>
         </div>
-      </Tag>
+      </div>
     </m.div>
   )
 }

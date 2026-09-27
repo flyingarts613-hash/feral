@@ -1,21 +1,25 @@
-// Behind FERAL. Portraits: 3:4, any size — drop them in public/images/organisers
-// and run `npm run images`. Leave `instagram` as '[INSTAGRAM]' to hide the link.
+// Behind FERAL. Portraits: 3:4 — drop them in public/images/organisers (same
+// file names) and run `npm run images`.
+//   role:      optional — leave '' to show none.
+//   instagram: full profile URL — tapping the card offers it. '' hides it.
+// Add another group (e.g. COORDINATORS) by copying the block below.
 
 export const TEAM = [
   {
-    group: 'EVENT HEADS',
+    group: 'ORGANISERS',
     members: [
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-01.jpg', instagram: '[INSTAGRAM]' },
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-02.jpg', instagram: '[INSTAGRAM]' },
-    ],
-  },
-  {
-    group: 'COORDINATORS',
-    members: [
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-03.jpg', instagram: '[INSTAGRAM]' },
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-04.jpg', instagram: '[INSTAGRAM]' },
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-05.jpg', instagram: '[INSTAGRAM]' },
-      { name: '[NAME]', role: '[ROLE]', image: '/images/organisers/organiser-06.jpg', instagram: '[INSTAGRAM]' },
+      {
+        name: 'KRITIK AGGARWAL',
+        role: '',
+        image: '/images/organisers/organiser-01.jpg',
+        instagram: 'https://www.instagram.com/kritik_aggarwal2006/',
+      },
+      {
+        name: 'ISHIKA',
+        role: '',
+        image: '/images/organisers/organiser-02.jpg',
+        instagram: 'https://www.instagram.com/isshhikaa_/',
+      },
     ],
   },
 ]

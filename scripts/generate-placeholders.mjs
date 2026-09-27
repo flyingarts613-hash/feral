@@ -70,10 +70,6 @@ const JOBS = [
   // Organisers
   ['images/organisers/organiser-01.jpg', 'costume', 1000, 1333, 41],
   ['images/organisers/organiser-02.jpg', 'costume', 1000, 1333, 42],
-  ['images/organisers/organiser-03.jpg', 'costume', 1000, 1333, 43],
-  ['images/organisers/organiser-04.jpg', 'costume', 1000, 1333, 44],
-  ['images/organisers/organiser-05.jpg', 'costume', 1000, 1333, 45],
-  ['images/organisers/organiser-06.jpg', 'costume', 1000, 1333, 46],
 
   // Archive
   ['images/archive/01.jpg', 'flashcrowd', 1200, 1500, 51],
