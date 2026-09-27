@@ -10,7 +10,7 @@ export const HELL_ICHOR = {
   tagline: 'The drink of FERAL',
   label: 'EXCLUSIVE TO FERAL',
   image: '/images/hell-ichor/hell-ichor-main.jpg',
-  detail: '/images/hell-ichor/hell-ichor-detail.jpg',
+  detail: null, // no close-up yet — set to '/images/hell-ichor/hell-ichor-detail.jpg' once that photo exists
   story: [
     'Born from the mythology of ichor, the mysterious substance said to flow through the veins of the gods.',
     'FERAL gives it a darker identity.',

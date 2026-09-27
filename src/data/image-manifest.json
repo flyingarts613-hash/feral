@@ -154,12 +154,12 @@
     ]
   },
   "/images/hell-ichor/hell-ichor-main.jpg": {
-    "width": 1200,
-    "height": 1500,
+    "width": 1122,
+    "height": 1683,
     "widths": [
       480,
       960,
-      1200
+      1122
     ]
   },
   "/images/hero/hero-portrait.jpg": {
@@ -327,40 +327,39 @@
     ]
   },
   "/images/venue/venue-02.jpg": {
-    "width": 1000,
-    "height": 1250,
+    "width": 1600,
+    "height": 856,
     "widths": [
       480,
       960,
-      1000
+      1600
     ]
   },
   "/images/venue/venue-03.jpg": {
-    "width": 1000,
-    "height": 1250,
+    "width": 1494,
+    "height": 965,
     "widths": [
       480,
       960,
-      1000
+      1494
     ]
   },
   "/images/venue/venue-04.jpg": {
-    "width": 1200,
+    "width": 1600,
+    "height": 728,
+    "widths": [
+      480,
+      960,
+      1600
+    ]
+  },
+  "/images/venue/venue-main.jpg": {
+    "width": 1600,
     "height": 900,
     "widths": [
       480,
       960,
-      1200
-    ]
-  },
-  "/images/venue/venue-main.jpg": {
-    "width": 2400,
-    "height": 1350,
-    "widths": [
-      480,
-      960,
-      1600,
-      2400
+      1600
     ]
   },
   "/images/waiting/costumes.jpg": {
