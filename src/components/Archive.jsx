@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { m, useReducedMotion, useScroll } from 'framer-motion'
 import { useRange } from '../lib/motion'
 import { ARCHIVE } from '../data/archive'
+import { EVENT } from '../data/event'
 import { imageProps } from '../lib/image'
 import { Line } from './Reveal'
 import Img from './Img'
@@ -83,7 +84,7 @@ function Pinned() {
             </li>
           ))}
           <li className="flex h-[52vh] w-[22vw] items-end">
-            <p className="eyebrow text-bone/30">MORE AFTER 23.10</p>
+            <p className="eyebrow text-bone/30">MORE AFTER {EVENT.dateShort.slice(0, 5)}</p>
           </li>
         </m.ul>
         <div className="gutter">

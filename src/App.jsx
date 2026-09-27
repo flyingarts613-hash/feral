@@ -19,6 +19,14 @@ export default function App() {
   const { open, openPass, closePass } = usePass()
 
   useEffect(() => initSmoothScroll(), [])
+
+  // Leave the tab and FERAL notices.
+  useEffect(() => {
+    const title = document.title
+    const onVis = () => (document.title = document.hidden ? 'COME BACK.' : title)
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [])
   useEffect(() => lockScroll(open || !ready), [open, ready])
 
   return (

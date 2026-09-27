@@ -40,7 +40,7 @@ export default function PassModal({ onClose }) {
       })}`
     : null
 
-  const meta = [EVENT.dateShort, EVENT.city, isSet(EVENT.venue) && EVENT.venue].filter(Boolean)
+  const meta = [EVENT.dateShort, isSet(EVENT.venue) && EVENT.venue, EVENT.area].filter(Boolean)
 
   return (
     <m.div

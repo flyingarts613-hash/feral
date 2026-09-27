@@ -97,7 +97,7 @@ export default function Navbar() {
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <span>
-                {EVENT.dateShort} — {EVENT.city}
+                {EVENT.dateShort} — {EVENT.area}
               </span>
               {isSet(EVENT.instagram) && (
                 <a href={`https://instagram.com/${EVENT.instagram}`} target="_blank" rel="noreferrer">

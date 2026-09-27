@@ -19,11 +19,14 @@ export default function FinalCTA() {
         </h2>
 
         <Fade delay={0.3} className="mt-10 flex flex-col items-center gap-8 md:mt-14">
-          <p className="eyebrow text-bone/60">
-            {EVENT.dateShort}
-            <span className="mx-3 text-blood">/</span>
-            {EVENT.city}
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="display text-3xl tracking-[0.04em] md:text-4xl">{EVENT.dateShort}</p>
+            <p className="eyebrow text-bone/60">
+              {EVENT.venue}
+              <span className="mx-3 text-blood">/</span>
+              {EVENT.area}
+            </p>
+          </div>
           <button
             onClick={openPass}
             className="display group flex items-center gap-4 bg-bone px-9 py-5 text-2xl tracking-[0.03em] text-ink transition-colors duration-500 hover:bg-blood hover:text-bone md:px-12 md:py-6 md:text-3xl"
