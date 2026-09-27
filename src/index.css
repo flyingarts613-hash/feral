@@ -284,3 +284,37 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* "Tap for sound" nudge on the switch. */
+@keyframes sound-ping {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(0.6); }
+}
+.sound-ping {
+  animation: sound-ping 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sound-ping {
+    animation: none;
+  }
+}
+
+/* Outlined display type (ticker). */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-bone);
+}
+@media (min-width: 768px) {
+  .text-outline {
+    -webkit-text-stroke-width: 1.5px;
+  }
+}
+
+/* Chrome lettering (the pass). */
+.chrome {
+  background: linear-gradient(180deg, #ffffff 0%, #b9b5b0 38%, #5d5955 50%, #e9e6e1 62%, #7d7874 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}

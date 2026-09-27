@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { beatPhase, getState, subscribe } from '../lib/ambient'
 import { m, useReducedMotion, useScroll } from 'framer-motion'
 import { useRange } from '../lib/motion'
 import { EVENT } from '../data/event'
@@ -49,6 +50,9 @@ export default function Hero({ ready }) {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/10 to-ink" />
       <div className="leak pointer-events-none absolute -right-1/4 -top-1/4 h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(closest-side,rgba(158,15,24,0.38),transparent)] blur-2xl" />
 
+      {/* The stage light, breathing on the kick while the music plays */}
+      <BeatGlow />
+
       {/* A failing bulb, low fog, something watching from the crowd */}
       <div className="flicker pointer-events-none absolute inset-0 bg-ink" />
       <div className="fog pointer-events-none absolute inset-x-0 bottom-0 h-[55%]" />
@@ -96,6 +100,17 @@ export default function Hero({ ready }) {
           </button>
         </m.div>
       </m.div>
+
+      {/* Camera flash as the curtain lifts */}
+      {ready && (
+        <m.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-20 bg-[#fffaf4]"
+          initial={{ opacity: 0.55 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
+        />
+      )}
 
       {/* Corners */}
       <m.div
@@ -165,5 +180,36 @@ function Eyes({ className = '', delay = '0s', small = false }) {
         />
       ))}
     </div>
+  )
+}
+
+// A red wash from above that kicks on every beat — only while the music plays.
+function BeatGlow() {
+  const ref = useRef(null)
+  const reduced = useReducedMotion()
+  const [on, setOn] = useState(getState() === 'on')
+  useEffect(() => subscribe((s) => setOn(s === 'on')), [])
+
+  useEffect(() => {
+    if (!on || reduced) return
+    let id
+    const tick = () => {
+      const ph = beatPhase()
+      if (ref.current) ref.current.style.opacity = ph === null ? '0' : String(0.15 + 0.55 * Math.exp(-ph * 5))
+      id = requestAnimationFrame(tick)
+    }
+    id = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(id)
+      if (ref.current) ref.current.style.opacity = '0'
+    }
+  }, [on, reduced])
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 -top-1/4 h-[80%] bg-[radial-gradient(ellipse_at_top,rgba(200,20,30,0.45),transparent_65%)] opacity-0 mix-blend-screen"
+    />
   )
 }

@@ -4,7 +4,13 @@ import Intro from './components/Intro'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Manifesto from './components/Manifesto'
-import Experience from './components/Experience'
+import Ticker from './components/Ticker'
+import PartyBreak from './components/PartyBreak'
+import PhotoStrip from './components/PhotoStrip'
+import Waiting from './components/Waiting'
+import Venue from './components/Venue'
+import Costumes from './components/Costumes'
+import Passes from './components/Passes'
 import HorrorWorld from './components/HorrorWorld'
 import Team from './components/Team'
 import Archive from './components/Archive'
@@ -38,9 +44,15 @@ export default function App() {
           <Navbar />
           <main>
             <Hero ready={ready} />
+            <Ticker />
+            <PartyBreak />
             <Manifesto />
-            <Experience />
+            <PhotoStrip />
+            <Waiting />
+            <Venue />
+            <Costumes />
             <HorrorWorld />
+            <Passes />
             <Team />
             <Archive />
             <FinalCTA />

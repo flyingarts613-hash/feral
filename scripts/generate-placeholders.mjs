@@ -16,36 +16,67 @@ import { dirname } from 'node:path'
 const ROOT = new URL('../', import.meta.url).pathname
 const OUT = ROOT + 'public/'
 
+const V = 'PLACEHOLDER · VENUE PHOTO'
+
 const JOBS = [
-  ['images/hero/hero.jpg', 'crowd', 2400, 1350, 11],
-  ['images/hero/hero-portrait.jpg', 'crowd', 1080, 1920, 12],
+  // Hero
+  ['images/hero/hero.jpg', 'party', 2400, 1350, 11],
+  ['images/hero/hero-portrait.jpg', 'party', 1080, 1920, 12],
 
-  ['images/experience/dj.jpg', 'dj', 1800, 1200, 21],
-  ['images/experience/games.jpg', 'games', 1200, 1500, 22],
-  ['images/experience/horror-room.jpg', 'room', 1200, 1500, 23],
-  ['images/experience/04.jpg', 'figure', 1800, 1100, 24],
+  // Party break + photo strip
+  ['images/party/party-main.jpg', 'flashcrowd', 2400, 1350, 61],
+  ['images/party/strip-01.jpg', 'flashcrowd', 1000, 1250, 62],
+  ['images/party/strip-02.jpg', 'drinks', 1000, 1250, 63],
+  ['images/party/strip-03.jpg', 'discoball', 1000, 1250, 64],
+  ['images/party/strip-04.jpg', 'candles', 1000, 1250, 65],
+  ['images/party/strip-05.jpg', 'party', 1000, 1250, 66],
+  ['images/party/strip-06.jpg', 'pumpkin', 1000, 1250, 67],
+  ['images/party/strip-07.jpg', 'mask', 1000, 1250, 68],
+  ['images/party/strip-08.jpg', 'flashcrowd', 1000, 1250, 69],
 
+  // What's waiting
+  ['images/waiting/dj.jpg', 'dj', 1600, 1100, 21],
+  ['images/waiting/dancing.jpg', 'flashcrowd', 1600, 1100, 25],
+  ['images/waiting/games.jpg', 'games', 1200, 1500, 22],
+  ['images/waiting/costumes.jpg', 'costume', 1200, 1500, 28],
+  ['images/waiting/horror-room.jpg', 'room', 1200, 1500, 23],
+
+  // Venue — replace with real Chhatarpur Farms photos (same file names)
+  ['images/venue/venue-main.jpg', 'venue', 2400, 1350, 71, V],
+  ['images/venue/venue-02.jpg', 'lights', 1000, 1250, 72, V],
+  ['images/venue/venue-03.jpg', 'lanterns', 1000, 1250, 73, V],
+  ['images/venue/venue-04.jpg', 'canopy', 1200, 900, 74, V],
+
+  // Costumes
+  ['images/costumes/costume-01.jpg', 'costume', 900, 1200, 80],
+  ['images/costumes/costume-02.jpg', 'costume', 900, 1200, 81],
+  ['images/costumes/costume-03.jpg', 'costume', 900, 1200, 82],
+  ['images/costumes/costume-04.jpg', 'costume', 900, 1200, 83],
+
+  // Horror room
   ['images/horror/01.jpg', 'corridor', 2400, 1350, 31],
   ['images/horror/02.jpg', 'mask', 1200, 1600, 32],
 
-  ['images/team/placeholder-01.jpg', 'mask', 1000, 1333, 41],
-  ['images/team/placeholder-02.jpg', 'mask', 1000, 1333, 42],
-  ['images/team/placeholder-03.jpg', 'mask', 1000, 1333, 43],
-  ['images/team/placeholder-04.jpg', 'mask', 1000, 1333, 44],
-  ['images/team/placeholder-05.jpg', 'mask', 1000, 1333, 45],
-  ['images/team/placeholder-06.jpg', 'mask', 1000, 1333, 46],
+  // Team
+  ['images/team/placeholder-01.jpg', 'costume', 1000, 1333, 41],
+  ['images/team/placeholder-02.jpg', 'costume', 1000, 1333, 42],
+  ['images/team/placeholder-03.jpg', 'costume', 1000, 1333, 43],
+  ['images/team/placeholder-04.jpg', 'costume', 1000, 1333, 44],
+  ['images/team/placeholder-05.jpg', 'costume', 1000, 1333, 45],
+  ['images/team/placeholder-06.jpg', 'costume', 1000, 1333, 46],
 
-  ['images/archive/01.jpg', 'figure', 1200, 1500, 51],
-  ['images/archive/02.jpg', 'crowd', 1800, 1200, 52],
-  ['images/archive/03.jpg', 'mask', 1200, 1500, 53],
-  ['images/archive/04.jpg', 'corridor', 1800, 1200, 54],
-  ['images/archive/05.jpg', 'hands', 1200, 1500, 55],
-  ['images/archive/06.jpg', 'figure', 1800, 1200, 56],
+  // Archive
+  ['images/archive/01.jpg', 'flashcrowd', 1200, 1500, 51],
+  ['images/archive/02.jpg', 'party', 1800, 1200, 52],
+  ['images/archive/03.jpg', 'drinks', 1200, 1500, 53],
+  ['images/archive/04.jpg', 'discoball', 1800, 1200, 54],
+  ['images/archive/05.jpg', 'candles', 1200, 1500, 55],
+  ['images/archive/06.jpg', 'flashcrowd', 1800, 1200, 56],
 ]
 
 // ---------------------------------------------------------------------------
 // Runs inside the browser.
-function paint(scene, W, H, seed) {
+function paint(scene, W, H, seed, stamp) {
   let s = seed
   const r = () => {
     s = (s + 0x6d2b79f5) | 0
@@ -126,10 +157,104 @@ function paint(scene, W, H, seed) {
       x.translate(px + arm * 48 * k, py + 30 * k)
       x.rotate(arm * (0.15 + r() * 0.35))
       x.beginPath()
-      x.roundRect(-10 * k, -230 * k, 20 * k, 250 * k, 10 * k)
-      x.ellipse(0, -235 * k, 14 * k, 20 * k, 0, 0, Math.PI * 2)
+      x.roundRect(-6.5 * k, -215 * k, 13 * k, 235 * k, 6.5 * k)
+      x.ellipse(0, -222 * k, 10 * k, 15 * k, 0, 0, Math.PI * 2)
       x.fill()
       x.restore()
+    }
+  }
+
+  // ── Costume pieces, drawn onto a person() at (px, py) scale k ─────────────
+  const headY = (py, k) => py - 40 * k
+  const horns = (px, py, k, fill) => {
+    const hy = headY(py, k)
+    x.fillStyle = fill
+    for (const d of [-1, 1]) {
+      x.beginPath()
+      x.moveTo(px + d * 12 * k, hy - 22 * k)
+      x.quadraticCurveTo(px + d * 30 * k, hy - 60 * k, px + d * 14 * k, hy - 88 * k)
+      x.quadraticCurveTo(px + d * 44 * k, hy - 58 * k, px + d * 22 * k, hy - 16 * k)
+      x.fill()
+    }
+  }
+  const witchHat = (px, py, k, fill) => {
+    const hy = headY(py, k)
+    x.fillStyle = fill
+    x.beginPath()
+    x.ellipse(px, hy - 18 * k, 48 * k, 9 * k, 0, 0, Math.PI * 2)
+    x.fill()
+    x.beginPath()
+    x.moveTo(px - 24 * k, hy - 20 * k)
+    x.quadraticCurveTo(px - 6 * k, hy - 70 * k, px + 22 * k, hy - 108 * k)
+    x.quadraticCurveTo(px + 8 * k, hy - 60 * k, px + 26 * k, hy - 20 * k)
+    x.fill()
+  }
+  const ears = (px, py, k, fill) => {
+    const hy = headY(py, k)
+    x.fillStyle = fill
+    for (const d of [-1, 1]) {
+      x.beginPath()
+      x.moveTo(px + d * 8 * k, hy - 24 * k)
+      x.lineTo(px + d * 22 * k, hy - 52 * k)
+      x.lineTo(px + d * 25 * k, hy - 14 * k)
+      x.fill()
+    }
+  }
+  const maskEyes = (px, py, k) => {
+    const hy = headY(py, k)
+    x.fillStyle = 'rgba(0,0,0,0.85)'
+    for (const d of [-1, 1]) {
+      x.beginPath()
+      x.ellipse(px + d * 9 * k, hy - 3 * k, 6 * k, 3.5 * k, d * 0.2, 0, Math.PI * 2)
+      x.fill()
+    }
+  }
+  // Flash-lit figure: bright where the flash hits, falling off to black.
+  const litPerson = (px, py, k, level, arm = 0, costume) => {
+    const g = x.createLinearGradient(px - 60 * k, 0, px + 80 * k, 0)
+    const c = Math.round(235 * level)
+    g.addColorStop(0, `rgb(${c},${c - 6},${c - 10})`)
+    g.addColorStop(0.55, `rgb(${Math.round(c * 0.45)},${Math.round(c * 0.42)},${Math.round(c * 0.4)})`)
+    g.addColorStop(1, 'rgb(8,6,6)')
+    person(px, py, k, g, arm)
+    if (costume === 'horns') horns(px, py, k, '#3a0508')
+    if (costume === 'hat') witchHat(px, py, k, '#0a0808')
+    if (costume === 'ears') ears(px, py, k, g)
+    if (costume === 'mask') maskEyes(px, py, k)
+  }
+  const sparks = (n, area, color) => {
+    for (let i = 0; i < n; i++) {
+      const sx = area[0] + r() * area[2]
+      const sy = area[1] + r() * area[3]
+      const len = (2 + r() * 14) * U
+      x.save()
+      x.globalCompositeOperation = 'screen'
+      x.strokeStyle = color(r())
+      x.lineWidth = (1 + r() * 2.5) * U
+      x.beginPath()
+      x.moveTo(sx, sy)
+      x.lineTo(sx + len * 0.3, sy + len)
+      x.stroke()
+      x.restore()
+    }
+  }
+  const lasers = (ox, oy, n, spread, alpha) => {
+    for (let i = 0; i < n; i++) {
+      const a = Math.PI / 2 + (i / (n - 1) - 0.5) * spread
+      const ex = ox + Math.cos(a) * W * 2
+      const ey = oy + Math.sin(a) * W * 2
+      for (const [wd, al, bl] of [[10, alpha * 0.35, 8], [2.2, alpha, 0]]) {
+        x.save()
+        x.globalCompositeOperation = 'screen'
+        if (bl) x.filter = `blur(${bl * U}px)`
+        x.strokeStyle = `rgba(255,40,50,${al})`
+        x.lineWidth = wd * U
+        x.beginPath()
+        x.moveTo(ox, oy)
+        x.lineTo(ex, ey)
+        x.stroke()
+        x.restore()
+      }
     }
   }
 
@@ -552,6 +677,464 @@ function paint(scene, W, H, seed) {
       glow(tx - 75 * k, ty - 118 * k, 40 * k, [255, 30, 30], 0.8)
     },
 
+    // ── PARTY ────────────────────────────────────────────────────────────
+    // Packed floor, hands up, red lasers, sparks, one set of horns in the crowd.
+    party() {
+      const lx = W * (0.45 + r() * 0.1)
+      glow(lx, H * 0.12, Math.max(W, H) * 0.8, RED, 0.9, 0.7)
+      glow(W * 0.12, H * 0.3, Math.max(W, H) * 0.35, [190, 70, 20], 0.35)
+      glow(lx, H * 0.08, Math.max(W, H) * 0.2, [255, 150, 120], 0.45)
+      lasers(lx, H * 0.05, 9, 1.5, 0.55)
+      smoke(0.35, [140, 30, 35], 18)
+      sparks(70, [0, 0, W, H * 0.55], (t) => (t < 0.7 ? 'rgba(255,225,210,0.8)' : 'rgba(255,60,60,0.8)'))
+      const rows = 4
+      for (let row = 0; row < rows; row++) {
+        const k = (0.6 + row * 0.5) * (H / 1000) * (W < H ? 0.75 : 1)
+        const y = H * (0.5 + row * 0.12)
+        const shade = ['#1c0708', '#110405', '#080304', '#030202'][row]
+        blur([9, 5, 3, 2][row] * U, () => {
+          let i = 0
+          for (let px = -60 * k; px < W + 60 * k; px += 120 * k * (0.8 + r() * 0.35)) {
+            const arm = r() < 0.45 ? (r() < 0.5 ? -1 : 1) : 0
+            person(px, y + r() * 30 * k, k * (0.9 + r() * 0.2), shade, arm)
+            if (row === 2 && Math.abs(px - W * 0.5) < 90 * k && i++ === 0) horns(px, y, k, shade)
+          }
+        })
+      }
+    },
+
+    // A camera flash going off mid-floor: silhouettes rim-lit white, red haze,
+    // costumes caught in the burst.
+    flashcrowd() {
+      const fx = W * (0.4 + r() * 0.2)
+      const fy = H * (0.3 + r() * 0.1)
+      glow(W * 0.5, H * 0.25, Math.max(W, H) * 0.7, [140, 12, 22], 0.75)
+      glow(fx, fy, Math.max(W, H) * 0.45, [255, 245, 238], 0.55)
+      glow(fx, fy, Math.max(W, H) * 0.08, [255, 255, 255], 1)
+      // starburst
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2 + r() * 0.3
+        blur(3 * U, () => {
+          x.globalCompositeOperation = 'screen'
+          x.strokeStyle = 'rgba(255,250,245,0.35)'
+          x.lineWidth = 3 * U
+          x.beginPath()
+          x.moveTo(fx, fy)
+          x.lineTo(fx + Math.cos(a) * W * 0.25, fy + Math.sin(a) * W * 0.25)
+          x.stroke()
+        })
+      }
+      smoke(0.3, [160, 40, 45], 16)
+      sparks(90, [0, 0, W, H * 0.7], (t) => (t < 0.6 ? 'rgba(255,235,225,0.85)' : 'rgba(255,60,70,0.85)'))
+      const k0 = H / 1000
+      const costumes = ['horns', 'hat', 'ears', null, null, 'horns', null, 'ears']
+      const rows = [
+        { y: 0.62, k: 0.9, shade: '#140607', rim: 0.35 },
+        { y: 0.76, k: 1.35, shade: '#070303', rim: 0.6 },
+        { y: 0.95, k: 1.9, shade: '#020101', rim: 0.85 },
+      ]
+      rows.forEach((row, ri) => {
+        const k = k0 * row.k
+        let n = 0
+        for (let px = -50 * k; px < W + 60 * k; px += 125 * k * (0.8 + r() * 0.35)) {
+          const arm = r() < 0.55 ? (r() < 0.5 ? -1 : 1) : 0
+          const costume = costumes[(n++ + ri * 3) % costumes.length]
+          const py = H * row.y + r() * 25 * k
+          const draw = (fill) => {
+            person(px, py, k, fill, arm)
+            if (costume === 'horns') horns(px, py, k, fill)
+            if (costume === 'hat') witchHat(px, py, k, fill)
+            if (costume === 'ears') ears(px, py, k, fill)
+          }
+          // flash light wrapping round the edges (a soft halo, not a copy)
+          blur(7 * U, () => draw(`rgba(255,240,232,${row.rim * 0.55})`))
+          blur((2 - ri) * 2 * U + 1, () => draw(row.shade))
+        }
+      })
+    },
+
+    // Three coupes on the bar, red drinks lit from behind, candle bokeh.
+    drinks() {
+      const k = Math.min(W, H) / 1000
+      for (let i = 0; i < 26; i++) {
+        const c = r() < 0.6 ? [255, 150, 80] : [220, 30, 40]
+        glow(W * r(), H * (0.05 + r() * 0.5), (30 + r() * 90) * k, c, 0.35 + r() * 0.3)
+      }
+      const barY = H * 0.72
+      x.fillStyle = '#0b0707'
+      x.fillRect(0, barY, W, H - barY)
+      glow(W * 0.5, barY, W * 0.6, [150, 30, 20], 0.35, 0.12)
+      const coupe = (cx, sc, level) => {
+        const top = barY - 330 * sc
+        x.save()
+        // liquid
+        const lg = x.createLinearGradient(0, top, 0, top + 70 * sc)
+        lg.addColorStop(0, `rgba(230,40,50,${0.95 * level})`)
+        lg.addColorStop(1, `rgba(90,5,12,${level})`)
+        x.fillStyle = lg
+        x.beginPath()
+        x.ellipse(cx, top + 8 * sc, 115 * sc, 72 * sc, 0, 0, Math.PI)
+        x.fill()
+        // glass
+        x.strokeStyle = 'rgba(240,230,225,0.5)'
+        x.lineWidth = 3 * sc
+        x.beginPath()
+        x.ellipse(cx, top, 125 * sc, 88 * sc, 0, 0, Math.PI)
+        x.stroke()
+        x.beginPath()
+        x.ellipse(cx, top, 125 * sc, 14 * sc, 0, 0, Math.PI * 2)
+        x.stroke()
+        x.lineWidth = 5 * sc
+        x.beginPath()
+        x.moveTo(cx, top + 88 * sc)
+        x.lineTo(cx, barY - 8 * sc)
+        x.stroke()
+        x.beginPath()
+        x.ellipse(cx, barY - 6 * sc, 60 * sc, 8 * sc, 0, 0, Math.PI * 2)
+        x.stroke()
+        // highlight
+        x.strokeStyle = 'rgba(255,255,255,0.7)'
+        x.lineWidth = 4 * sc
+        x.beginPath()
+        x.arc(cx - 70 * sc, top + 20 * sc, 40 * sc, 0.9, 1.6)
+        x.stroke()
+        x.restore()
+        glow(cx, top + 30 * sc, 150 * sc, [230, 40, 50], 0.25)
+      }
+      coupe(W * 0.28, k * 1.05, 1)
+      coupe(W * 0.52, k * 1.25, 1)
+      coupe(W * 0.77, k * 0.95, 0.9)
+      // reflection
+      x.save()
+      x.globalAlpha = 0.18
+      x.translate(0, barY * 2)
+      x.scale(1, -1)
+      x.drawImage(c, 0, barY - H * 0.28, W, H * 0.28, 0, barY - H * 0.28, W, H * 0.28)
+      x.restore()
+    },
+
+    // A mirror ball, throwing red and white across the room.
+    discoball() {
+      const k = Math.min(W, H) / 1000
+      const cx = W * 0.5
+      const cy = H * 0.42
+      const R = 250 * k
+      glow(cx, cy, Math.max(W, H) * 0.5, [120, 10, 18], 0.6)
+      x.strokeStyle = 'rgba(160,150,140,0.5)'
+      x.lineWidth = 3 * k
+      x.beginPath()
+      x.moveTo(cx, 0)
+      x.lineTo(cx, cy - R)
+      x.stroke()
+      // facets
+      const rows = 18
+      for (let i = 0; i < rows; i++) {
+        const la0 = -Math.PI / 2 + (i / rows) * Math.PI
+        const la1 = -Math.PI / 2 + ((i + 1) / rows) * Math.PI
+        const cols = Math.max(4, Math.round(36 * Math.cos((la0 + la1) / 2)))
+        for (let j = 0; j < cols; j++) {
+          const lo0 = -Math.PI / 2 + (j / cols) * Math.PI
+          const lo1 = -Math.PI / 2 + ((j + 1) / cols) * Math.PI
+          const pt = (la, lo) => [cx + R * Math.cos(la) * Math.sin(lo), cy + R * Math.sin(la)]
+          const q = [pt(la0, lo0), pt(la0, lo1), pt(la1, lo1), pt(la1, lo0)]
+          const light = 0.25 + 0.75 * Math.max(0, Math.cos(la0 + 0.6) * Math.cos(lo0 + 0.5))
+          const hot = r() < 0.06
+          const red = r() < 0.12
+          const v = Math.round((hot ? 255 : 70 + light * 150) * (0.7 + r() * 0.3))
+          x.fillStyle = red ? `rgb(${Math.min(255, v + 40)},${v * 0.15},${v * 0.2})` : `rgb(${v},${v - 4},${v - 8})`
+          x.beginPath()
+          q.forEach(([a, b], n) => (n ? x.lineTo(a, b) : x.moveTo(a, b)))
+          x.fill()
+          x.strokeStyle = 'rgba(0,0,0,0.6)'
+          x.lineWidth = 1.5 * k
+          x.stroke()
+          if (hot) glow(q[0][0], q[0][1], 40 * k, [255, 245, 235], 0.8)
+        }
+      }
+      glow(cx - R * 0.4, cy - R * 0.4, R * 0.5, [255, 250, 245], 0.35)
+      for (let i = 0; i < 80; i++) {
+        const c2 = r() < 0.3 ? [255, 50, 60] : [255, 240, 230]
+        glow(W * r(), H * r(), (4 + r() * 12) * k, c2, 0.5 + r() * 0.4)
+      }
+    },
+
+    // Candles in the dark, wax running.
+    candles() {
+      const k = Math.min(W, H) / 1000
+      glow(W * 0.5, H * 0.55, Math.max(W, H) * 0.5, [170, 70, 20], 0.35)
+      const list = []
+      for (let i = 0; i < 9; i++) list.push({ cx: W * (0.12 + r() * 0.76), h: (180 + r() * 380) * k, w: (46 + r() * 34) * k, d: r() })
+      list.sort((a, b) => a.d - b.d)
+      const base = H * 0.86
+      for (const c2 of list) {
+        const by = base - c2.d * 120 * k
+        const top = by - c2.h
+        const g = x.createLinearGradient(c2.cx - c2.w, 0, c2.cx + c2.w, 0)
+        g.addColorStop(0, '#2a1a12')
+        g.addColorStop(0.35, '#d9c6ad')
+        g.addColorStop(1, '#1a100c')
+        x.fillStyle = g
+        x.fillRect(c2.cx - c2.w, top, c2.w * 2, c2.h)
+        x.fillStyle = '#e8d9c4'
+        x.beginPath()
+        x.ellipse(c2.cx, top, c2.w, c2.w * 0.22, 0, 0, Math.PI * 2)
+        x.fill()
+        for (let dd = 0; dd < 3; dd++) {
+          x.fillRect(c2.cx - c2.w + r() * c2.w * 2, top, 7 * k, (20 + r() * 70) * k)
+        }
+        glow(c2.cx, top - 30 * k, 180 * k, [255, 150, 60], 0.45)
+        x.fillStyle = '#fff3d6'
+        x.beginPath()
+        x.ellipse(c2.cx, top - 26 * k, 8 * k, 22 * k, 0, 0, Math.PI * 2)
+        x.fill()
+        glow(c2.cx, top - 26 * k, 30 * k, [255, 220, 150], 0.9)
+      }
+      x.fillStyle = '#060404'
+      x.fillRect(0, base + 10 * k, W, H)
+    },
+
+    // A carved pumpkin, only its light showing.
+    pumpkin() {
+      const k = Math.min(W, H) / 1000
+      const cx = W * 0.5
+      const cy = H * 0.58
+      glow(cx, cy, Math.max(W, H) * 0.45, [150, 50, 10], 0.35)
+      for (let i = -3; i <= 3; i++) {
+        const g = x.createRadialGradient(cx + i * 60 * k, cy - 60 * k, 10 * k, cx + i * 60 * k, cy, 260 * k)
+        g.addColorStop(0, '#4a1c06')
+        g.addColorStop(1, '#0c0401')
+        x.fillStyle = g
+        x.beginPath()
+        x.ellipse(cx + i * 58 * k, cy, (120 - Math.abs(i) * 12) * k, 230 * k, 0, 0, Math.PI * 2)
+        x.fill()
+      }
+      x.fillStyle = '#1a1206'
+      x.fillRect(cx - 14 * k, cy - 270 * k, 28 * k, 60 * k)
+      const hole = (pts) =>
+        blur(4 * U, () => {
+          const g = x.createRadialGradient(cx, cy, 0, cx, cy, 200 * k)
+          g.addColorStop(0, '#ffd27a')
+          g.addColorStop(1, '#c2560f')
+          x.fillStyle = g
+          x.beginPath()
+          pts.forEach(([a, b], n) => (n ? x.lineTo(cx + a * k, cy + b * k) : x.moveTo(cx + a * k, cy + b * k)))
+          x.fill()
+        })
+      hole([[-150, -40], [-80, -40], [-115, -110]])
+      hole([[150, -40], [80, -40], [115, -110]])
+      hole([[-160, 60], [-110, 80], [-80, 60], [-40, 90], [0, 60], [40, 90], [80, 60], [110, 80], [160, 60], [100, 140], [-100, 140]])
+      glow(cx, cy + 20 * k, 260 * k, [255, 140, 40], 0.45)
+    },
+
+    // Costume portraits: backlit, flash on the face, one prop each.
+    costume() {
+      const kind = ['horns', 'veil', 'hat', 'ears'][seed % 4]
+      const px = W * 0.5
+      const k = W / 330
+      const py = H * 0.5
+      const rim = kind === 'hat' ? [220, 90, 20] : [190, 15, 25]
+      glow(px + 60 * k, py - 80 * k, Math.max(W, H) * 0.55, rim, 0.8)
+      smoke(0.15, [110, 90, 90], 10)
+      blur(14 * U, () => {
+        person(px + 6 * k, py, k, `rgba(${rim[0]},${rim[1]},${rim[2]},0.85)`)
+        if (kind === 'horns') horns(px + 6 * k, py, k, `rgba(${rim[0]},${rim[1]},${rim[2]},0.85)`)
+        if (kind === 'hat') witchHat(px + 6 * k, py, k, `rgba(${rim[0]},${rim[1]},${rim[2]},0.85)`)
+        if (kind === 'ears') ears(px + 6 * k, py, k, `rgba(${rim[0]},${rim[1]},${rim[2]},0.85)`)
+      })
+      blur(3 * U, () => {
+        litPerson(px, py, k, 0.13, 0, kind === 'veil' ? null : kind)
+        if (kind === 'ears' || kind === 'horns') maskEyes(px, py, k)
+      })
+      glow(px - 12 * k, headY(py, k), 34 * k, [255, 240, 230], 0.28)
+      if (kind === 'veil') {
+        blur(4 * U, () => {
+          const hy = headY(py, k)
+          const g = x.createLinearGradient(0, hy - 40 * k, 0, py + 160 * k)
+          g.addColorStop(0, 'rgba(235,228,220,0.55)')
+          g.addColorStop(1, 'rgba(235,228,220,0.05)')
+          x.fillStyle = g
+          x.beginPath()
+          x.moveTo(px, hy - 38 * k)
+          x.quadraticCurveTo(px - 60 * k, hy, px - 95 * k, py + 170 * k)
+          x.lineTo(px + 95 * k, py + 170 * k)
+          x.quadraticCurveTo(px + 60 * k, hy, px, hy - 38 * k)
+          x.fill()
+          x.fillStyle = '#1a0406'
+          for (let i = -3; i <= 3; i++) {
+            x.beginPath()
+            x.arc(px + i * 9 * k, hy - 30 * k + Math.abs(i) * 3 * k, 6 * k, 0, Math.PI * 2)
+            x.fill()
+          }
+        })
+      }
+    },
+
+    // ── VENUE PLACEHOLDERS (replace with real Chhatarpur Farms photos) ──────
+    venue() {
+      const k = Math.min(W, H) / 1000
+      const sky = x.createLinearGradient(0, 0, 0, H * 0.6)
+      sky.addColorStop(0, '#040406')
+      sky.addColorStop(1, '#120a0b')
+      x.fillStyle = sky
+      x.fillRect(0, 0, W, H)
+      const horizon = H * 0.6
+      // pavilion
+      const pw = W * 0.34
+      const px0 = W * 0.5 - pw / 2
+      const ph = H * 0.2
+      x.fillStyle = '#0d0909'
+      x.fillRect(px0, horizon - ph, pw, ph)
+      x.beginPath()
+      x.moveTo(px0 - 30 * k, horizon - ph)
+      x.lineTo(W * 0.5, horizon - ph - 90 * k)
+      x.lineTo(px0 + pw + 30 * k, horizon - ph)
+      x.fill()
+      for (let i = 0; i < 7; i++) {
+        const wx = px0 + 20 * k + i * (pw - 40 * k) / 7
+        x.fillStyle = 'rgba(255,170,90,0.85)'
+        x.fillRect(wx, horizon - ph + 30 * k, (pw - 40 * k) / 7 - 16 * k, ph - 50 * k)
+      }
+      glow(W * 0.5, horizon - ph / 2, pw, [255, 150, 70], 0.4, 0.5)
+      // trees
+      const tree = (tx, th, red) => {
+        blur(3 * U, () => {
+          x.fillStyle = '#050404'
+          x.fillRect(tx - 8 * k, horizon - th * 0.45, 16 * k, th * 0.45)
+          for (let i = 0; i < 26; i++) {
+            x.beginPath()
+            x.arc(tx + (r() - 0.5) * th * 0.6, horizon - th * 0.45 - r() * th * 0.55, (30 + r() * 60) * k, 0, Math.PI * 2)
+            x.fill()
+          }
+        })
+        if (red) glow(tx, horizon - th * 0.5, th * 0.6, [170, 15, 25], 0.35)
+      }
+      tree(W * 0.08, 620 * k, true)
+      tree(W * 0.22, 480 * k, false)
+      tree(W * 0.8, 560 * k, true)
+      tree(W * 0.95, 700 * k, false)
+      // lawn
+      const lawn = x.createLinearGradient(0, horizon, 0, H)
+      lawn.addColorStop(0, '#0c0d09')
+      lawn.addColorStop(1, '#040403')
+      x.fillStyle = lawn
+      x.fillRect(0, horizon, W, H - horizon)
+      smoke(0.25, [120, 110, 105], 16)
+      // guests
+      blur(2 * U, () => {
+        for (let i = 0; i < 14; i++) person(W * (0.25 + r() * 0.5), horizon + (10 + r() * 40) * k, k * (0.35 + r() * 0.1), '#030202', r() < 0.3 ? 1 : 0)
+      })
+      // string lights across the foreground
+      for (let n = 0; n < 3; n++) {
+        const y0 = H * (0.08 + n * 0.1)
+        const sag = H * (0.12 + n * 0.04)
+        x.strokeStyle = 'rgba(30,25,20,0.9)'
+        x.lineWidth = 2 * k
+        x.beginPath()
+        for (let t = 0; t <= 1.001; t += 0.01) {
+          const lx2 = t * W
+          const ly2 = y0 + sag * 4 * t * (1 - t)
+          t ? x.lineTo(lx2, ly2) : x.moveTo(lx2, ly2)
+        }
+        x.stroke()
+        for (let t = 0.02; t < 1; t += 0.045) {
+          const lx2 = t * W
+          const ly2 = y0 + sag * 4 * t * (1 - t) + 10 * k
+          glow(lx2, ly2, (26 + n * 8) * k, [255, 190, 120], 0.8)
+          glow(lx2, ly2, 6 * k, [255, 245, 220], 1)
+        }
+      }
+    },
+
+    // Close string lights, background melting into bokeh.
+    lights() {
+      const k = Math.min(W, H) / 1000
+      for (let i = 0; i < 40; i++) {
+        const c2 = r() < 0.75 ? [255, 180, 100] : [210, 30, 40]
+        glow(W * r(), H * r(), (40 + r() * 110) * k, c2, 0.25 + r() * 0.3)
+      }
+      x.strokeStyle = 'rgba(20,16,14,1)'
+      x.lineWidth = 4 * k
+      x.beginPath()
+      for (let t = 0; t <= 1.001; t += 0.01) {
+        const lx2 = t * W
+        const ly2 = H * 0.25 + H * 0.5 * t * t
+        t ? x.lineTo(lx2, ly2) : x.moveTo(lx2, ly2)
+      }
+      x.stroke()
+      for (let t = 0.08; t < 1; t += 0.14) {
+        const lx2 = t * W
+        const ly2 = H * 0.25 + H * 0.5 * t * t + 40 * k
+        glow(lx2, ly2, 140 * k, [255, 190, 120], 0.55)
+        x.fillStyle = '#fff1d8'
+        x.beginPath()
+        x.ellipse(lx2, ly2, 20 * k, 30 * k, 0, 0, Math.PI * 2)
+        x.fill()
+      }
+    },
+
+    // A path lined with lanterns, trees closing in.
+    lanterns() {
+      const k = Math.min(W, H) / 1000
+      const vx = W * 0.5
+      const vy = H * 0.42
+      glow(vx, vy, Math.max(W, H) * 0.4, [140, 60, 30], 0.35)
+      x.fillStyle = '#0a0807'
+      x.beginPath()
+      x.moveTo(vx - 20 * k, vy)
+      x.lineTo(vx + 20 * k, vy)
+      x.lineTo(W * 0.85, H)
+      x.lineTo(W * 0.15, H)
+      x.fill()
+      for (let i = 0; i < 8; i++) {
+        const t = Math.pow((i + 1) / 8, 1.6)
+        for (const d of [-1, 1]) {
+          const lx2 = vx + d * (20 * k + t * W * 0.4)
+          const ly2 = vy + t * (H - vy) * 0.95
+          const sz = (8 + t * 60) * k
+          glow(lx2, ly2 - sz, sz * 5, [255, 160, 70], 0.5)
+          x.fillStyle = 'rgba(255,215,160,0.9)'
+          x.fillRect(lx2 - sz * 0.4, ly2 - sz * 1.4, sz * 0.8, sz * 1.1)
+        }
+      }
+      for (const d of [-1, 1]) {
+        blur(6 * U, () => {
+          x.fillStyle = '#030202'
+          for (let i = 0; i < 40; i++) {
+            x.beginPath()
+            x.arc(vx + d * (W * 0.25 + r() * W * 0.35), H * (r() * 0.5), (60 + r() * 120) * k, 0, Math.PI * 2)
+            x.fill()
+          }
+        })
+      }
+      smoke(0.2, [120, 100, 90], 14)
+    },
+
+    // Looking up: branches strung with fairy lights.
+    canopy() {
+      const k = Math.min(W, H) / 1000
+      glow(W * 0.5, H * 0.5, Math.max(W, H) * 0.6, [60, 20, 22], 0.6)
+      const branch = (bx, by, ang, len, depth) => {
+        if (depth === 0 || len < 20 * k) return
+        const ex = bx + Math.cos(ang) * len
+        const ey = by + Math.sin(ang) * len
+        x.strokeStyle = '#040303'
+        x.lineWidth = depth * 3.2 * k
+        x.beginPath()
+        x.moveTo(bx, by)
+        x.lineTo(ex, ey)
+        x.stroke()
+        for (let i = 0; i < 4; i++) {
+          const t = r()
+          glow(bx + (ex - bx) * t, by + (ey - by) * t, 14 * k, [255, 200, 130], 0.9)
+        }
+        branch(ex, ey, ang - 0.3 - r() * 0.3, len * (0.62 + r() * 0.15), depth - 1)
+        branch(ex, ey, ang + 0.3 + r() * 0.3, len * (0.62 + r() * 0.15), depth - 1)
+      }
+      branch(W * 0.5, H * 1.05, -Math.PI / 2, 380 * k, 8)
+      branch(-20, H * 0.9, -Math.PI / 3, 300 * k, 7)
+      branch(W + 20, H * 0.9, (-Math.PI * 2) / 3, 300 * k, 7)
+    },
+
     // Low-key monochrome portrait: mostly shadow, one rim of light.
     portrait() {
       const px = W * (0.47 + r() * 0.06)
@@ -609,6 +1192,13 @@ function paint(scene, W, H, seed) {
     d[i + 2] += n
   }
   x.putImageData(img, 0, 0)
+  if (stamp) {
+    x.font = `600 ${Math.round(U * 17)}px system-ui, sans-serif`
+    x.fillStyle = 'rgba(242,240,236,0.55)'
+    x.textBaseline = 'bottom'
+    x.letterSpacing = `${Math.round(U * 4)}px`
+    x.fillText(stamp, U * 34, H - U * 30)
+  }
   return c.toDataURL('image/png')
 }
 
@@ -618,11 +1208,11 @@ const only = process.argv[2]
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
 const page = await browser.newPage()
 
-for (const [file, scene, w, h, seed] of JOBS) {
+for (const [file, scene, w, h, seed, stamp] of JOBS) {
   if (only && (only === 'og' || !file.includes(only))) continue
   const url = await page.evaluate(
     ([fn, ...args]) => new Function(`return (${fn})`)()(...args),
-    [paint.toString(), scene, w, h, seed],
+    [paint.toString(), scene, w, h, seed, stamp],
   )
   const path = OUT + file
   await mkdir(dirname(path), { recursive: true })

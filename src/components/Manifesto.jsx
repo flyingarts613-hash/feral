@@ -13,7 +13,7 @@ export default function Manifesto() {
   return (
     <section ref={ref} aria-label="Manifesto" className="relative h-[240svh] bg-ink">
       <div className="gutter sticky top-0 flex h-[100svh] flex-col justify-center">
-        <p className="eyebrow absolute top-24 text-bone/40 md:top-28">(01) — MANIFESTO</p>
+        <p className="eyebrow absolute top-24 text-bone/40 md:top-28">THE ONLY RULES</p>
 
         <h2 className="display text-[15.5vw] leading-[0.88] md:text-[9.6vw] md:leading-[0.86]">
           <span className="sr-only">{MANIFESTO.flat().join(' ').replace('*', '')}</span>

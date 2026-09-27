@@ -5,8 +5,9 @@ import { lockScroll, scrollToId } from '../lib/scroll'
 import { useOpenPass } from '../lib/usePass'
 
 const LINKS = [
-  ['THE NIGHT', 'experience'],
-  ['THE DARK', 'dark'],
+  ["WHAT'S WAITING", 'waiting'],
+  ['VENUE', 'venue'],
+  ['PASSES', 'passes'],
   ['TEAM', 'team'],
   ['ARCHIVE', 'archive'],
 ]
@@ -43,7 +44,7 @@ export default function Navbar() {
           FERAL
         </button>
 
-        <nav className="hidden items-center gap-9 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="Main">
           {LINKS.map(([label, id]) => (
             <button key={id} onClick={() => go(id)} className="eyebrow link-line pb-0.5 opacity-70 transition-opacity hover:opacity-100">
               {label}
@@ -54,7 +55,7 @@ export default function Navbar() {
           </button>
         </nav>
 
-        <button onClick={() => setMenu(true)} className="eyebrow -mr-3 p-3 md:hidden" aria-expanded={menu} aria-controls="menu">
+        <button onClick={() => setMenu(true)} className="eyebrow -mr-3 p-3 lg:hidden" aria-expanded={menu} aria-controls="menu">
           MENU
         </button>
       </header>
@@ -66,7 +67,7 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
-            className="gutter fixed inset-0 z-[60] flex flex-col bg-ink pb-[max(1.5rem,env(safe-area-inset-bottom))] md:hidden"
+            className="gutter fixed inset-0 z-[60] flex flex-col bg-ink pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:hidden"
             initial={{ clipPath: 'inset(0% 0% 100% 0%)' }}
             animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
             exit={{ clipPath: 'inset(0% 0% 100% 0%)' }}
@@ -119,7 +120,7 @@ function MenuItem({ children, i, onClick, accent }) {
     <span className="block overflow-hidden">
       <m.button
         onClick={onClick}
-        className={`display block py-1 text-left text-[17vw] leading-[0.9] ${accent ? 'text-blood' : ''}`}
+        className={`display block py-1 text-left text-[14vw] leading-[0.9] md:text-[9vw] ${accent ? 'text-blood' : ''}`}
         initial={{ y: '100%' }}
         animate={{ y: '0%' }}
         transition={{ delay: 0.25 + i * 0.06, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}

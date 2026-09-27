@@ -2,23 +2,37 @@ import { EVENT } from '../data/event'
 import { asset } from './image'
 import LOOPS from '../data/music-loop.json'
 
-// Background music on the Web Audio API: sample-accurate looping (no MP3 gap),
-// smooth gain fades, and nothing is created until the browser allows sound.
+// Background music.
+//
+// Browsers only allow sound after the visitor interacts, and Safari only if the
+// audio is switched on *inside* that tap/click — not after an await. So:
+//   1. the track is fetched + decoded ahead of time (no AudioContext needed),
+//   2. on the first tap/click/key the AudioContext is created and resumed
+//      synchronously, then playback starts on the already-decoded buffer,
+//   3. volume only ever moves through a GainNode, so fades work everywhere.
+// iOS mutes Web Audio on the silent switch unless the page asks for "playback".
 
 const KEY = 'feral-sound'
-const FADE_IN = 3
-const FADE_OUT = 0.8
+const FADE_IN = 3.5
+const FADE_OUT = 0.9
 
 let ctx = null
 let gain = null
 let source = null
-let bufferPromise = null
-let playing = false
+let startedAt = 0
+let decoded = null
+let fileBytes = 0
+let decoding = null
+let state = 'idle' // idle → waiting (blocked until a tap) → on | off
 const listeners = new Set()
 
-const emit = () => listeners.forEach((fn) => fn(playing))
+const set = (s) => {
+  state = s
+  listeners.forEach((fn) => fn(s))
+}
 export const subscribe = (fn) => (listeners.add(fn), () => listeners.delete(fn))
-export const isPlaying = () => playing
+export const getState = () => state
+export const available = () => Boolean(EVENT.music?.src) && Boolean(window.AudioContext || window.webkitAudioContext)
 
 export function wantsSound() {
   try {
@@ -35,65 +49,114 @@ function remember(on) {
   }
 }
 
-// Fetch the track early so it's ready the moment sound is allowed.
-export function preload() {
-  if (bufferPromise || !EVENT.music?.src || navigator.connection?.saveData) return
-  bufferPromise = fetch(asset(EVENT.music.src))
-    .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))))
+// Fetch + decode early so the first tap starts sound instantly.
+export function prepare() {
+  if (decoding || !available()) return decoding
+  const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext
+  decoding = fetch(asset(EVENT.music.src))
+    .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`music ${r.status}`))))
+    .then((data) => ((fileBytes = data.byteLength), data))
+    .then((data) => new Promise((res, rej) => new Offline(2, 1, 44100).decodeAudioData(data, res, rej)))
+    .then((buf) => (decoded = buf))
     .catch(() => null)
+  if (state === 'idle') set(wantsSound() ? 'waiting' : 'off')
+  return decoding
 }
 
-// Exact loop points measured when the track was made (skips MP3 padding);
-// a replacement track without an entry simply loops end to end.
-function loopPoints(buf) {
-  const known = LOOPS[EVENT.music.src]
-  return known ? [known.start, known.end] : [0, buf.duration]
-}
-
-export async function play() {
-  if (playing) return true
-  preload()
-  const data = await bufferPromise
-  if (!data) return false
-  try {
-    if (!ctx) {
-      ctx = new (window.AudioContext || window.webkitAudioContext)()
-      gain = ctx.createGain()
-      gain.gain.value = 0
-      gain.connect(ctx.destination)
-      const buf = await ctx.decodeAudioData(data.slice(0))
-      const [start, end] = loopPoints(buf)
-      source = ctx.createBufferSource()
-      source.buffer = buf
-      source.loop = true
-      source.loopStart = start
-      source.loopEnd = end
-      source.connect(gain)
-      source.start(0, start)
-    }
-    await ctx.resume()
-    if (ctx.state !== 'running') return false
-    const now = ctx.currentTime
-    gain.gain.cancelScheduledValues(now)
-    gain.gain.setValueAtTime(gain.gain.value, now)
-    gain.gain.linearRampToValueAtTime(EVENT.music.volume ?? 0.22, now + FADE_IN)
-    playing = true
-    remember(true)
-    emit()
-    return true
-  } catch {
-    return false
+// Must be called synchronously from a user gesture (or when sound is allowed).
+function unlock() {
+  const AC = window.AudioContext || window.webkitAudioContext
+  if (!ctx) {
+    ctx = new AC()
+    gain = ctx.createGain()
+    gain.gain.value = 0
+    gain.connect(ctx.destination)
   }
+  try {
+    if (navigator.audioSession) navigator.audioSession.type = 'playback'
+  } catch {
+    /* not supported */
+  }
+  if (ctx.state !== 'running') ctx.resume().catch(() => {})
+  // A silent tick inside the gesture fully unlocks older iOS.
+  const tick = ctx.createBufferSource()
+  tick.buffer = ctx.createBuffer(1, 1, 22050)
+  tick.connect(ctx.destination)
+  tick.start(0)
 }
 
-export function stop({ persist = true } = {}) {
-  if (persist) remember(false)
-  if (!ctx || !playing) return
-  playing = false
-  emit()
+// Exact loop points + tempo recorded for the generated track. Any other file
+// at the same path (e.g. your real MP3) is looped end to end.
+const known = () => {
+  const k = LOOPS[EVENT.music.src]
+  return k && k.bytes === fileBytes ? k : null
+}
+function loopPoints(buf) {
+  const k = known()
+  return k && k.end <= buf.duration ? [k.start, k.end] : [0, buf.duration]
+}
+
+function fadeTo(value, seconds) {
   const now = ctx.currentTime
   gain.gain.cancelScheduledValues(now)
   gain.gain.setValueAtTime(gain.gain.value, now)
-  gain.gain.linearRampToValueAtTime(0, now + FADE_OUT)
-  setTimeout(() => !playing && ctx.suspend(), FADE_OUT * 1000 + 50)
+  gain.gain.linearRampToValueAtTime(value, now + seconds)
+}
+
+async function begin() {
+  const buf = decoded || (await prepare())
+  if (!buf || !ctx) return false
+  if (!source) {
+    const [a, b] = loopPoints(buf)
+    source = ctx.createBufferSource()
+    source.buffer = buf
+    source.loop = true
+    source.loopStart = a
+    source.loopEnd = b
+    source.connect(gain)
+    source.start(0, a)
+    startedAt = ctx.currentTime
+  }
+  if (ctx.state !== 'running') await ctx.resume().catch(() => {})
+  if (ctx.state !== 'running') return false
+  fadeTo(EVENT.music.volume ?? 0.25, FADE_IN)
+  set('on')
+  return true
+}
+
+// Called from a tap/click/key handler.
+export function play() {
+  if (!available()) return Promise.resolve(false)
+  unlock()
+  remember(true)
+  return begin()
+}
+
+export function stop({ persist = true } = {}) {
+  if (persist) {
+    remember(false)
+    set('off')
+  } else if (state === 'on') set('waiting')
+  if (!ctx) return
+  fadeTo(0, FADE_OUT)
+  setTimeout(() => state !== 'on' && ctx.suspend(), FADE_OUT * 1000 + 60)
+}
+
+// Background tab: fade out; coming back: fade in again.
+export function pauseForHidden() {
+  if (state !== 'on') return false
+  stop({ persist: false })
+  return true
+}
+export function resumeFromHidden() {
+  if (!ctx) return
+  ctx.resume().then(() => ctx.state === 'running' && begin(), () => {})
+}
+
+// Where we are in the bar, for visuals that pulse on the beat (0–1, or null).
+export function beatPhase() {
+  const bpm = known()?.bpm
+  if (state !== 'on' || !ctx || !bpm) return null
+  const beats = ((ctx.currentTime - startedAt) * bpm) / 60
+  return beats - Math.floor(beats)
 }

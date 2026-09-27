@@ -24,6 +24,25 @@ venue, Instagram links) stay hidden until you replace them.
 **Before going live:** replace `public/assets/qr.png` with your real UPI QR
 (the current one is a stamped sample), and fill in `googleFormUrl` and `upiId`.
 
+## Drop in your real assets
+
+Every photo and the music are plain files: overwrite them with the same name, run
+`npm run images`, done. No code changes.
+
+| What | Where |
+| --- | --- |
+| Venue photos (Chhatarpur Farms) | `public/images/venue/venue-main.jpg` (wide), `venue-02.jpg`, `venue-03.jpg` (portrait), `venue-04.jpg` (4:3). Captions + maps link in `src/data/venue.js` |
+| Party photos | `public/images/party/party-main.jpg` (the big one after the hero), `strip-01…08.jpg` (the flash strip) — list in `src/data/gallery.js` |
+| What's waiting | `public/images/waiting/dj.jpg`, `dancing.jpg`, `games.jpg`, `costumes.jpg`, `horror-room.jpg` — lines in `src/data/content.js` |
+| Costume portraits | `public/images/costumes/costume-01…04.jpg` — labels in `src/data/gallery.js` |
+| Organisers | `public/images/team/…` — names in `src/data/team.js` |
+| Archive | `public/images/archive/…` — list in `src/data/archive.js` |
+| Music | `public/audio/feral.mp3` (any MP3; it loops, fades in at low volume, starts on the visitor's first tap/click/key) |
+
+The current images are generated placeholders; the venue ones are stamped
+"PLACEHOLDER · VENUE PHOTO" so they can't be mistaken for the real place.
+`npm run placeholders` / `node scripts/generate-music.mjs` regenerate them.
+
 ## Images
 
 All photography lives in `public/images`. The current images are generated

@@ -16,7 +16,7 @@ export default function HorrorWorld() {
             THE DARK<span className="text-blood">.</span>
           </Line>
         </h2>
-        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(03)</p>
+        <p className="eyebrow mb-2 hidden text-bone/40 md:block">(04)</p>
       </div>
 
       <Flashlight src={main} />

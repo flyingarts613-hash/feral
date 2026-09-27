@@ -56,42 +56,36 @@
       1800
     ]
   },
-  "/images/experience/04.jpg": {
-    "width": 1800,
-    "height": 1100,
-    "widths": [
-      480,
-      960,
-      1600,
-      1800
-    ]
-  },
-  "/images/experience/dj.jpg": {
-    "width": 1800,
+  "/images/costumes/costume-01.jpg": {
+    "width": 900,
     "height": 1200,
     "widths": [
       480,
-      960,
-      1600,
-      1800
+      900
     ]
   },
-  "/images/experience/games.jpg": {
-    "width": 1200,
-    "height": 1500,
+  "/images/costumes/costume-02.jpg": {
+    "width": 900,
+    "height": 1200,
     "widths": [
       480,
-      960,
-      1200
+      900
     ]
   },
-  "/images/experience/horror-room.jpg": {
-    "width": 1200,
-    "height": 1500,
+  "/images/costumes/costume-03.jpg": {
+    "width": 900,
+    "height": 1200,
     "widths": [
       480,
-      960,
-      1200
+      900
+    ]
+  },
+  "/images/costumes/costume-04.jpg": {
+    "width": 900,
+    "height": 1200,
+    "widths": [
+      480,
+      900
     ]
   },
   "/images/hero/hero-portrait.jpg": {
@@ -130,6 +124,88 @@
       480,
       960,
       1200
+    ]
+  },
+  "/images/party/party-main.jpg": {
+    "width": 2400,
+    "height": 1350,
+    "widths": [
+      480,
+      960,
+      1600,
+      2400
+    ]
+  },
+  "/images/party/strip-01.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-02.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-03.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-04.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-05.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-06.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-07.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/party/strip-08.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
     ]
   },
   "/images/team/placeholder-01.jpg": {
@@ -184,6 +260,88 @@
       480,
       960,
       1000
+    ]
+  },
+  "/images/venue/venue-02.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/venue/venue-03.jpg": {
+    "width": 1000,
+    "height": 1250,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
+  "/images/venue/venue-04.jpg": {
+    "width": 1200,
+    "height": 900,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/venue/venue-main.jpg": {
+    "width": 2400,
+    "height": 1350,
+    "widths": [
+      480,
+      960,
+      1600,
+      2400
+    ]
+  },
+  "/images/waiting/costumes.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/waiting/dancing.jpg": {
+    "width": 1600,
+    "height": 1100,
+    "widths": [
+      480,
+      960,
+      1600
+    ]
+  },
+  "/images/waiting/dj.jpg": {
+    "width": 1600,
+    "height": 1100,
+    "widths": [
+      480,
+      960,
+      1600
+    ]
+  },
+  "/images/waiting/games.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
+    ]
+  },
+  "/images/waiting/horror-room.jpg": {
+    "width": 1200,
+    "height": 1500,
+    "widths": [
+      480,
+      960,
+      1200
     ]
   }
 }

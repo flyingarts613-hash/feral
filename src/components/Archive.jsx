@@ -35,7 +35,7 @@ function Heading() {
       <h2 className="display text-[25vw] leading-[0.8] md:text-[11vw]">
         <Line>THE ARCHIVE.</Line>
       </h2>
-      <p className="eyebrow mb-2 hidden text-bone/40 md:block">(05)</p>
+      <p className="eyebrow mb-2 hidden text-bone/40 md:block">(07)</p>
     </div>
   )
 }

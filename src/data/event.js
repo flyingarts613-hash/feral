@@ -26,9 +26,10 @@ export const EVENT = {
   price: '[PRICE]', // e.g. '999' — numbers only, rupees
   qrCode: '/assets/qr.png',
 
-  // Background music: a local, seamlessly looping track. Starts on the first
-  // tap/click/key (browsers block sound before that); visitors can mute it.
-  music: { src: '/audio/feral-ambient.mp3', volume: 0.22 },
+  // Background music. Drop your own MP3 at public/audio/feral.mp3 (same name)
+  // and it's used automatically. Browsers only allow sound after the visitor's
+  // first tap/click/key — it starts then, fading in; they can switch it off.
+  music: { src: '/audio/feral.mp3', volume: 0.25 },
 
   instagram: '[INSTAGRAM]', // handle without @, e.g. 'feral.delhi'
 
