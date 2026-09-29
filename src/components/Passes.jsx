@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { m, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 import { EVENT } from '../data/event'
-import { PASSES, inr } from '../data/passes'
+import { FROM_PRICE, ROUND, inr } from '../data/passes'
 import { PASS_STEPS } from '../data/content'
 import { useOpenPass } from '../lib/usePass'
 import { Fade, Line } from './Reveal'
@@ -69,7 +69,7 @@ function Ticket({ onOpen }) {
     ry.set(0)
   }
 
-  const price = `FROM ${inr(Math.min(...PASSES.filter((p) => !p.fixed).map((p) => p.group?.price ?? p.price)))}`
+  const price = `FROM ${inr(FROM_PRICE)}`
 
   return (
     <m.div
@@ -91,7 +91,7 @@ function Ticket({ onOpen }) {
         <div className="relative p-6 md:p-10">
           <div className="flex items-start justify-between">
             <p className="eyebrow text-bone/50">{EVENT.edition} · PASS</p>
-            <p className="eyebrow text-blood">● ENTRY</p>
+            <p className="eyebrow text-blood">● {ROUND}</p>
           </div>
           <p className="display chrome mt-6 text-[26vw] leading-[0.8] md:mt-8 md:text-[10vw]">FERAL</p>
           <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 md:mt-10 md:grid-cols-4">

@@ -13,7 +13,7 @@ npm run build     # production build → dist/ (optimises images first)
 | What | Where |
 | --- | --- |
 | Date, city, venue, registration form, Instagram, hero media | `src/data/event.js` |
-| Pass types, prices, 5+ group rate, payment DM number | `src/data/passes.js` |
+| Pass types, prices, pricing round label, payment DM number | `src/data/passes.js` |
 | Safety section copy + points | `src/data/content.js` → `SAFETY` |
 | Organisers (names, Instagram links) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
@@ -71,11 +71,11 @@ data-saver or reduced motion. The image shows first.
 Every "GET YOUR PASS" opens a full-screen sheet at `/#pass`. You can link
 that URL directly, for example from an Instagram bio.
 
-1. **Select pass type**: Boy ₹1599, Girl ₹1499, Group of boys (5+) ₹1499,
-   Group of girls (5+) ₹1399, Couple ₹2949 per couple.
-2. **How many people**: − / + buttons. Boy and Girl drop to the group rate
-   automatically at 5 people; the group passes start at 5; the couple pass
-   has no counter. The per-person price and total update live.
+1. **Select pass type** (Round 2): Boy ₹1799, Girl ₹1599, Couple ₹3199,
+   Group of 5 boys ₹8499, Group of 5 girls ₹7499.
+2. **How many**: − / + buttons. Boy and Girl count people (price × people;
+   at 5+ a link offers the Group of 5 pass); group passes count groups of 5;
+   the couple pass has no counter. The total updates live.
 3. **Step 1 — FILL REGISTRATION FORM →** opens the Google Form (everyone's
    details, comma-separated).
 4. **Step 2 — DM FOR PAYMENT**: +91 8377098457 — opens a WhatsApp chat

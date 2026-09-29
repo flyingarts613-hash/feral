@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import { EVENT, isSet } from '../data/event'
-import { MAX_PEOPLE, PASSES, PAYMENT, inr, unitPrice } from '../data/passes'
+import { GROUP_SIZE, MAX, PASSES, PAYMENT, ROUND, inr } from '../data/passes'
 
 const EASE = [0.76, 0, 0.24, 1]
 
@@ -22,17 +22,23 @@ export default function PassModal({ onClose }) {
   }, [onClose])
 
   const pass = PASSES.find((p) => p.id === passId)
-  const count = pass.fixed ? 1 : qty
-  const each = unitPrice(pass, count)
-  const total = each * count
-  const saved = (pass.price - each) * count
+  const fixed = pass.unit === 'couple'
+  const isGroup = pass.unit === 'group'
+  const count = fixed ? 1 : qty
+  const total = pass.price * count
+  const groupPass = pass.group && PASSES.find((p) => p.id === pass.group)
+  const people = isGroup ? count * GROUP_SIZE : count
 
-  // Switching pass keeps the head-count, lifted to the pass's minimum.
+  // Switching pass keeps the head-count: people ↔ groups of 5.
   const choose = (p) => {
     setPassId(p.id)
-    setQty((q) => Math.min(MAX_PEOPLE, Math.max(p.min, q)))
+    setQty((q) => {
+      const n = p.unit === pass.unit ? q : p.unit === 'group' ? Math.floor(people / GROUP_SIZE) : pass.unit === 'group' ? people : q
+      return Math.min(MAX[p.unit], Math.max(1, n))
+    })
   }
-  const step = (d) => setQty((q) => Math.min(MAX_PEOPLE, Math.max(pass.min, q + d)))
+  const step = (d) => setQty((q) => Math.min(MAX[pass.unit], Math.max(1, q + d)))
+  const unitWord = isGroup ? (qty === 1 ? 'GROUP' : 'GROUPS') : qty === 1 ? 'PERSON' : 'PEOPLE'
 
   const meta = [EVENT.date, isSet(EVENT.venue) ? EVENT.location : EVENT.area]
 
@@ -70,8 +76,13 @@ export default function PassModal({ onClose }) {
           </h2>
           <p className="eyebrow mt-6 text-bone/50">{meta.join('  /  ')}</p>
 
-          <p id="pass-type" className="eyebrow mt-12 text-bone/50 md:mt-16">
-            <span className="text-blood">01</span>&nbsp;&nbsp;SELECT PASS TYPE
+          <p id="pass-type" className="eyebrow mt-12 flex items-center justify-between gap-4 text-bone/50 md:mt-16">
+            <span>
+              <span className="text-blood">01</span>&nbsp;&nbsp;SELECT PASS TYPE
+            </span>
+            <span className="text-blood" data-round>
+              ● {ROUND} PRICING
+            </span>
           </p>
           <div role="radiogroup" aria-labelledby="pass-type" className="mt-4 border-t border-bone/10">
             {PASSES.map((p) => {
@@ -91,7 +102,6 @@ export default function PassModal({ onClose }) {
                       <span className="display block text-2xl tracking-[0.02em] md:text-3xl">{p.name}</span>
                       <span className="eyebrow mt-1 block text-[10px] text-bone/45">
                         {p.note}
-                        {p.group && ` · ${p.group.from}+ → ${inr(p.group.price)}`}
                       </span>
                     </span>
                   </span>
@@ -105,47 +115,51 @@ export default function PassModal({ onClose }) {
         {/* Right — quantity, total, then form → DM */}
         <div className="md:col-span-5 md:col-start-8 md:pt-4">
           <p className="eyebrow text-bone/50">
-            <span className="text-blood">02</span>&nbsp;&nbsp;{pass.fixed ? 'YOUR PASS' : 'HOW MANY PEOPLE?'}
+            <span className="text-blood">02</span>&nbsp;&nbsp;{fixed ? 'YOUR PASS' : isGroup ? 'HOW MANY GROUPS?' : 'HOW MANY PEOPLE?'}
           </p>
-          {pass.fixed ? (
+          {fixed ? (
             <p className="display mt-4 flex h-14 items-center text-3xl tracking-[0.02em]">1 COUPLE · 2 PEOPLE</p>
           ) : (
             <div className="mt-4 flex items-center gap-5">
               <div className="flex items-center border border-bone/20">
-                <button onClick={() => step(-1)} disabled={qty <= pass.min} aria-label="One less person" className="grid h-14 w-14 place-items-center text-2xl transition-colors hover:bg-bone/10 disabled:opacity-25 disabled:hover:bg-transparent">
+                <button onClick={() => step(-1)} disabled={qty <= 1} aria-label={isGroup ? 'One less group' : 'One less person'} className="grid h-14 w-14 place-items-center text-2xl transition-colors hover:bg-bone/10 disabled:opacity-25 disabled:hover:bg-transparent">
                   −
                 </button>
-                <span className="display w-16 text-center text-3xl tabular-nums" aria-live="polite" aria-label={`${qty} people`} data-qty>
+                <span className="display w-16 text-center text-3xl tabular-nums" aria-live="polite" aria-label={`${qty} ${unitWord.toLowerCase()}`} data-qty>
                   {qty}
                 </span>
-                <button onClick={() => step(1)} disabled={qty >= MAX_PEOPLE} aria-label="One more person" className="grid h-14 w-14 place-items-center text-2xl transition-colors hover:bg-bone/10 disabled:opacity-25 disabled:hover:bg-transparent">
+                <button onClick={() => step(1)} disabled={qty >= MAX[pass.unit]} aria-label={isGroup ? 'One more group' : 'One more person'} className="grid h-14 w-14 place-items-center text-2xl transition-colors hover:bg-bone/10 disabled:opacity-25 disabled:hover:bg-transparent">
                   +
                 </button>
               </div>
-              <span className="eyebrow text-bone/45">{qty === 1 ? 'PERSON' : 'PEOPLE'}</span>
+              <span className="eyebrow text-bone/45">
+                {unitWord}
+                {isGroup && ` · ${people} PEOPLE`}
+              </span>
             </div>
           )}
 
           {/* live price */}
           <div className="mt-8 border-y border-bone/10 py-6">
             <div className="flex items-baseline justify-between gap-4">
-              <p className="eyebrow text-bone/50">{pass.fixed ? 'PER COUPLE' : 'PER PERSON'}</p>
+              <p className="eyebrow text-bone/50">{fixed ? 'PER COUPLE' : isGroup ? `PER GROUP OF ${GROUP_SIZE}` : 'PER PERSON'}</p>
               <p className="display text-2xl" data-each>
-                {saved > 0 && <s className="mr-3 text-bone/35">{inr(pass.price)}</s>}
-                {inr(each)}
+                {inr(pass.price)}
               </p>
             </div>
-            <AnimatePresence initial={false} mode="wait">
-              {saved > 0 ? (
-                <m.p key="on" className="eyebrow mt-3 text-blood" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} data-discount>
-                  GROUP RATE APPLIED · YOU SAVE {inr(saved)}
-                </m.p>
-              ) : (
-                pass.group && (
-                  <m.p key="hint" className="eyebrow mt-3 text-bone/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    ADD {pass.group.from - qty} MORE FOR {inr(pass.group.price)} EACH
-                  </m.p>
-                )
+            <AnimatePresence initial={false}>
+              {groupPass && qty >= GROUP_SIZE && (
+                <m.button
+                  key="group"
+                  onClick={() => choose(groupPass)}
+                  className="eyebrow link-line mt-3 text-left text-blood"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  data-group-hint
+                >
+                  GOING AS {GROUP_SIZE}? {groupPass.name} IS {inr(groupPass.price)} →
+                </m.button>
               )}
             </AnimatePresence>
             <div className="mt-6 flex items-end justify-between gap-4">
@@ -153,7 +167,7 @@ export default function PassModal({ onClose }) {
                 <p className="eyebrow text-bone/50">TOTAL</p>
                 {count > 1 && (
                   <p className="eyebrow mt-1.5 text-bone/40">
-                    {count} × {inr(each)}
+                    {count} × {inr(pass.price)}
                   </p>
                 )}
               </div>
@@ -193,7 +207,7 @@ export default function PassModal({ onClose }) {
             <p className="mt-3 text-sm leading-relaxed text-bone/50">After submitting the form, DM this number for payment and complete your booking.</p>
             <p className="eyebrow mt-5 text-bone/35">
               YOUR PASS: {pass.name}
-              {!pass.fixed && ` × ${count}`} · {inr(total)}
+              {!fixed && ` × ${count}`} · {inr(total)}
             </p>
           </div>
         </div>

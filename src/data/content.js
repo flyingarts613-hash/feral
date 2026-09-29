@@ -26,7 +26,7 @@ export const WAITING = [
 ]
 
 export const PASS_STEPS = [
-  { title: 'CHOOSE YOUR PASS', note: 'Boy, girl, group or couple. 5+ pay less.' },
+  { title: 'CHOOSE YOUR PASS', note: 'Boy, girl, couple or a group of 5.' },
   { title: 'FILL THE REGISTRATION FORM', note: 'Everyone’s details, comma-separated.' },
   { title: 'DM FOR PAYMENT', note: '+91 8377098457 on WhatsApp. Your booking is done.', href: 'https://wa.me/918377098457' },
 ]
