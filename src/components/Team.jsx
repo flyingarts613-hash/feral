@@ -11,6 +11,13 @@ const GRID = {
   0: { grid: 'grid-cols-1 gap-y-14 md:grid-cols-12 md:gap-x-8', item: (i) => (i % 2 ? 'md:col-span-5 md:col-start-8 md:mt-[22vh]' : 'md:col-span-6'), sizes: '(min-width: 768px) 46vw, 92vw' },
   1: { grid: 'grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-4 md:gap-x-8', item: (i) => (i % 2 ? 'mt-[10vh] md:mt-[14vh]' : ''), sizes: '(min-width: 768px) 24vw, 46vw' },
 }
+// A group of one: a full-size card, alternating left / right down the page.
+const SOLO = (gi) => ({
+  grid: 'grid-cols-12 md:gap-x-8',
+  item: () => (gi % 2 ? 'col-span-11 col-start-2 md:col-span-5 md:col-start-8' : 'col-span-11 md:col-span-6'),
+  label: gi % 2 ? 'col-start-2 col-span-11 md:col-span-5 md:col-start-8' : 'col-span-12',
+  sizes: '(min-width: 768px) 46vw, 92vw',
+})
 
 export default function Team() {
   return (
@@ -27,17 +34,20 @@ export default function Team() {
 
       <div className="flex flex-col gap-[14vh] md:gap-[20vh]">
         {TEAM.map((g, gi) => {
-          const layout = GRID[gi] ?? GRID[1]
+          const solo = g.members.length === 1
+          const layout = solo ? SOLO(gi) : GRID[gi] ?? GRID[1]
           return (
-            <div key={g.group}>
-              <p className="eyebrow mb-6 flex items-center gap-4 text-bone/50 md:mb-10">
-                <span className="h-px w-8 bg-blood" />
-                {g.group}
-              </p>
+            <div key={g.group} className={solo && gi % 2 ? 'md:-mt-[52vw]' : ''}>
+              <div className="grid grid-cols-12 md:gap-x-8">
+                <p className={`eyebrow mb-6 flex items-center gap-4 text-bone/50 md:mb-10 ${layout.label ?? 'col-span-12'}`}>
+                  <span className="h-px w-8 bg-blood" />
+                  {g.group}
+                </p>
+              </div>
               <ul className={`grid ${layout.grid}`}>
                 {g.members.map((m, i) => (
                   <li key={i} className={layout.item(i)}>
-                    <Portrait member={m} sizes={layout.sizes} big={gi === 0} />
+                    <Portrait member={m} sizes={layout.sizes} big={gi === 0 || solo} />
                   </li>
                 ))}
               </ul>

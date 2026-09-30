@@ -15,7 +15,7 @@ npm run build     # production build → dist/ (optimises images first)
 | Date, city, venue, registration form, Instagram, hero media | `src/data/event.js` |
 | Pass types, prices, pricing round label, payment DM number | `src/data/passes.js` |
 | Safety section copy + points | `src/data/content.js` → `SAFETY` |
-| Organisers (names, Instagram links) | `src/data/team.js` |
+| Team (names, roles, Instagram links) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
 | Manifesto, "The Night" phrases + images, horror room lines, pass steps | `src/data/content.js` |
 | Instagram + WhatsApp community links | `src/data/event.js` → `instagram` (handle) and `socials` (the two URLs) |
@@ -37,7 +37,7 @@ Every photo and the music are plain files: overwrite them with the same name, ru
 | Venue photos (Chhatarpur Farms) | `public/images/venue/venue-main.jpg` (wide), `venue-02.jpg`, `venue-03.jpg` (portrait), `venue-04.jpg` (4:3). Captions + maps link in `src/data/venue.js` |
 | Party photos | `public/images/party/party-main.jpg` (the big one after the hero), `strip-01…08.jpg` (the flash strip) — list in `src/data/gallery.js` |
 | What's waiting | `public/images/waiting/dj.jpg`, `dancing.jpg`, `games.jpg`, `costumes.jpg`, `horror-room.jpg` — lines in `src/data/content.js` |
-| Organisers | `public/images/organisers/organiser-01.jpg` (Kritik Aggarwal), `organiser-02.jpg` (Ishika), 3:4 — names + Instagram in `src/data/team.js`. Tapping a card offers their Instagram |
+| Team | `public/images/organisers/organiser-01.jpg` (Kritik Aggarwal), `nandita.jpg` (Nandita Verma), `ritika.jpg` (Ritika), 3:4 — names, roles + Instagram in `src/data/team.js`. Tapping a card offers their Instagram |
 | Archive | `public/images/archive/…` — list in `src/data/archive.js` |
 | Music | `public/audio/feral.mp3` (any MP3; it loops, fades in at low volume, starts on the visitor's first tap/click/key) |
 

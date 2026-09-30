@@ -245,6 +245,15 @@
       1200
     ]
   },
+  "/images/organisers/nandita.jpg": {
+    "width": 1000,
+    "height": 1333,
+    "widths": [
+      480,
+      960,
+      1000
+    ]
+  },
   "/images/organisers/organiser-01.jpg": {
     "width": 1000,
     "height": 1333,
@@ -254,7 +263,7 @@
       1000
     ]
   },
-  "/images/organisers/organiser-02.jpg": {
+  "/images/organisers/ritika.jpg": {
     "width": 1000,
     "height": 1333,
     "widths": [
