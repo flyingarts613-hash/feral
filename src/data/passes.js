@@ -1,23 +1,31 @@
-// Pass types + pricing (rupees). Edit prices here; the pass sheet does the maths.
-//   price:  per unit — a person, a group of GROUP_SIZE, or a couple
-//   unit:   'person' | 'group' | 'couple' (the couple pass has no counter)
-//   group:  for a single pass, the id of its group pass (offered at 5+ people)
+// Pass types + pricing (rupees) — the single source of truth. Edit prices
+// here; the ticket and the pass sheet read everything from this file.
+//   price:  per person (per couple for the couple pass)
+//   min:    lowest quantity allowed
+//   group:  { from, price } — from this many people the per-person price drops
+//   fixed:  no quantity selector (one pass = the unit)
 
-export const ROUND = 'ROUND 2'
+export const ROUND = 'ROUND 3'
 export const GROUP_SIZE = 5
 
+const BOY_GROUP = 1899
+const GIRL_GROUP = 1549
+
 export const PASSES = [
-  { id: 'boy', name: 'BOY', note: 'PER PERSON', price: 1799, unit: 'person', group: 'boys' },
-  { id: 'girl', name: 'GIRL', note: 'PER PERSON', price: 1599, unit: 'person', group: 'girls' },
-  { id: 'boys', name: 'GROUP OF 5 BOYS', note: 'PER GROUP · 5 PEOPLE', price: 8499, unit: 'group' },
-  { id: 'girls', name: 'GROUP OF 5 GIRLS', note: 'PER GROUP · 5 PEOPLE', price: 7499, unit: 'group' },
-  { id: 'couple', name: 'COUPLE', note: 'PER COUPLE', price: 3199, unit: 'couple' },
+  { id: 'boy', name: 'BOY', note: 'PER PERSON', price: 1999, min: 1, group: { from: GROUP_SIZE, price: BOY_GROUP } },
+  { id: 'girl', name: 'GIRL', note: 'PER PERSON', price: 1699, min: 1, group: { from: GROUP_SIZE, price: GIRL_GROUP } },
+  { id: 'boys', name: 'GROUP OF BOYS', note: `${GROUP_SIZE}+ PEOPLE · PER PERSON`, price: BOY_GROUP, min: GROUP_SIZE },
+  { id: 'girls', name: 'GROUP OF GIRLS', note: `${GROUP_SIZE}+ PEOPLE · PER PERSON`, price: GIRL_GROUP, min: GROUP_SIZE },
+  { id: 'couple', name: 'COUPLE', note: 'PER COUPLE', price: 3499, min: 1, fixed: true },
 ]
 
-export const MAX = { person: 50, group: 10, couple: 1 }
+export const MAX_PEOPLE = 50
 
-// Lowest single-person entry price, for "FROM ₹…".
-export const FROM_PRICE = Math.min(...PASSES.filter((p) => p.unit === 'person').map((p) => p.price))
+// Per-person price for a pass at a quantity (the 5+ rate kicks in automatically).
+export const unitPrice = (pass, qty) => (pass.group && qty >= pass.group.from ? pass.group.price : pass.price)
+
+// Lowest per-person entry price, for "FROM ₹…".
+export const FROM_PRICE = Math.min(...PASSES.filter((p) => !p.fixed).map((p) => p.group?.price ?? p.price))
 
 export const inr = (n) => '₹' + n.toLocaleString('en-IN')
 
