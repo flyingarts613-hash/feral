@@ -1,7 +1,7 @@
 // All on-page copy that isn't event config. Keep it short.
 
 // Rolling ticker under the hero. Short, loud, true.
-export const TICKER = ['HALLOWEEN 2026', '28.10.26', 'CHHATARPUR FARMS', 'SOUTH DELHI', 'COSTUMES ON', 'LIGHTS LOW', 'MUSIC LOUD']
+export const TICKER = ['HALLOWEEN 2026', '27.10.26', 'CHHATARPUR FARMS', 'SOUTH DELHI', 'COSTUMES ON', 'LIGHTS LOW', 'MUSIC LOUD']
 
 // The big line over the first party photograph.
 export const BREAK_LINES = ['ONE NIGHT.', 'NO RULES.']

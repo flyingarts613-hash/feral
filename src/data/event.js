@@ -8,9 +8,9 @@
 export const EVENT = {
   name: 'FERAL',
   edition: 'HALLOWEEN 2026',
-  date: '28 OCTOBER 2026',
-  dateShort: '28.10.26',
-  startsAt: '2026-10-28T20:00:00+05:30', // drives the "nights left" countdown
+  date: '27 OCTOBER 2026',
+  dateShort: '27.10.26',
+  startsAt: '2026-10-27T20:00:00+05:30', // drives the "nights left" countdown
   city: 'DELHI',
   area: 'SOUTH DELHI',
   venue: 'CHHATARPUR FARMS',
