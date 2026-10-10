@@ -6,7 +6,7 @@ import { EVENT } from '../data/event'
 import Img from './Img'
 
 const TILT = [-3, 2, -1.5, 3, -2.5, 1.5, -3.5, 2.5]
-// Disposable-camera date stamp: '26 10 27
+// Disposable-camera date stamp: '26 10 26
 const STAMP = (() => {
   const [d, mo, y] = EVENT.dateShort.split('.')
   return `'${y} ${mo} ${d}`

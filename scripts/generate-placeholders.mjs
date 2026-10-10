@@ -1545,7 +1545,7 @@ if (!only || only === 'og') {
     .og:after{content:"";position:absolute;inset:0;background:rgba(5,5,5,.45)}
     h1{position:absolute;inset:0;display:grid;place-items:center;font-size:360px;font-weight:400;line-height:1;letter-spacing:-4px;z-index:1}
     p{position:absolute;left:0;right:0;bottom:48px;text-align:center;font:500 18px/1 system-ui,sans-serif;letter-spacing:.32em;z-index:1}
-    </style><div class="og"><h1>FERAL</h1><p>27.10.26 &nbsp;·&nbsp; CHHATARPUR FARMS, SOUTH DELHI</p></div>`)
+    </style><div class="og"><h1>FERAL</h1><p>26.10.26 &nbsp;·&nbsp; CHHATARPUR FARMS, SOUTH DELHI</p></div>`)
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: OUT + 'og.jpg', type: 'jpeg', quality: 86 })
   console.log('✓ og.jpg')

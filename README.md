@@ -1,6 +1,6 @@
 # FERAL — Halloween 2026
 
-27 October 2026. Chhatarpur Farms, South Delhi. React + Vite + Tailwind + Framer Motion.
+26 October 2026. Chhatarpur Farms, South Delhi. React + Vite + Tailwind + Framer Motion.
 
 ```bash
 npm install
