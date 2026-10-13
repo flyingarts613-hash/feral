@@ -12,14 +12,29 @@ const GRID = {
   1: { grid: 'grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-4 md:gap-x-8', item: (i) => (i % 2 ? 'mt-[10vh] md:mt-[14vh]' : ''), sizes: '(min-width: 768px) 24vw, 46vw' },
 }
 // A group of one: a full-size card, alternating left / right down the page.
-const SOLO = (gi) => ({
+const SOLO = (right) => ({
   grid: 'grid-cols-12 md:gap-x-8',
-  item: () => (gi % 2 ? 'col-span-11 col-start-2 md:col-span-5 md:col-start-8' : 'col-span-11 md:col-span-6'),
-  label: gi % 2 ? 'col-start-2 col-span-11 md:col-span-5 md:col-start-8' : 'col-span-12',
+  item: () => (right ? 'col-span-11 col-start-2 md:col-span-5 md:col-start-8' : 'col-span-11 md:col-span-6'),
+  label: right ? 'col-start-2 col-span-11 md:col-span-5 md:col-start-8' : 'col-span-12',
   sizes: '(min-width: 768px) 46vw, 92vw',
 })
 
+// Left / right for each one-person group. The zigzag restarts after a group of
+// several, and a right-hand card is pulled up beside the left-hand one above it.
+function soloSides(team) {
+  let k = 0
+  return team.map((g) => {
+    if (g.members.length !== 1) {
+      k = 0
+      return null
+    }
+    const right = k++ % 2 === 1
+    return { right, pullUp: right }
+  })
+}
+
 export default function Team() {
+  const sides = soloSides(TEAM)
   return (
     <section id="team" aria-label="Behind FERAL" className="gutter relative bg-ink pb-[20vh] pt-[8vh]">
       <div className="mb-[12vh] flex items-end justify-between md:mb-[18vh]">
@@ -34,10 +49,10 @@ export default function Team() {
 
       <div className="flex flex-col gap-[14vh] md:gap-[20vh]">
         {TEAM.map((g, gi) => {
-          const solo = g.members.length === 1
-          const layout = solo ? SOLO(gi) : GRID[gi] ?? GRID[1]
+          const side = sides[gi]
+          const layout = side ? SOLO(side.right) : GRID[gi] ?? GRID[1]
           return (
-            <div key={g.group} className={solo && gi % 2 ? 'md:-mt-[52vw]' : ''}>
+            <div key={g.group} className={side?.pullUp ? 'md:-mt-[52vw]' : ''}>
               <div className="grid grid-cols-12 md:gap-x-8">
                 <p className={`eyebrow mb-6 flex items-center gap-4 text-bone/50 md:mb-10 ${layout.label ?? 'col-span-12'}`}>
                   <span className="h-px w-8 bg-blood" />
@@ -47,7 +62,7 @@ export default function Team() {
               <ul className={`grid ${layout.grid}`}>
                 {g.members.map((m, i) => (
                   <li key={i} className={layout.item(i)}>
-                    <Portrait member={m} sizes={layout.sizes} big={gi === 0 || solo} />
+                    <Portrait member={m} sizes={layout.sizes} big={gi === 0 || Boolean(side)} />
                   </li>
                 ))}
               </ul>
@@ -106,6 +121,7 @@ function Portrait({ member, sizes, big }) {
             src={member.image}
             alt={member.name}
             sizes={sizes}
+            style={member.focus ? { objectPosition: member.focus } : undefined}
             className="h-full w-full scale-[1.02] object-cover grayscale contrast-[1.15] brightness-90 transition-[transform,filter] duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07] group-hover:brightness-110"
           />
           {/* red wash on hover */}
