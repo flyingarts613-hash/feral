@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
-import { PAYMENT } from '../data/passes'
 import { useBooking } from './booking/useBooking'
-import { Notice, Steps } from './booking/ui'
+import { Steps } from './booking/ui'
 import PriceMenu from './booking/PriceMenu'
 import DetailsForm from './booking/DetailsForm'
 import OtpStep from './booking/OtpStep'
 import PaymentStep from './booking/PaymentStep'
 import StatusStep from './booking/StatusStep'
+import OfflineFallback from './booking/OfflineFallback'
 
 const EASE = [0.76, 0, 0.24, 1]
 
@@ -83,20 +83,7 @@ export default function PassModal({ onClose }) {
         {b.loading ? (
           <p className="eyebrow py-24 text-center text-bone/40">LOADING…</p>
         ) : unavailable ? (
-          <div className="mx-auto max-w-[36rem] py-16">
-            <h2 id="pass-title" className="display text-5xl">
-              GET YOUR PASS<span className="text-blood">.</span>
-            </h2>
-            <div className="mt-8">
-              <Notice tone="error" title="BOOKING IS TEMPORARILY UNAVAILABLE">
-                We can't reach the booking system right now. Please try again shortly, or contact the coordinators on{' '}
-                <a className="underline" href={PAYMENT.whatsapp} target="_blank" rel="noopener noreferrer">
-                  {PAYMENT.phone}
-                </a>
-                .
-              </Notice>
-            </div>
-          </div>
+          <OfflineFallback />
         ) : (
           <AnimatePresence mode="wait">
             <m.div key={b.stage} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>

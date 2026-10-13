@@ -31,8 +31,11 @@ export async function api(path, { method = 'GET', body, token, headers = {}, for
   } catch {
     throw new ApiError(0, { error: 'network', message: "Couldn't reach the booking server. Check your connection and try again." })
   }
-  const data = await res.json().catch(() => null)
+  const isJson = (res.headers.get('content-type') || '').includes('application/json')
+  const data = isJson ? await res.json().catch(() => null) : null
   if (!res.ok) throw new ApiError(res.status, data)
+  // A static host answering /api/* with its own HTML page means no booking server.
+  if (!isJson) throw new ApiError(0, { error: 'no_api', message: "Couldn't reach the booking server." })
   return data
 }
 

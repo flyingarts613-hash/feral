@@ -75,9 +75,12 @@ The simplest setup is one Node service serving everything:
 If the site must stay on a static host, deploy the server on its own domain,
 build the site with `VITE_API_URL=https://api.your-domain` and set
 `CORS_ORIGINS=https://www.getferal.in` on the server. The admin is then at the
-server's domain (`https://api.your-domain/admin/`). Without a reachable server
-the pass sheet shows "Booking is temporarily unavailable" with the coordinator's
-WhatsApp, never a fake flow.
+server's domain (`https://api.your-domain/admin/`).
+
+Without a reachable booking server (for example, the site deployed as static
+files before the server is live) the pass sheet automatically falls back to the
+previous way to book — the registration form, then a WhatsApp DM for payment —
+and never shows a fake booking flow.
 
 ## Email
 
