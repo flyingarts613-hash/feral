@@ -11,7 +11,7 @@ import { sha256 } from './lib/security.js'
 // routes, services and the worker. Tests pass a `capture` to use the in-memory
 // test providers (allowed only under NODE_ENV=test).
 export async function createContext(cfg, { capture, log = console, razorpayFetch } = {}) {
-  const db = createDb(cfg)
+  const db = createDb(cfg, log)
   await migrate(db, log)
   const ctx = {
     cfg,

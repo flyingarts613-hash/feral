@@ -11,6 +11,9 @@ import sharp from 'sharp'
 // then rasterised with sharp. One design for every attendee; only the fields
 // in PassArtData change.
 
+// Small hosts (512 MB): no libvips cache between renders.
+sharp.cache(false)
+
 const require = createRequire(import.meta.url)
 const here = path.dirname(fileURLToPath(import.meta.url))
 const fontFile = (pkg, file) => fs.readFileSync(path.join(path.dirname(require.resolve(`${pkg}/package.json`)), file))
@@ -237,10 +240,12 @@ export function passSvg(p) {
   return out.join('')
 }
 
-// PNG (transparent outside the ticket edge and notches).
+// PNG (transparent outside the ticket edge and notches). Palette-quantised:
+// visually the same, about a third of the size (~1 MB), which keeps emails
+// light and 100 passes well inside a small database.
 export async function passPng(p, { width = PASS_W } = {}) {
-  const img = sharp(Buffer.from(passSvg(p)), { density: 72 * (width / PASS_W) })
-  return img.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer()
+  const full = await sharp(Buffer.from(passSvg(p)), { density: 72 * (width / PASS_W) }).png().toBuffer()
+  return sharp(full).png({ palette: true, quality: 90, colours: 256, dither: 1, compressionLevel: 9, effort: 10 }).toBuffer()
 }
 
 // Flattened JPEG for embedding in the PDF.

@@ -25,7 +25,7 @@ once the provider accepts it and "DELIVERED" only when the provider says so.
 | A PostgreSQL database | `DATABASE_URL` (Neon, Supabase, Railway, Render, RDS… any Postgres 14+) |
 | A long random `APP_SECRET` | `.env` (see `.env.example`) |
 | An email sender | Resend API key + verified domain (`EMAIL_PROVIDER=resend`) or SMTP |
-| Organizer phone alerts | WhatsApp Cloud API or Twilio credentials + `ORGANIZER_PHONE` |
+| Organizer alerts | `ORGANIZER_EMAIL` (free) and/or WhatsApp Cloud API / Twilio + `ORGANIZER_PHONE` |
 | The payment QR image | Included (`server/assets/payment-qr.png`, Kotak811 · KHUSHAL AGARWAL · 9818241332@kotakbank); replace in Admin → Settings → Payment QR |
 | A host that runs Node 22 | see "Deploying" |
 
@@ -60,6 +60,9 @@ Re-running the command for an existing email resets its password and signs it ou
 
 ## Deploying
 
+**Free 10-day setup (Render + Supabase): see [FREE_DEPLOYMENT.md](FREE_DEPLOYMENT.md)** —
+`render.yaml` is included.
+
 The simplest setup is one Node service serving everything:
 
 1. Create a Postgres database.
@@ -67,12 +70,16 @@ The simplest setup is one Node service serving everything:
    build `npm ci && npm run build`, start `npm start`; or use the `Dockerfile`.
 3. Set the environment variables from `.env.example` in the host's dashboard.
 4. Point `www.getferal.in` at the service. Keep `APP_URL=https://www.getferal.in`.
-5. Create your admin (`npm run admin:create …` in the host's shell), sign in at
+5. Create your admin (`npm run admin:create …` in the host's shell, or — on
+   hosts without a shell — the one-time setup form enabled by
+   `ADMIN_SETUP_TOKEN`), sign in at
    `https://www.getferal.in/admin/`, upload the payment QR, check Overview for warnings.
 
 If the site must stay on a static host, deploy the server on its own domain,
 build the site with `VITE_API_URL=https://api.your-domain` and set
-`CORS_ORIGINS=https://www.getferal.in` on the server. The admin is then at the
+`CORS_ORIGINS=https://www.getferal.in,https://getferal.in` and
+`PUBLIC_API_URL=https://api.your-domain` on the server (pass download links and
+the QR image in emails then point at the server, booking links at the site). The admin is then at the
 server's domain (`https://api.your-domain/admin/`).
 
 Without a reachable booking server (for example, the site deployed as static
@@ -86,6 +93,7 @@ and never shows a fake booking flow.
   delivery tracking add a webhook to `APP_URL/api/webhooks/resend` (events
   `email.delivered`, `email.bounced`, `email.complained`) and set `RESEND_WEBHOOK_SECRET`.
 - **SMTP**: `SMTP_HOST/PORT/USER/PASS`. SMTP only reports "accepted"; there is no delivery receipt.
+  Some hosts (Render's free plan) block ports 25/465/587 — use Resend or a provider on port 2525.
 
 Emails: A verify email (OTP), B payment required (+ preliminary receipt marked
 "PAYMENT PENDING — NOT A CONFIRMED PASS"), C "Your Official FERAL 2026 Pass" (pass PNG,
@@ -96,9 +104,14 @@ The OTP is generated with a CSPRNG, stored only as a keyed hash, expires after
 5 minutes, allows 5 attempts, has a 60-second resend cooldown and a cap of 5
 codes per hour. It is sent directly (never queued) so it is never written to the database.
 
-## Organizer phone alerts
+## Organizer alerts
 
-A normal WhatsApp account cannot send automated messages. Use one of:
+**By email (free):** `ORGANIZER_EMAIL=you@example.com` (comma-separated for
+several) sends the same "payment approval required" / "payment rejected" text
+through the email provider. It can be used alone (leave `NOTIFY_PROVIDER`
+empty) or alongside phone alerts.
+
+**By phone:** a normal WhatsApp account cannot send automated messages. Use one of:
 
 **WhatsApp Business Cloud API (Meta)** — `NOTIFY_PROVIDER=whatsapp_cloud`.
 Business-initiated messages need approved templates. Create two templates in

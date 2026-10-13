@@ -21,7 +21,10 @@ export function loadConfig(env = process.env) {
     port: int(env.PORT, 8787),
     host: env.HOST || '0.0.0.0',
     appUrl,
-    passVerifyUrl: (env.PASS_VERIFY_URL || `${appUrl}/verify`).replace(/\/+$/, ''),
+    // Public URL of this server when the site is hosted elsewhere (static host +
+    // VITE_API_URL). Download links, the payment QR image and webhooks use it.
+    apiUrl: (env.PUBLIC_API_URL || appUrl).replace(/\/+$/, ''),
+    passVerifyUrl: (env.PASS_VERIFY_URL || `${(env.PUBLIC_API_URL || appUrl).replace(/\/+$/, '')}/verify`).replace(/\/+$/, ''),
     trustProxy: bool(env.TRUST_PROXY, prod),
     corsOrigins: list(env.CORS_ORIGINS),
     serveStatic: bool(env.SERVE_STATIC, true),
@@ -29,12 +32,16 @@ export function loadConfig(env = process.env) {
 
     databaseUrl: env.DATABASE_URL,
     databaseSsl: bool(env.DATABASE_SSL, false),
+    // Keep this below the database's connection limit (Supabase free session pooler: 15).
+    databasePoolMax: Math.max(2, int(env.DATABASE_POOL_MAX, 10)),
 
     // HMAC key for OTP and token hashes. Long and random; rotating it invalidates
     // live OTPs, customer links and admin sessions (not passes already issued).
     appSecret: env.APP_SECRET,
     cookieSecure: bool(env.COOKIE_SECURE, prod),
     adminSessionHours: int(env.ADMIN_SESSION_HOURS, 12),
+    // One-time first-owner setup at /admin/ (see docs/FREE_DEPLOYMENT.md).
+    adminSetupToken: env.ADMIN_SETUP_TOKEN || '',
 
     otp: {
       ttlSeconds: int(env.OTP_TTL_SECONDS, 300),
@@ -62,6 +69,8 @@ export function loadConfig(env = process.env) {
     notify: {
       provider: env.NOTIFY_PROVIDER || '',
       organizerPhones: list(env.ORGANIZER_PHONE),
+      // Free alternative/addition to phone alerts: the same alert by email.
+      organizerEmails: list(env.ORGANIZER_EMAIL).map((e) => e.toLowerCase()),
       twilio: {
         accountSid: env.TWILIO_ACCOUNT_SID || '',
         authToken: env.TWILIO_AUTH_TOKEN || '',
@@ -107,9 +116,11 @@ export function loadConfig(env = process.env) {
 
   const problems = []
   if (!cfg.databaseUrl) problems.push('DATABASE_URL is required')
+  if (cfg.adminSetupToken && cfg.adminSetupToken.length < 32) problems.push('ADMIN_SETUP_TOKEN must be at least 32 random characters')
   if (!cfg.appSecret || cfg.appSecret.length < 32) problems.push('APP_SECRET must be at least 32 random characters')
   if (!['resend', 'smtp', 'dev_outbox', 'test', ''].includes(cfg.email.provider)) problems.push(`Unknown EMAIL_PROVIDER "${cfg.email.provider}"`)
   if (!['twilio_sms', 'twilio_whatsapp', 'whatsapp_cloud', 'test', ''].includes(cfg.notify.provider)) problems.push(`Unknown NOTIFY_PROVIDER "${cfg.notify.provider}"`)
+  for (const e of cfg.notify.organizerEmails) if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) problems.push(`ORGANIZER_EMAIL "${e}" is not an email address`)
   if (!['static_upi', 'razorpay'].includes(cfg.payment.defaultMode)) problems.push('PAYMENT_MODE must be static_upi or razorpay')
 
   // Fake/development providers can never run in production; the test provider only under NODE_ENV=test.
@@ -120,12 +131,13 @@ export function loadConfig(env = process.env) {
     if (!cfg.email.provider) problems.push('EMAIL_PROVIDER is required in production (resend or smtp)')
     if (!cfg.email.from) problems.push('EMAIL_FROM is required in production')
     if (!/^https:\/\//.test(cfg.appUrl)) problems.push('APP_URL must be https:// in production')
+    if (!/^https:\/\//.test(cfg.apiUrl)) problems.push('PUBLIC_API_URL must be https:// in production')
   }
   if (cfg.email.provider === 'resend' && !cfg.email.resendApiKey) problems.push('RESEND_API_KEY is required for EMAIL_PROVIDER=resend')
   if (cfg.email.provider === 'smtp' && !cfg.email.smtp.host) problems.push('SMTP_HOST is required for EMAIL_PROVIDER=smtp')
 
   cfg.warnings = []
-  if (!cfg.notify.provider) cfg.warnings.push('NOTIFY_PROVIDER is not set — organizer phone alerts will fail until it is configured (pending payments still appear in the dashboard).')
+  if (!cfg.notify.provider && !cfg.notify.organizerEmails.length) cfg.warnings.push('Neither NOTIFY_PROVIDER nor ORGANIZER_EMAIL is set — organizer alerts will fail until one is configured (pending payments still appear in the dashboard).')
   if (cfg.notify.provider && cfg.notify.provider !== 'test' && !cfg.notify.organizerPhones.length) cfg.warnings.push('ORGANIZER_PHONE is not set (it can also be set in the admin dashboard).')
   if (!cfg.email.provider) cfg.warnings.push('EMAIL_PROVIDER is not set — OTP and pass emails cannot be sent.')
 

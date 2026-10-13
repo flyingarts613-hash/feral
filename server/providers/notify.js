@@ -10,7 +10,7 @@ export function createNotifyProvider(cfg, { capture } = {}) {
   const tw = n.twilio
   const twilioSend = async (form) => {
     if (!tw.accountSid || !tw.authToken) throw new Error('Twilio is not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN)')
-    if (tw.statusCallback && /^https:\/\//.test(cfg.appUrl)) form.StatusCallback = `${cfg.appUrl}/api/webhooks/twilio/status`
+    if (tw.statusCallback && /^https:\/\//.test(cfg.apiUrl)) form.StatusCallback = `${cfg.apiUrl}/api/webhooks/twilio/status`
     const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${tw.accountSid}/Messages.json`, {
       method: 'POST',
       headers: {

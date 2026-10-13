@@ -1,0 +1,64 @@
+# Render Blueprint — FERAL site + booking server as ONE free web service.
+# The delivery worker runs inside the same process (no separate worker needed).
+# Every secret is entered in the Render dashboard ("sync: false"); nothing real
+# is stored in this file. See docs/FREE_DEPLOYMENT.md.
+services:
+  - type: web
+    name: feral
+    runtime: node
+    plan: free
+    region: singapore
+    branch: claude/feral-halloween-website-12cikq
+    autoDeploy: false
+    # --include=dev: NODE_ENV=production would otherwise skip Vite (a devDependency)
+    buildCommand: npm ci --include=dev && npm run build
+    # migrations run automatically on start, under a database lock
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      # https://<your-service>.onrender.com at first; later https://www.getferal.in
+      - key: APP_URL
+        sync: false
+      # Supabase → Connect → Session pooler (port 5432), see the guide
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATABASE_POOL_MAX
+        value: "5"
+      # generated once by Render; keep it stable for the whole event
+      - key: APP_SECRET
+        generateValue: true
+      # one-time first-owner setup at /admin/ (closed once an owner exists)
+      - key: ADMIN_SETUP_TOKEN
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: PAYMENT_MODE
+        value: static_upi
+      - key: EMAIL_PROVIDER
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: ORGANIZER_EMAIL
+        sync: false
+      - key: NOTIFY_PROVIDER
+        sync: false
+      - key: ORGANIZER_PHONE
+        sync: false

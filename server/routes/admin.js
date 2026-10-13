@@ -62,7 +62,7 @@ export const adminRoutes = (ctx) => async (app) => {
 
   // ─── auth ──────────────────────────────────────────────────────────────────
   app.addHook('preHandler', async (req) => {
-    if (req.routeOptions.url?.endsWith('/login')) return
+    if (req.routeOptions.url?.endsWith('/login') || req.routeOptions.url?.endsWith('/setup')) return
     const a = await adminFromRequest(ctx, req)
     if (!a) throw httpError(401, 'unauthenticated', 'Please sign in.')
     if (req.method !== 'GET' && !safeEqual(String(req.headers['x-csrf-token'] || ''), a.csrf)) throw httpError(403, 'csrf', 'Your session expired. Reload the page.')
@@ -90,6 +90,35 @@ export const adminRoutes = (ctx) => async (app) => {
     await audit(db, { admin: a, action: 'admin_login', ip: req.ip })
     reply.setCookie(COOKIE, token, { httpOnly: true, secure: cfg.cookieSecure, sameSite: 'strict', path: '/', maxAge: cfg.adminSessionHours * 3600 })
     return { admin: { email: a.email, name: a.name, role: a.role }, csrfToken: csrf }
+  })
+
+  // ─── first-owner setup (hosts without a shell for `npm run admin:create`) ────
+  // Works only while there are no admins at all AND ADMIN_SETUP_TOKEN (32+
+  // random characters, set on the server) is supplied. Once an admin exists it
+  // is permanently closed.
+  const noAdmins = async (q) => (await q.one('SELECT count(*)::int AS n FROM admins')).n === 0
+  app.get('/setup', async () => ({ available: Boolean(cfg.adminSetupToken) && (await noAdmins(db)) }))
+  app.post('/setup', { config: { rateLimit: { max: 5 * cfg.rateLimitScale, timeWindow: 15 * 60000 } } }, async (req) => {
+    const body = z
+      .object({
+        token: z.string().max(200),
+        email: z.string().trim().toLowerCase().max(254).regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'Enter a valid email'),
+        name: z.string().trim().min(2).max(80),
+        password: z.string().min(12, 'Use at least 12 characters').max(200),
+      })
+      .parse(req.body ?? {})
+    if (!cfg.adminSetupToken || !safeEqual(body.token, cfg.adminSetupToken)) {
+      await audit(db, { actor: 'setup attempt', action: 'admin_setup_refused', ip: req.ip })
+      throw httpError(403, 'setup_refused', 'Setup is not available.')
+    }
+    const hash = await hashPassword(body.password)
+    const a = await db.tx(async (c) => {
+      await c.query('SELECT pg_advisory_xact_lock(82610262)')
+      if (!(await noAdmins(c))) throw httpError(409, 'setup_closed', 'An admin already exists. Sign in instead.')
+      return c.one(`INSERT INTO admins (email, name, password_hash, role) VALUES ($1, $2, $3, 'owner') RETURNING *`, [body.email, body.name, hash])
+    })
+    await audit(db, { admin: a, action: 'admin_setup_owner_created', ip: req.ip })
+    return { ok: true, admin: { email: a.email, role: a.role } }
   })
 
   app.post('/logout', async (req, reply) => {

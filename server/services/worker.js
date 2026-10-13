@@ -4,6 +4,7 @@ import { bookingEmail, confirmedEmail, organizerPendingMessage, organizerRejecte
 import { bookingUrl, mintLink } from './bookings.js'
 import { renderReceipt } from './documents.js'
 import { audit } from './audit.js'
+import { escapeHtml } from '../lib/format.js'
 
 // Renders and sends one queued message. Throws on failure (the caller retries).
 async function deliver(ctx, n) {
@@ -14,7 +15,7 @@ async function deliver(ctx, n) {
   switch (n.type) {
     case 'booking_payment_required': {
       const token = await mintLink(ctx, ctx.db, booking.id, 'booking', settings)
-      const qrUrl = settings.paymentQrFileId ? `${ctx.cfg.appUrl}/api/public/payment-qr?v=${settings.paymentQrFileId}` : null
+      const qrUrl = settings.paymentQrFileId ? `${ctx.cfg.apiUrl}/api/public/payment-qr?v=${settings.paymentQrFileId}` : null
       const mail = bookingEmail({ settings, booking, bookingUrl: bookingUrl(ctx, booking.booking_code, token), qrUrl, upi: settings.upi })
       const receipt = await renderReceipt({
         preliminary: true,
@@ -49,7 +50,7 @@ async function deliver(ctx, n) {
       const receipt = pick(pass.receipt_file_id)
       if (!pdf || !png || !receipt) throw new Error('pass documents missing')
       const dl = await mintLink(ctx, ctx.db, booking.id, 'pass_download', settings)
-      const downloadUrl = `${ctx.cfg.appUrl}/api/public/bookings/${encodeURIComponent(booking.booking_code)}/pass.pdf?t=${encodeURIComponent(dl)}`
+      const downloadUrl = `${ctx.cfg.apiUrl}/api/public/bookings/${encodeURIComponent(booking.booking_code)}/pass.pdf?t=${encodeURIComponent(dl)}`
       const mail = confirmedEmail({ settings, booking, payment, pass, downloadUrl })
       return ctx.email.send({
         to: booking.email,
@@ -76,6 +77,11 @@ async function deliver(ctx, n) {
       const p = await ctx.db.one('SELECT * FROM payments WHERE id = $1', [n.payload.paymentId])
       const pending = n.type === 'organizer_payment_pending'
       const msg = pending ? organizerPendingMessage({ booking, payment: p }) : organizerRejectedMessage({ booking, reason: p?.rejection_reason })
+      if (n.channel === 'email') {
+        // same content as the phone alert: no links that approve anything, no tokens
+        const subject = `${pending ? 'FERAL — Payment approval required' : 'FERAL — Payment rejected'} · ${booking.booking_code}`
+        return ctx.email.send({ to: n.recipient, subject, text: msg.body, html: `<pre style="font:14px/1.5 monospace;white-space:pre-wrap">${escapeHtml(msg.body)}</pre>`, idempotencyKey: `n-${n.id}-${n.attempts}` })
+      }
       return ctx.notify.send({ to: n.recipient, kind: pending ? 'payment_pending' : 'payment_rejected', ...msg })
     }
 

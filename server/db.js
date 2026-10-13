@@ -3,12 +3,18 @@ import pg from 'pg'
 // bigint ids/counts come back as numbers (they stay far below 2^53 here).
 pg.types.setTypeParser(20, (v) => Number(v))
 
-export function createDb({ databaseUrl, databaseSsl }) {
+export function createDb({ databaseUrl, databaseSsl, databasePoolMax = 10 }, log = console) {
   const pool = new pg.Pool({
     connectionString: databaseUrl,
     ssl: databaseSsl ? { rejectUnauthorized: false } : undefined,
-    max: 10,
+    max: databasePoolMax,
+    connectionTimeoutMillis: 15_000,
+    idleTimeoutMillis: 60_000,
+    keepAlive: true,
   })
+  // A hosted pooler (e.g. Supabase Supavisor) may drop idle connections; without
+  // this listener that error would crash the process. The pool replaces the client.
+  pool.on('error', (e) => log.error?.(`database idle client error: ${e.message}`))
 
   const db = {
     pool,

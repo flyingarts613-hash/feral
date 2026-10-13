@@ -299,17 +299,23 @@ export async function submitPayment(ctx, booking, { reference, screenshot }, { i
   return bookingView(ctx, res)
 }
 
-// Queues one alert per organizer number, inside the same transaction that saved
-// the payment — the alert exists only if the payment was saved, and only once.
+// Queues one alert per organizer number (and per ORGANIZER_EMAIL address),
+// inside the same transaction that saved the payment — the alert exists only if
+// the payment was saved, and only once.
 export async function notifyOrganizer(ctx, c, settings, booking, payment, kind) {
   const phones = organizerPhones(settings, ctx.cfg)
+  const emails = ctx.cfg.notify.organizerEmails
   const channel = ctx.notify.channel
   const type = kind === 'payment_pending' ? 'organizer_payment_pending' : 'organizer_payment_rejected'
+  const payload = { paymentId: payment.id }
+  for (const to of emails) await enqueue(c, { booking, channel: 'email', type, recipient: to, key: `${type}:${payment.id}:email:${to}`, payload })
+  // With only email alerts set up, a missing phone setup is not a failure.
+  if (emails.length && (ctx.notify.name === 'none' || !phones.length)) return
   if (!phones.length) {
-    await enqueue(c, { booking, channel, type, recipient: 'unconfigured', key: `${type}:${payment.id}:unconfigured`, payload: { paymentId: payment.id } })
+    await enqueue(c, { booking, channel, type, recipient: 'unconfigured', key: `${type}:${payment.id}:unconfigured`, payload })
     return
   }
-  for (const phone of phones) await enqueue(c, { booking, channel, type, recipient: phone, key: `${type}:${payment.id}:${phone}`, payload: { paymentId: payment.id } })
+  for (const phone of phones) await enqueue(c, { booking, channel, type, recipient: phone, key: `${type}:${payment.id}:${phone}`, payload })
 }
 
 // ─── payment gateway (Razorpay) ──────────────────────────────────────────────

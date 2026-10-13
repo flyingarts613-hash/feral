@@ -120,6 +120,14 @@ function Login({ onIn }) {
   const [password, setPassword] = useState('')
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [setup, setSetup] = useState(false)
+  const [created, setCreated] = useState(null)
+  useEffect(() => {
+    call('/setup')
+      .then((r) => setSetup(Boolean(r?.available)))
+      .catch(() => {})
+  }, [])
+  if (setup && !created) return <FirstOwner onDone={(a) => (setCreated(a.email), setEmail(a.email), setSetup(false))} />
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
@@ -139,6 +147,7 @@ function Login({ onIn }) {
       <form onSubmit={submit} className="w-full max-w-sm border border-bone/10 bg-coal p-8">
         <p className="display text-5xl">FERAL</p>
         <p className="eyebrow mt-2 text-bone/45">ADMIN SIGN-IN</p>
+        {created && <p className="mt-4 text-sm text-bone/70">Owner {created} created. Sign in with the password you just chose.</p>}
         <div className="mt-8 space-y-5">
           <Input label="EMAIL" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
           <Input label="PASSWORD" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
@@ -146,6 +155,48 @@ function Login({ onIn }) {
         {err && <p className="mt-4 text-sm text-alarm" role="alert">{err}</p>}
         <Btn type="submit" busy={busy} className="mt-8 w-full">
           SIGN IN
+        </Btn>
+      </form>
+    </div>
+  )
+}
+
+// Shown only while the server has no admins and ADMIN_SETUP_TOKEN is set.
+function FirstOwner({ onDone }) {
+  const [f, setF] = useState({ token: '', name: '', email: '', password: '', confirm: '' })
+  const [err, setErr] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
+  const submit = async (e) => {
+    e.preventDefault()
+    setErr(null)
+    if (f.password !== f.confirm) return setErr("The passwords don't match.")
+    setBusy(true)
+    try {
+      const r = await call('/setup', { method: 'POST', body: { token: f.token, name: f.name, email: f.email, password: f.password } })
+      onDone(r.admin)
+    } catch (e2) {
+      setErr(e2.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="grid min-h-screen place-items-center bg-ink px-4 py-10 text-bone">
+      <form onSubmit={submit} className="w-full max-w-sm border border-bone/10 bg-coal p-8">
+        <p className="display text-5xl">FERAL</p>
+        <p className="eyebrow mt-2 text-bone/45">FIRST-TIME SETUP · CREATE THE OWNER</p>
+        <p className="mt-4 text-sm text-bone/60">Enter the ADMIN_SETUP_TOKEN from the server's environment. This page closes for good once an owner exists.</p>
+        <div className="mt-6 space-y-5">
+          <Input label="SETUP TOKEN" type="password" autoComplete="off" value={f.token} onChange={set('token')} required />
+          <Input label="YOUR NAME" autoComplete="name" value={f.name} onChange={set('name')} required />
+          <Input label="EMAIL" type="email" autoComplete="username" value={f.email} onChange={set('email')} required />
+          <Input label="PASSWORD (12+ CHARACTERS)" type="password" autoComplete="new-password" minLength={12} value={f.password} onChange={set('password')} required />
+          <Input label="CONFIRM PASSWORD" type="password" autoComplete="new-password" minLength={12} value={f.confirm} onChange={set('confirm')} required />
+        </div>
+        {err && <p className="mt-4 text-sm text-alarm" role="alert">{err}</p>}
+        <Btn type="submit" busy={busy} className="mt-8 w-full">
+          CREATE OWNER
         </Btn>
       </form>
     </div>

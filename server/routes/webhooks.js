@@ -80,7 +80,7 @@ export const webhookRoutes = (ctx) => async (app) => {
   // ─── Twilio message status callbacks ───────────────────────────────────────
   app.post('/twilio/status', async (req, reply) => {
     const token = cfg.notify.twilio.authToken
-    const url = `${cfg.appUrl}/api/webhooks/twilio/status`
+    const url = `${cfg.apiUrl}/api/webhooks/twilio/status`
     const params = req.body || {}
     const data = url + Object.keys(params).sort().map((k) => k + params[k]).join('')
     const expected = crypto.createHmac('sha1', token || 'unset').update(data).digest('base64')
