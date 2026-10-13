@@ -6,6 +6,8 @@
   --color-bone: #f2f0ec;
   --color-blood: #9e0f18;
   --color-blood-deep: #5c060b;
+  --color-dusk: #5b3d78; /* restrained purple accent (booking flow) */
+  --color-alarm: #e0283c;
 
   --font-display: 'Anton', 'Impact', 'Arial Narrow', sans-serif;
   --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;

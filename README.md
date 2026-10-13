@@ -4,16 +4,21 @@
 
 ```bash
 npm install
-npm run dev       # local
+npm run dev       # local site (with `npm run dev:server` for bookings)
 npm run build     # production build → dist/ (optimises images first)
+npm start         # site + booking server + admin (/admin/) — needs .env
 ```
+
+**Bookings, payments and passes** (Buy Pass → email OTP → UPI QR → organizer
+approval → emailed pass): see [docs/BOOKINGS.md](docs/BOOKINGS.md) for setup,
+deployment, the admin dashboard and what you need to provide.
 
 ## Edit the event (no component code needed)
 
 | What | Where |
 | --- | --- |
 | Date, city, venue, registration form, Instagram, hero media | `src/data/event.js` |
-| Pass types, prices, pricing round label, payment DM number | `src/data/passes.js` |
+| Pass prices, referral codes, payment QR, event info | Admin → Settings / Referral codes (`/admin/`) |
 | Safety section copy + points | `src/data/content.js` → `SAFETY` |
 | Team (names, roles, Instagram links) | `src/data/team.js` |
 | Archive strip | `src/data/archive.js` |
@@ -68,17 +73,7 @@ data-saver or reduced motion. The image shows first.
 
 ## Pass flow
 
-Every "GET YOUR PASS" opens a full-screen sheet at `/#pass`. You can link
-that URL directly, for example from an Instagram bio.
-
-1. **Select pass type** (Round 3): Boy ₹1999, Girl ₹1699, Couple ₹3499,
-   Group of boys (5+) ₹1899 per person, Group of girls (5+) ₹1549 per person.
-2. **How many people**: − / + buttons. Boy and Girl drop to the group rate
-   automatically at 5 people; the group passes start at 5; the couple pass
-   has no counter. The per-person price and total update live.
-3. **Step 1 — FILL REGISTRATION FORM →** opens the Google Form (everyone's
-   details, comma-separated).
-4. **Step 2 — DM FOR PAYMENT**: +91 8377098457 — opens a WhatsApp chat
-   (https://wa.me/918377098457).
-
-Prices, the group size and the number live in `src/data/passes.js`.
+Every "GET YOUR PASS" opens a full-screen sheet at `/#pass` (link it from an
+Instagram bio). It runs the booking flow: price menu → BUY PASS → details →
+email verification → payment → confirmation. Prices, referral codes and the
+payment QR are managed in the admin; see [docs/BOOKINGS.md](docs/BOOKINGS.md).

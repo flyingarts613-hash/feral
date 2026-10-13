@@ -10,7 +10,7 @@ export const EVENT = {
   edition: 'HALLOWEEN 2026',
   date: '26 OCTOBER 2026',
   dateShort: '26.10.26',
-  startsAt: '2026-10-26T20:00:00+05:30', // drives the "nights left" countdown
+  startsAt: '2026-10-26T17:30:00+05:30', // drives the "nights left" countdown
   city: 'DELHI',
   area: 'SOUTH DELHI',
   venue: 'CHHATARPUR FARMS',

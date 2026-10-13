@@ -26,9 +26,9 @@ export const WAITING = [
 ]
 
 export const PASS_STEPS = [
-  { title: 'CHOOSE YOUR PASS', note: 'Boy, girl, couple or a group. 5+ pay less.' },
-  { title: 'FILL THE REGISTRATION FORM', note: 'Everyone’s details, comma-separated.' },
-  { title: 'DM FOR PAYMENT', note: '+91 8377098457 on WhatsApp. Your booking is done.', href: 'https://wa.me/918377098457' },
+  { title: 'CHOOSE YOUR PASS', note: 'Male / stag, girls or couple. Referral codes from the coordinators.' },
+  { title: 'VERIFY & PAY', note: 'Confirm your email with a code, then pay by UPI QR.' },
+  { title: 'GET YOUR PASS', note: 'Emailed to you once the organisers confirm your payment.' },
 ]
 
 // SAFETY COMES FIRST — the short reassurance block before the final CTA.

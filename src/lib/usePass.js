@@ -2,13 +2,15 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 
 // The pass sheet lives at #pass so it can be linked directly
 // (e.g. from an Instagram bio) and closed with the back button.
+// Links in booking emails open it at #booking=FRL-XXXXXX.<token>.
 const HASH = '#pass'
+const isOpenHash = (h) => h === HASH || h.startsWith('#booking=')
 
 export function usePass() {
-  const [open, setOpen] = useState(() => window.location.hash === HASH)
+  const [open, setOpen] = useState(() => isOpenHash(window.location.hash))
 
   useEffect(() => {
-    const sync = () => setOpen(window.location.hash === HASH)
+    const sync = () => setOpen(isOpenHash(window.location.hash))
     window.addEventListener('hashchange', sync)
     window.addEventListener('popstate', sync)
     return () => {
