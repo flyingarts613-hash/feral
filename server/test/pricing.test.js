@@ -53,6 +53,22 @@ test('couple with another valid referral: ₹3,099', async () => {
   assert.equal((await quote('couple', 'FRIEND')).finalPaise, 309900)
 })
 
+test('INT650 and KITTU20 take ₹400 off every pass (any letter case)', async () => {
+  for (const code of ['INT650', 'kittu20', ' Kittu20 ']) {
+    const expected = { male: [199900, 159900], female: [169900, 129900], couple: [349900, 309900] }
+    for (const [category, [original, final]] of Object.entries(expected)) {
+      const q = await quote(category, code)
+      assert.deepEqual([q.originalPaise, q.discountPaise, q.finalPaise, q.referral.status, q.referral.code], [original, 40000, final, 'applied', code.trim().toUpperCase()], `${code} ${category}`)
+    }
+  }
+})
+
+test('a booking with KITTU20 is charged the discounted price', async () => {
+  const { res, body } = await createBooking(t.app, { referralCode: 'KITTU20' })
+  assert.equal(res.statusCode, 201, res.body)
+  assert.deepEqual([body.booking.originalPaise, body.booking.discountPaise, body.booking.finalPaise], [199900, 40000, 159900])
+})
+
 test('7. Invalid referral code: no discount', async () => {
   const q = await quote('male', 'NOPE123')
   assert.deepEqual([q.finalPaise, q.discountPaise, q.referral.status], [199900, 0, 'invalid'])

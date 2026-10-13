@@ -187,6 +187,7 @@ integer paise, calculated only on the server; the browser's numbers are ignored.
 
 - **ETHAN** (case-insensitive): fixed ₹1,500 male/stag, ₹1,000 girls; couple gets
   the normal discount unless you set a special couple price (Admin → Referral codes → edit).
+- **INT650** and **KITTU20** (case-insensitive): flat ₹400 off any pass (₹1,599 / ₹1,299 / ₹3,099).
 - **Any other code** an owner creates: flat ₹400 off (configurable per code or globally).
 - Invalid / expired / used-up codes: original price. Codes never stack.
 

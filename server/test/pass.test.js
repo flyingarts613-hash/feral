@@ -9,10 +9,13 @@ import { DEFAULTS } from '../services/settings.js'
 
 const event = DEFAULTS.event
 
-test('pass IDs look like FERAL-2026-XXXXXX and do not repeat', () => {
+test('pass IDs look like FERAL-2026-XXXXXX and are spread over the whole ID space', () => {
   const codes = Array.from({ length: 20000 }, newPassCode)
   for (const c of codes) assert.match(c, PASS_CODE_RE)
-  assert.equal(new Set(codes).size, codes.length)
+  // 31^6 ≈ 887 million IDs: among 20,000 random ones about 0.2 repeats are
+  // expected (birthday bound), so allow a few. A repeat can never reach the
+  // database — passes.pass_code is UNIQUE and the issuer redraws (payments.test).
+  assert.ok(codes.length - new Set(codes).size <= 3)
   // no look-alike characters
   assert.ok(codes.every((c) => !/[01IOL]/.test(c.slice(11))))
 })
