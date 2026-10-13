@@ -32,6 +32,16 @@ const noOverflow = (p) => p.evaluate(() => document.documentElement.scrollWidth 
 for (const [w, h, mobile] of [[1440, 900, false], [390, 844, true], [375, 667, true]]) {
   const tag = `${w}`
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile })
+  // Newer browsers return a Promise from scroll methods; React must never get one
+  // back from an effect (it would call it as the cleanup → blank page).
+  await ctx.addInitScript(() => {
+    for (const proto of [Element.prototype, window]) {
+      for (const k of ['scrollTo', 'scroll', 'scrollBy', 'scrollIntoView']) {
+        const orig = proto[k]
+        if (orig) proto[k] = function (...a) { orig.apply(this, a); return Promise.resolve() }
+      }
+    }
+  })
   const page = await ctx.newPage()
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))

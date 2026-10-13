@@ -56,7 +56,9 @@ export default function DetailsForm({ config, category, setCategory, onCreated, 
   const idem = useRef(uuid())
 
   const set = (k) => (e) => setV((s) => ({ ...s, [k]: e?.target ? e.target.value : e }))
-  useEffect(() => setCategory(v.category), [v.category, setCategory])
+  useEffect(() => {
+    setCategory(v.category)
+  }, [v.category, setCategory])
 
   // Live price from the server whenever the pass or the code changes.
   useEffect(() => {

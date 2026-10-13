@@ -37,7 +37,9 @@ export default function App() {
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
-  useEffect(() => lockScroll(open || !ready), [open, ready])
+  useEffect(() => {
+    lockScroll(open || !ready)
+  }, [open, ready])
 
   return (
     <LazyMotion features={domAnimation} strict>

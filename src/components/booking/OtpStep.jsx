@@ -9,7 +9,9 @@ export default function OtpStep({ session, booking, onVerified, onStartOver }) {
   const [wait, setWait] = useState(booking.otp?.resendInSeconds ?? 0)
   const input = useRef(null)
 
-  useEffect(() => input.current?.focus(), [])
+  useEffect(() => {
+    input.current?.focus()
+  }, [])
   useEffect(() => {
     if (wait <= 0) return
     const t = setTimeout(() => setWait((w) => w - 1), 1000)

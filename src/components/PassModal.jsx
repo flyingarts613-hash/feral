@@ -32,8 +32,12 @@ export default function PassModal({ onClose }) {
     }
   }, [onClose])
 
-  // new step → back to the top of the sheet
-  useEffect(() => scroller.current?.scrollTo({ top: 0 }), [b.stage])
+  // New step → back to the top of the sheet. Block body on purpose: newer
+  // browsers return a Promise from scrollTo(), and React would call whatever an
+  // effect returns as its cleanup function ("l is not a function" → blank page).
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: 0 })
+  }, [b.stage])
 
   const onCreated = useCallback(
     (out, values) => {
