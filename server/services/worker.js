@@ -2,10 +2,8 @@ import { claimDue, markFailed, markSent } from './outbox.js'
 import { getSettings } from './settings.js'
 import { bookingEmail, confirmedEmail, organizerPendingMessage, organizerRejectedMessage, rejectedEmail } from './emails.js'
 import { bookingUrl, mintLink } from './bookings.js'
-import { renderReceipt, qrPngBuffer } from './documents.js'
-import { verifyUrlFor } from './payments.js'
+import { renderReceipt } from './documents.js'
 import { audit } from './audit.js'
-import { decrypt } from '../lib/security.js'
 
 // Renders and sends one queued message. Throws on failure (the caller retries).
 async function deliver(ctx, n) {
@@ -44,21 +42,22 @@ async function deliver(ctx, n) {
       const pass = await ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [booking.id])
       const payment = await ctx.db.one(`SELECT * FROM payments WHERE id = $1`, [pass?.payment_id])
       if (!pass || payment?.status !== 'APPROVED') throw new Error('no approved pass for this booking')
-      const files = await ctx.db.many('SELECT id, bytes FROM files WHERE id = ANY($1)', [[pass.pdf_file_id, pass.receipt_file_id]])
-      const pdf = files.find((f) => f.id === pass.pdf_file_id)?.bytes
-      const receipt = files.find((f) => f.id === pass.receipt_file_id)?.bytes
-      if (!pdf || !receipt) throw new Error('pass documents missing')
+      const files = await ctx.db.many('SELECT id, bytes FROM files WHERE id = ANY($1)', [[pass.pdf_file_id, pass.png_file_id, pass.receipt_file_id]])
+      const pick = (id) => files.find((f) => f.id === id)?.bytes
+      const pdf = pick(pass.pdf_file_id)
+      const png = pick(pass.png_file_id)
+      const receipt = pick(pass.receipt_file_id)
+      if (!pdf || !png || !receipt) throw new Error('pass documents missing')
       const dl = await mintLink(ctx, ctx.db, booking.id, 'pass_download', settings)
       const downloadUrl = `${ctx.cfg.appUrl}/api/public/bookings/${encodeURIComponent(booking.booking_code)}/pass.pdf?t=${encodeURIComponent(dl)}`
-      const qr = await qrPngBuffer(verifyUrlFor(ctx, decrypt(ctx.cfg.appSecret, pass.qr_token_enc)))
       const mail = confirmedEmail({ settings, booking, payment, pass, downloadUrl })
       return ctx.email.send({
         to: booking.email,
         ...mail,
         attachments: [
-          { filename: `FERAL-pass-${pass.pass_code}.pdf`, content: pdf, contentType: 'application/pdf' },
+          { filename: `FERAL-2026-Pass-${pass.pass_code}.png`, content: png, contentType: 'image/png' },
+          { filename: `FERAL-2026-Pass-${pass.pass_code}.pdf`, content: pdf, contentType: 'application/pdf' },
           { filename: `FERAL-receipt-${booking.booking_code}.pdf`, content: receipt, contentType: 'application/pdf' },
-          { filename: 'feral-pass-qr.png', content: qr, contentType: 'image/png', cid: 'feral-pass-qr', inline: true },
         ],
         idempotencyKey: `n-${n.id}-${n.attempts}`,
       })

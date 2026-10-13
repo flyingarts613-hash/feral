@@ -3,7 +3,7 @@ import { enqueue } from './outbox.js'
 import { getSettings } from './settings.js'
 import { httpError, notifyOrganizer } from './bookings.js'
 import { renderPass, renderReceipt } from './documents.js'
-import { encrypt, keyedHash, newPassCode, randomToken, sha256 } from '../lib/security.js'
+import { encrypt, keyedHash, newPassCode, PASS_CODE_RE, randomToken, sha256 } from '../lib/security.js'
 import { cleanText } from '../lib/format.js'
 
 export const qrTokenHash = (ctx, token) => keyedHash(ctx.cfg.appSecret, `passqr:${token}`)
@@ -67,7 +67,7 @@ export async function approvePayment(ctx, bookingCode, actor, { ip = null } = {}
 // Generates the pass + receipt once per booking (UNIQUE booking_id) and queues
 // the confirmation email once (dedupe key). Calling it again is a no-op apart
 // from re-queuing nothing.
-export async function issuePass(ctx, bookingId) {
+export async function issuePass(ctx, bookingId, { newCode = newPassCode } = {}) {
   const existing = await ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId])
   if (existing) return existing
 
@@ -78,16 +78,6 @@ export async function issuePass(ctx, bookingId) {
   }
 
   const settings = await getSettings(ctx.db)
-  const token = randomToken(24)
-  const passCode = newPassCode()
-  const passPdf = await renderPass({
-    holderName: booking.holder_name,
-    category: booking.category,
-    passCode,
-    bookingCode: booking.booking_code,
-    verifyUrl: verifyUrlFor(ctx, token),
-    event: settings.event,
-  })
   const receiptPdf = await renderReceipt({
     preliminary: false,
     bookingCode: booking.booking_code,
@@ -106,25 +96,38 @@ export async function issuePass(ctx, bookingId) {
     event: settings.event,
   })
 
-  try {
-    return await ctx.db.tx(async (c) => {
-      const b = await c.one('SELECT * FROM bookings WHERE id = $1 FOR UPDATE', [bookingId])
-      const again = await c.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId])
-      if (again) return again
-      const pdf = await c.one(`INSERT INTO files (kind, mime, bytes, size, sha256) VALUES ('pass_pdf', 'application/pdf', $1, $2, $3) RETURNING id`, [passPdf, passPdf.length, sha256(passPdf)])
-      const rec = await c.one(`INSERT INTO files (kind, mime, bytes, size, sha256) VALUES ('receipt_pdf', 'application/pdf', $1, $2, $3) RETURNING id`, [receiptPdf, receiptPdf.length, sha256(receiptPdf)])
-      const pass = await c.one(
-        `INSERT INTO passes (booking_id, payment_id, pass_code, qr_token_hash, qr_token_enc, pdf_file_id, receipt_file_id, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'GENERATED') RETURNING *`,
-        [b.id, payment.id, passCode, qrTokenHash(ctx, token), encrypt(ctx.cfg.appSecret, token), pdf.id, rec.id],
-      )
-      await audit(c, { actor: 'system', action: 'pass_generated', booking: b, details: { passCode } })
-      await enqueue(c, { booking: b, channel: 'email', type: 'payment_confirmed', recipient: b.email, key: `payment_confirmed:${b.id}` })
-      return pass
-    })
-  } catch (e) {
-    if (e.code === '23505') return ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId]) // concurrent issue won
-    throw e
+  // The pass ID is random; the UNIQUE constraint is the final word, so a
+  // collision just means drawing a new ID and rendering again.
+  for (let attempt = 1; ; attempt++) {
+    const passCode = newCode()
+    const token = randomToken(24)
+    // Only the attendee's name, pass type, pass ID and event details go on the pass.
+    const art = await renderPass({ holderName: booking.holder_name, category: booking.category, passCode, event: settings.event })
+    try {
+      return await ctx.db.tx(async (c) => {
+        const b = await c.one('SELECT * FROM bookings WHERE id = $1 FOR UPDATE', [bookingId])
+        const again = await c.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId])
+        if (again) return again
+        const file = (kind, mime, bytes) =>
+          c.one(`INSERT INTO files (kind, mime, bytes, size, sha256) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [kind, mime, bytes, bytes.length, sha256(bytes)])
+        const pdf = await file('pass_pdf', 'application/pdf', art.pdf)
+        const png = await file('pass_png', 'image/png', art.png)
+        const rec = await file('receipt_pdf', 'application/pdf', receiptPdf)
+        const pass = await c.one(
+          `INSERT INTO passes (booking_id, payment_id, pass_code, qr_token_hash, qr_token_enc, pdf_file_id, png_file_id, receipt_file_id, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'GENERATED') RETURNING *`,
+          [b.id, payment.id, passCode, qrTokenHash(ctx, token), encrypt(ctx.cfg.appSecret, token), pdf.id, png.id, rec.id],
+        )
+        await audit(c, { actor: 'system', action: 'pass_generated', booking: b, details: { passCode } })
+        await enqueue(c, { booking: b, channel: 'email', type: 'payment_confirmed', recipient: b.email, key: `payment_confirmed:${b.id}` })
+        return pass
+      })
+    } catch (e) {
+      if (e.code !== '23505') throw e
+      if (e.constraint === 'passes_booking_id_key') return ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId]) // concurrent issue won
+      if (attempt >= 5) throw e
+      ctx.log.warn({ booking: booking.booking_code, attempt }, 'pass ID collision, drawing a new one')
+    }
   }
 }
 
@@ -158,6 +161,17 @@ export async function lookupPass(ctx, token) {
     `SELECT ps.*, b.holder_name, b.category, b.booking_code, b.status AS booking_status
        FROM passes ps JOIN bookings b ON b.id = ps.booking_id WHERE ps.qr_token_hash = $1`,
     [qrTokenHash(ctx, token)],
+  )
+}
+
+// Entry staff type the pass ID printed on the pass (FERAL-2026-XXXXXX).
+export async function lookupPassByCode(ctx, code) {
+  const c = String(code || '').trim().toUpperCase().replace(/\s+/g, '')
+  if (!PASS_CODE_RE.test(c)) return null
+  return ctx.db.one(
+    `SELECT ps.*, b.holder_name, b.category, b.booking_code, b.status AS booking_status
+       FROM passes ps JOIN bookings b ON b.id = ps.booking_id WHERE ps.pass_code = $1`,
+    [c],
   )
 }
 

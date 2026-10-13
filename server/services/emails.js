@@ -79,11 +79,10 @@ ${table([
   ...(payment.transaction_reference ? [row('Payment reference', payment.transaction_reference)] : []),
 ])}
 ${table([row('Date', ev.dateLabel), row('Time', ev.timeLabel), row('Venue', ev.venue)])}
-<p style="text-align:center;margin:20px 0"><img src="cid:feral-pass-qr" alt="Your FERAL entry QR" width="200" style="width:200px;background:#fff;padding:8px"></p>
 <p><strong style="color:#f2f0ec">Entry:</strong> ${h(ev.entryInstructions)}</p>
 ${button(downloadUrl, 'DOWNLOAD MY PASS')}
-<p style="font-size:13px;color:#8d8884">Your pass (PDF) and payment receipt (PDF) are attached. Don't share your pass QR — it can only be used for entry once.</p>`
-  const text = `Hi ${booking.holder_name},\n\n${fill(t.intro, vars)}\n\nBooking ID: ${booking.booking_code}\nPass ID: ${pass.pass_code}\nPass: ${CATEGORY_LABEL[booking.category]}\nAmount paid: ${rupeesPlain(booking.final_paise)}\nReferral discount: ${rupeesPlain(booking.discount_paise)}\nPayment: Confirmed${payment.transaction_reference ? `\nPayment reference: ${payment.transaction_reference}` : ''}\n\n${ev.dateLabel}, ${ev.timeLabel}\n${ev.venue}\n\nEntry: ${ev.entryInstructions}\n\nDownload your pass: ${downloadUrl}\n\nYour pass and receipt are attached as PDFs.`
+<p style="font-size:13px;color:#8d8884">Your pass is attached as an image (PNG) and a PDF, with your payment receipt (PDF). Don't share your pass — its ID can only be used for entry once.</p>`
+  const text = `Hi ${booking.holder_name},\n\n${fill(t.intro, vars)}\n\nBooking ID: ${booking.booking_code}\nPass ID: ${pass.pass_code}\nPass: ${CATEGORY_LABEL[booking.category]}\nAmount paid: ${rupeesPlain(booking.final_paise)}\nReferral discount: ${rupeesPlain(booking.discount_paise)}\nPayment: Confirmed${payment.transaction_reference ? `\nPayment reference: ${payment.transaction_reference}` : ''}\n\n${ev.dateLabel}, ${ev.timeLabel}\n${ev.venue}\n\nEntry: ${ev.entryInstructions}\n\nDownload your pass: ${downloadUrl}\n\nYour pass is attached as a PNG image and a PDF, with your payment receipt (PDF).`
   return { subject, html: layout({ preheader: `Your FERAL pass ${pass.pass_code} is ready`, title: subject, body }), text }
 }
 

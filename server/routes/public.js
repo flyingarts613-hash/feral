@@ -14,10 +14,11 @@ import {
 } from '../services/bookings.js'
 import { normalizeIndianMobile, cleanText } from '../lib/format.js'
 
-const NAME = /^[\p{L}][\p{L}\p{M} .'-]*$/u
+// Latin letters only: the name is printed on the pass in a serif that covers Latin scripts.
+const NAME = /^[\p{Script=Latin}][\p{Script=Latin}\p{M} .'-]*$/u
 
 export const bookingSchema = z.object({
-  name: z.string().transform((s) => cleanText(s, 80)).pipe(z.string().min(2, 'Enter your full name').max(80).regex(NAME, 'Use letters only')),
+  name: z.string().transform((s) => cleanText(s, 80)).pipe(z.string().min(2, 'Enter your full name').max(80).regex(NAME, 'Write your name in English letters')),
   email: z.string().trim().toLowerCase().pipe(z.email('Enter a valid email address').max(254)),
   phone: z.string().transform((s, c) => {
     const p = normalizeIndianMobile(s)
@@ -117,18 +118,20 @@ export const publicRoutes = (ctx) => async (app) => {
     return bookingView(ctx, r.booking)
   })
 
-  // Pass download: the customer's own booking token or the emailed download link.
-  app.get('/bookings/:code/pass.pdf', limit(30, 10), async (req, reply) => {
-    const b = await access(req, 'pass_download')
-    const row = await ctx.db.one(
-      `SELECT f.bytes, ps.pass_code FROM passes ps JOIN files f ON f.id = ps.pdf_file_id
-         JOIN payments p ON p.id = ps.payment_id
-        WHERE ps.booking_id = $1 AND ps.status IN ('GENERATED', 'ISSUED') AND p.status = 'APPROVED'`,
-      [b.id],
-    )
-    if (!row) throw httpError(404, 'no_pass', 'No pass has been issued for this booking yet.')
-    return reply.type('application/pdf').header('Content-Disposition', `attachment; filename="FERAL-pass-${row.pass_code}.pdf"`).send(row.bytes)
-  })
+  // Pass download (PDF or PNG): the customer's own booking token or the emailed download link.
+  for (const [ext, col, mime] of [['pdf', 'pdf_file_id', 'application/pdf'], ['png', 'png_file_id', 'image/png']]) {
+    app.get(`/bookings/:code/pass.${ext}`, limit(30, 10), async (req, reply) => {
+      const b = await access(req, 'pass_download')
+      const row = await ctx.db.one(
+        `SELECT f.bytes, ps.pass_code FROM passes ps JOIN files f ON f.id = ps.${col}
+           JOIN payments p ON p.id = ps.payment_id
+          WHERE ps.booking_id = $1 AND ps.status IN ('GENERATED', 'ISSUED') AND p.status = 'APPROVED'`,
+        [b.id],
+      )
+      if (!row) throw httpError(404, 'no_pass', 'No pass has been issued for this booking yet.')
+      return reply.type(mime).header('Content-Disposition', `attachment; filename="FERAL-2026-Pass-${row.pass_code}.${ext}"`).send(row.bytes)
+    })
+  }
 
   app.get('/payment-qr', async (req, reply) => {
     const s = await getSettings(ctx.db)

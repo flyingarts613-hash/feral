@@ -124,9 +124,9 @@ export default function PaymentStep({ config, session, booking, onSubmitted, pri
           </div>
         ) : (
           <>
-            <div className="mt-10 grid items-start gap-6 sm:grid-cols-[minmax(0,15rem)_1fr]">
+            <div className="mt-10 grid items-start gap-6 sm:grid-cols-[minmax(0,17rem)_1fr]">
               {config?.paymentQr ? (
-                <img src={apiUrl(config.paymentQr)} alt="FERAL UPI payment QR code" className="w-full max-w-[15rem] bg-white p-3" data-payment-qr />
+                <img src={apiUrl(config.paymentQr)} alt="FERAL UPI payment QR code" className="mx-auto w-full max-w-[17rem] rounded-xl border border-bone/15 sm:mx-0" data-payment-qr />
               ) : (
                 <Notice tone="error" title="PAYMENT QR NOT AVAILABLE">
                   The payment QR hasn't been set up yet. Please contact the coordinators on{' '}
@@ -139,8 +139,14 @@ export default function PaymentStep({ config, session, booking, onSubmitted, pri
               <div>
                 <p className="eyebrow text-bone/50">AMOUNT TO PAY</p>
                 <p className="display mt-1 text-5xl leading-none" data-amount>{rupees(booking.finalPaise)}</p>
-                {config?.upi && (
-                  <p className="mt-4 text-sm text-bone/70">
+                {config?.upi?.vpa && (
+                  <p className="mt-4 text-sm leading-relaxed text-bone/70">
+                    {config.upi.payeeName && (
+                      <>
+                        Pay to: <span className="text-bone">{config.upi.payeeName}</span>
+                        <br />
+                      </>
+                    )}
                     UPI ID: <span className="select-all text-bone">{config.upi.vpa}</span>
                   </p>
                 )}

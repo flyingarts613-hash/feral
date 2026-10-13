@@ -3,7 +3,8 @@ import { api, uuid } from '../../lib/api'
 import { PASSES, rupees } from '../../data/passes'
 import { Button, Field, Notice, PriceSummary, inputClass } from './ui'
 
-const NAME = /^[\p{L}][\p{L}\p{M} .'-]*$/u
+// Latin letters only: the name is printed on the pass in a serif that covers Latin scripts.
+const NAME = /^[\p{Script=Latin}][\p{Script=Latin}\p{M} .'-]*$/u
 const phoneOk = (raw) => {
   let d = String(raw).replace(/[\s\-().]/g, '')
   if (d.startsWith('+91')) d = d.slice(3)
@@ -17,7 +18,7 @@ function validate(v, minAge) {
   const e = {}
   const name = v.name.trim().replace(/\s+/g, ' ')
   if (name.length < 2) e.name = 'Enter your full name'
-  else if (!NAME.test(name)) e.name = 'Use letters only'
+  else if (!NAME.test(name)) e.name = 'Write your name in English letters'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = 'Enter a valid email address'
   if (!phoneOk(v.phone)) e.phone = 'Enter a valid 10-digit Indian mobile number'
   const age = Number(v.age)

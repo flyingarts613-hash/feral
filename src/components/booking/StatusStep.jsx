@@ -15,14 +15,14 @@ export default function StatusStep({ config, session, booking, refresh }) {
     return () => clearInterval(t)
   }, [waiting, booking.status, refresh])
 
-  const download = async () => {
+  const download = async (ext) => {
     setDlError(null)
-    setDownloading(true)
+    setDownloading(ext)
     try {
-      const res = await fetch(apiUrl(`/api/public/bookings/${session.code}/pass.pdf`), { headers: { 'X-Booking-Token': session.token } })
+      const res = await fetch(apiUrl(`/api/public/bookings/${session.code}/pass.${ext}`), { headers: { 'X-Booking-Token': session.token } })
       if (!res.ok) throw new Error((await res.json().catch(() => null))?.message || 'Download failed.')
       const url = URL.createObjectURL(await res.blob())
-      const a = Object.assign(document.createElement('a'), { href: url, download: `FERAL-pass-${booking.pass?.passId || booking.bookingId}.pdf` })
+      const a = Object.assign(document.createElement('a'), { href: url, download: `FERAL-2026-Pass-${booking.pass?.passId || booking.bookingId}.${ext}` })
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -51,7 +51,7 @@ export default function StatusStep({ config, session, booking, refresh }) {
       title: 'YOU’RE IN.',
       tone: 'ok',
       head: 'Pass issued',
-      body: `Your pass${booking.pass?.passId ? ` (${booking.pass.passId})` : ''} and receipt have been emailed to ${booking.email}. Show the QR code on your pass at the entrance.`,
+      body: `Your pass${booking.pass?.passId ? ` (${booking.pass.passId})` : ''} and receipt have been emailed to ${booking.email}. Show your pass at the entrance.`,
     },
   }[booking.status]
 
@@ -71,8 +71,11 @@ export default function StatusStep({ config, session, booking, refresh }) {
         )}
         {booking.status === 'PASS_ISSUED' && (
           <>
-            <Button className="mt-8 w-full max-w-[26rem]" onClick={download} busy={downloading} data-download>
-              DOWNLOAD MY PASS <span>↓</span>
+            <Button className="mt-8 w-full max-w-[26rem]" onClick={() => download('pdf')} busy={downloading === 'pdf'} disabled={Boolean(downloading)} data-download>
+              DOWNLOAD MY PASS (PDF) <span>↓</span>
+            </Button>
+            <Button variant="outline" className="mt-3 w-full max-w-[26rem]" onClick={() => download('png')} busy={downloading === 'png'} disabled={Boolean(downloading)} data-download-png>
+              SAVE AS IMAGE (PNG) <span>↓</span>
             </Button>
             {dlError && <div className="mt-4 max-w-[26rem]"><Notice tone="error">{dlError}</Notice></div>}
           </>

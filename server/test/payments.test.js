@@ -1,6 +1,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { PDFDocument } from 'pdf-lib'
+import sharp from 'sharp'
 import { setup, json, auth, verifiedBooking, pendingBooking, adminSession, drain, nextRef } from './helpers.js'
 import { issuePass } from '../services/payments.js'
 import { decrypt } from '../lib/security.js'
@@ -137,10 +138,20 @@ test('16. approving generates exactly one unique pass and emails it with the rec
   assert.equal(passes[0].status, 'ISSUED')
   const pay = await t.ctx.db.one(`SELECT * FROM payments WHERE booking_id = $1`, [row.id])
   assert.deepEqual([pay.status, pay.reviewed_by_label], ['APPROVED', `approver admin <${approver.email}>`])
-  const mail = t.capture.emails.find((m) => m.to === row.email && /Payment Confirmed, Your Pass Is Ready/.test(m.subject))
+  const mail = t.capture.emails.find((m) => m.to === row.email && m.subject === 'Your Official FERAL 2026 Pass')
   assert.ok(mail)
-  assert.deepEqual(mail.attachments.map((a) => a.contentType), ['application/pdf', 'application/pdf', 'image/png'])
-  assert.ok(mail.html.includes('cid:feral-pass-qr'))
+  const code = passes[0].pass_code
+  assert.deepEqual(
+    mail.attachments.map((a) => [a.filename, a.contentType]),
+    [
+      [`FERAL-2026-Pass-${code}.png`, 'image/png'],
+      [`FERAL-2026-Pass-${code}.pdf`, 'application/pdf'],
+      [`FERAL-receipt-${row.booking_code}.pdf`, 'application/pdf'],
+    ],
+  )
+  const body = 'Your entry pass for FERAL - Halloween House Party 2026 is ready. Keep this pass accessible and present it at entry. We look forward to seeing you.'
+  assert.ok(mail.text.includes(body) && mail.html.includes(body))
+  assert.ok(!mail.html.includes('cid:'), 'no inline QR any more')
   const audit = await t.ctx.db.many('SELECT action FROM audit_logs WHERE booking_id = $1 ORDER BY id', [row.id])
   assert.deepEqual(audit.map((a) => a.action), ['booking_created', 'email_verified', 'payment_submitted', 'payment_approved', 'pass_generated', 'pass_issued'])
   approved = { b, row, pass: passes[0], mail }
@@ -159,18 +170,69 @@ test('17. a duplicate approval is refused and cannot create another pass or emai
   const id = (await dbBooking(idOf(b))).id
   assert.equal((await t.ctx.db.one('SELECT count(*)::int AS n FROM passes WHERE booking_id = $1', [id])).n, 1)
   assert.equal((await t.ctx.db.one(`SELECT count(*)::int AS n FROM notifications WHERE booking_id = $1 AND type = 'payment_confirmed'`, [id])).n, 1)
-  assert.equal(t.capture.emails.filter((m) => /Pass Is Ready/.test(m.subject)).length - t.capture.emails.slice(0, before).filter((m) => /Pass Is Ready/.test(m.subject)).length, 1)
+  assert.equal(t.capture.emails.filter((m) => /Official FERAL 2026 Pass/.test(m.subject)).length - t.capture.emails.slice(0, before).filter((m) => /Official FERAL 2026 Pass/.test(m.subject)).length, 1)
   // calling the issuer again directly is a no-op
   const p1 = await issuePass(t.ctx, id)
   const p2 = await issuePass(t.ctx, id)
   assert.equal(p1.pass_code, p2.pass_code)
 })
 
-test('19. the pass carries the correct customer name', async () => {
-  const pdf = approved.mail.attachments[0].content
+test('19. the pass carries the correct customer name, as a 16:9 PNG and PDF without payment data', async () => {
+  const [png, pdf] = approved.mail.attachments.map((a) => a.content)
   const doc = await PDFDocument.load(pdf)
   assert.equal(doc.getSubject(), 'FERAL 2026 pass for Ishaan Kapoor (COUPLE)')
-  assert.match(approved.pass.pass_code, /^FERAL26-[A-Z0-9]{8}$/)
+  assert.equal(doc.getTitle(), `FERAL 2026 Official Pass ${approved.pass.pass_code}`)
+  const { width, height } = doc.getPage(0).getSize()
+  assert.deepEqual([width, height], [960, 540])
+  const meta = await sharp(png).metadata()
+  assert.deepEqual([meta.format, meta.width, meta.height], ['png', 1920, 1080])
+  assert.match(approved.pass.pass_code, /^FERAL-2026-[A-HJKMNP-Z2-9]{6}$/)
+  // the stored files are the ones that were emailed
+  const stored = await t.ctx.db.one('SELECT bytes FROM files WHERE id = $1', [approved.pass.png_file_id])
+  assert.ok(stored.bytes.equals(png))
+  // no payment details in the pass files
+  const pay = await t.ctx.db.one('SELECT transaction_reference FROM payments WHERE booking_id = $1', [approved.row.id])
+  for (const buf of [png, pdf]) {
+    const raw = buf.toString('latin1')
+    for (const secret of [pay.transaction_reference, approved.row.email, approved.row.phone, approved.row.booking_code]) assert.ok(!raw.includes(secret), `pass leaks ${secret}`)
+  }
+})
+
+test('pass IDs are unique: a colliding ID is replaced, and the database never holds two', async () => {
+  const taken = approved.pass.pass_code
+  const b = await pendingBooking(t.app, t.capture, { name: 'Zoya Sheikh', category: 'female', gender: 'FEMALE' })
+  const id = (await dbBooking(idOf(b))).id
+  // approve without issuing, then issue with a generator that collides first
+  await t.ctx.db.query(`UPDATE payments SET status = 'APPROVED', approved_at = now() WHERE booking_id = $1`, [id])
+  await t.ctx.db.query(`UPDATE bookings SET status = 'PAID' WHERE id = $1`, [id])
+  const drawn = [taken, taken, 'FERAL-2026-ZZZZZZ']
+  const pass = await issuePass(t.ctx, id, { newCode: () => drawn.shift() })
+  assert.equal(pass.pass_code, 'FERAL-2026-ZZZZZZ')
+  assert.equal(drawn.length, 0)
+  const files = await t.ctx.db.one('SELECT count(*)::int AS n FROM files WHERE id IN ($1, $2, $3)', [pass.pdf_file_id, pass.png_file_id, pass.receipt_file_id])
+  assert.equal(files.n, 3)
+  // a generator that only ever collides gives up without creating anything
+  const b2 = await pendingBooking(t.app, t.capture)
+  const id2 = (await dbBooking(idOf(b2))).id
+  await t.ctx.db.query(`UPDATE payments SET status = 'APPROVED', approved_at = now() WHERE booking_id = $1`, [id2])
+  await t.ctx.db.query(`UPDATE bookings SET status = 'PAID' WHERE id = $1`, [id2])
+  await assert.rejects(() => issuePass(t.ctx, id2, { newCode: () => taken }), (e) => e.code === '23505')
+  assert.equal((await t.ctx.db.one('SELECT count(*)::int AS n FROM passes WHERE booking_id = $1', [id2])).n, 0)
+  assert.equal((await t.ctx.db.one(`SELECT count(*)::int AS n FROM notifications WHERE booking_id = $1 AND type = 'payment_confirmed'`, [id2])).n, 0)
+  const dup = await t.ctx.db.one('SELECT count(*)::int AS n FROM passes GROUP BY pass_code ORDER BY 1 DESC LIMIT 1')
+  assert.equal(dup.n, 1)
+  // the issuer then succeeds normally
+  assert.match((await issuePass(t.ctx, id2)).pass_code, /^FERAL-2026-/)
+})
+
+test('a rejected or unsubmitted payment can never get a pass', async () => {
+  const b = await pendingBooking(t.app, t.capture)
+  const id = (await dbBooking(idOf(b))).id
+  await approver.req('POST', `/bookings/${idOf(b)}/reject`, { confirm: true, reason: 'not found' })
+  await assert.rejects(() => issuePass(t.ctx, id), /approved payment/)
+  const r = await approver.req('POST', `/bookings/${idOf(b)}/issue-pass`)
+  assert.equal(r.statusCode, 409)
+  assert.equal((await t.ctx.db.one('SELECT count(*)::int AS n FROM passes WHERE booking_id = $1', [id])).n, 0)
 })
 
 test('20. the pass QR verifies against its own pass only', async () => {
@@ -192,6 +254,13 @@ test('20. the pass QR verifies against its own pass only', async () => {
   assert.equal((await approver.req('POST', '/checkin/reset', { passCode: approved.pass.pass_code })).statusCode, 403)
   assert.equal((await owner.req('POST', '/checkin/reset', { passCode: approved.pass.pass_code })).statusCode, 200)
   assert.equal((await approver.req('POST', '/checkin/redeem', { token })).statusCode, 200)
+  // entry staff can type the pass ID printed on the pass
+  assert.equal((await owner.req('POST', '/checkin/reset', { passCode: approved.pass.pass_code })).statusCode, 200)
+  const byId = json(await viewer.req('POST', '/checkin/lookup', { token: ` ${approved.pass.pass_code.toLowerCase()} ` }))
+  assert.deepEqual([byId.state, byId.holderName, byId.passCode, byId.checkedInAt], ['VALID', 'Ishaan Kapoor', approved.pass.pass_code, null])
+  assert.equal((await approver.req('POST', '/checkin/redeem', { token: approved.pass.pass_code })).statusCode, 200)
+  assert.equal(json(await approver.req('POST', '/checkin/redeem', { token: approved.pass.pass_code })).error, 'already_checked_in')
+  assert.equal(json(await viewer.req('POST', '/checkin/lookup', { token: 'FERAL-2026-AAAAAA' })).state, 'INVALID')
 })
 
 test('pass download needs the booking token or the emailed link', async () => {
@@ -206,7 +275,7 @@ test('pass download needs the booking token or the emailed link', async () => {
 })
 
 test('21. a failed pass email keeps the approval, and a retry sends it once', async () => {
-  t.capture.failEmail = (m) => /Pass Is Ready/.test(m.subject)
+  t.capture.failEmail = (m) => /Official FERAL 2026 Pass/.test(m.subject)
   const b = await pendingBooking(t.app, t.capture)
   await approver.req('POST', `/bookings/${idOf(b)}/approve`, { confirm: true })
   const id = (await dbBooking(idOf(b))).id

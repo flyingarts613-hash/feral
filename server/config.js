@@ -1,5 +1,9 @@
+import { fileURLToPath } from 'node:url'
+
 // Environment configuration. Every secret comes from the environment — nothing
 // here is ever sent to the browser. See .env.example for the full list.
+
+const DEFAULT_QR = fileURLToPath(new URL('./assets/payment-qr.png', import.meta.url))
 
 const bool = (v, d = false) => (v === undefined || v === '' ? d : /^(1|true|yes|on)$/i.test(v))
 const int = (v, d) => (v === undefined || v === '' ? d : Number.parseInt(v, 10))
@@ -81,7 +85,8 @@ export function loadConfig(env = process.env) {
 
     payment: {
       defaultMode: env.PAYMENT_MODE || 'static_upi',
-      qrPath: env.PAYMENT_QR_PATH || '',
+      // The organiser's payment QR ships in server/assets; PAYMENT_QR_PATH points elsewhere, "none" disables it.
+      qrPath: env.PAYMENT_QR_PATH === 'none' ? '' : env.PAYMENT_QR_PATH || DEFAULT_QR,
       razorpay: {
         keyId: env.RAZORPAY_KEY_ID || '',
         keySecret: env.RAZORPAY_KEY_SECRET || '',

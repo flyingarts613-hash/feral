@@ -10,7 +10,7 @@ Customer: GET YOUR PASS → price menu → BUY PASS → details → email OTP
         → payment QR + UPI reference → "awaiting organizer approval"
 Server:   saves the payment → queues a phone alert to the organizer
 Organizer: /admin → PAYMENT APPROVALS → checks bank/UPI → CONFIRM or REJECT
-Confirm:  payment APPROVED → pass + receipt PDFs (unique QR) → emailed → PASS ISSUED
+Confirm:  payment APPROVED → pass (PNG + PDF, unique pass ID) + receipt PDF → emailed → PASS ISSUED
 Reject:   payment REJECTED → customer emailed (can resubmit) → organizer told
 ```
 
@@ -26,9 +26,7 @@ once the provider accepts it and "DELIVERED" only when the provider says so.
 | A long random `APP_SECRET` | `.env` (see `.env.example`) |
 | An email sender | Resend API key + verified domain (`EMAIL_PROVIDER=resend`) or SMTP |
 | Organizer phone alerts | WhatsApp Cloud API or Twilio credentials + `ORGANIZER_PHONE` |
-| The payment QR image | Admin → Settings → Payment QR (or `PAYMENT_QR_PATH`) |
-| Your UPI ID (optional, shown under the QR) | Admin → Settings |
-| The pass template JSON | Send it over — see "Pass template" below |
+| The payment QR image | Included (`server/assets/payment-qr.png`, Kotak811 · KHUSHAL AGARWAL · 9818241332@kotakbank); replace in Admin → Settings → Payment QR |
 | A host that runs Node 22 | see "Deploying" |
 
 Until each one is configured the system says so plainly (admin Overview shows
@@ -90,8 +88,8 @@ and never shows a fake booking flow.
 - **SMTP**: `SMTP_HOST/PORT/USER/PASS`. SMTP only reports "accepted"; there is no delivery receipt.
 
 Emails: A verify email (OTP), B payment required (+ preliminary receipt marked
-"PAYMENT PENDING — NOT A CONFIRMED PASS"), C pass ready (pass PDF, receipt PDF,
-inline QR, download link), D payment needs attention. Subjects and opening
+"PAYMENT PENDING — NOT A CONFIRMED PASS"), C "Your Official FERAL 2026 Pass" (pass PNG,
+pass PDF, receipt PDF, download link), D payment needs attention. Subjects and opening
 lines are editable in Admin → Settings → Email templates.
 
 The OTP is generated with a CSPRNG, stored only as a keyed hash, expires after
@@ -183,18 +181,29 @@ Prices, the default discount and the minimum age (18) are in Admin → Settings.
 
 ## Passes
 
-Each approved booking gets exactly one pass (database-enforced): a random pass
-ID, a random QR token (its own, never the payment QR) pointing to
-`APP_URL/verify/<token>`, a mobile-sized PDF and a receipt PDF. The public
-verify page shows only VALID / CANCELLED / INVALID with first name and pass
-type. On a phone signed in to the admin (approver or owner) the same page shows
-the full name and a **CHECK IN** button; a second scan shows "ALREADY CHECKED
-IN" until an owner resets it (Admin → Check-in).
+Each approved booking gets exactly one pass (database-enforced) in the FERAL
+2026 design: a horizontal 16:9 ticket — venue art with the crimson moon on the
+left ("HALLOWEEN HOUSE PARTY / FERAL / CHHATARPUR FARMS – SOUTH DELHI"), and on
+the right OFFICIAL PASS, attendee name, pass type, unique ID, date, venue and
+timing, with a gold ornamental border and ticket notches. Same design for
+everyone; only the booking's real data changes.
 
-**Pass template**: the passes currently use FERAL's built-in design. The JSON
-template you supply will be adapted in `server/services/documents.js`
-(`renderPass`) — the data passed to it (name, pass type, IDs, event details,
-QR URL) is fixed, so nothing else changes.
+- **Unique ID**: `FERAL-2026-XXXXXX` (no look-alike characters), unique by a
+  database constraint; a collision draws a new ID.
+- **Files**: a 1920×1080 PNG and a landscape PDF of the same artwork, plus the
+  payment receipt PDF. The pass contains no payment data and **no QR code**.
+- **Email**: subject "Your Official FERAL 2026 Pass", sent once (dedupe key),
+  retried with back-off; the customer page says the pass was emailed only after
+  the provider accepted the email. They can also download PNG/PDF there.
+- **Entry**: staff open Admin → CHECK-IN, type the pass ID, check the name, and
+  press CHECK IN. A second check-in shows "ALREADY CHECKED IN" until an owner resets it.
+- **Couples** get one pass marked COUPLE · ADMITS TWO (the partner's name is not
+  collected). There are no group bookings in the online flow.
+- Names must be written in Latin (English) letters so they print correctly on the pass.
+
+The artwork is generated in `server/services/passArt.js` (text is converted to
+outlines from bundled Cormorant Garamond and Cinzel fonts, so nothing typed by
+a customer is ever interpreted as markup).
 
 If generating or emailing a pass fails, the approval stays; the booking shows
 "Payment: APPROVED · Pass: GENERATED · Email: FAILED — RETRY AVAILABLE" with

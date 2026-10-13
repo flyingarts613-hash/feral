@@ -6,11 +6,10 @@
 // Needs TEST_DATABASE_URL (default postgresql://feral@localhost:5433/feral_test)
 // and a Chromium for playwright-core (PLAYWRIGHT_CHROMIUM or /opt/pw-browsers/chromium).
 import assert from 'node:assert/strict'
-import sharp from 'sharp'
+import fs from 'node:fs'
 import { chromium } from 'playwright-core'
 import { setup, adminSession, lastOtp } from '../helpers.js'
 import { startWorker } from '../../services/worker.js'
-import { setSetting } from '../../services/settings.js'
 
 process.env.NODE_ENV = 'test'
 const PORT = 8790
@@ -22,10 +21,7 @@ const ok = (name, cond, info = '') => {
 }
 
 const t = await setup({ SERVE_STATIC: 'true', APP_URL: BASE, WORKER_INTERVAL_MS: '500' })
-// a stand-in QR image (the organiser uploads the real one in the admin)
-const qr = await sharp({ create: { width: 300, height: 300, channels: 3, background: '#ffffff' } }).png().toBuffer()
-const f = await t.ctx.db.one(`INSERT INTO files (kind, mime, bytes, size, sha256) VALUES ('payment_qr', 'image/png', $1, $2, 'x') RETURNING id`, [qr, qr.length])
-await setSetting(t.ctx.db, 'paymentQrFileId', f.id, 'e2e')
+// the organiser's payment QR (server/assets/payment-qr.png) is installed on start
 const stop = startWorker({ ...t.ctx, log: { info() {}, warn() {}, error: console.error } })
 await t.app.listen({ port: PORT, host: '127.0.0.1' })
 const admin = await adminSession(t.ctx, t.app, 'approver')
@@ -132,12 +128,16 @@ for (const [w, h, mobile] of [[1440, 900, false], [390, 844, true], [375, 667, t
   // the customer page updates by itself
   await page.waitForSelector('[data-status-step=PASS_ISSUED]', { timeout: 30000 })
   ok(`${tag}: customer sees PASS ISSUED once the email went out`, true)
-  const mail = t.capture.emails.find((m) => m.to === email && /Your Pass Is Ready/.test(m.subject))
-  ok(`${tag}: pass + receipt emailed`, Boolean(mail) && mail.attachments.filter((a) => a.contentType === 'application/pdf').length === 2)
+  const mail = t.capture.emails.find((m) => m.to === email && m.subject === 'Your Official FERAL 2026 Pass')
+  ok(`${tag}: pass (PNG + PDF) + receipt emailed`, Boolean(mail) && mail.attachments.map((a) => a.contentType).join() === 'image/png,application/pdf,application/pdf')
+  if (shots && mail) fs.writeFileSync(`${shots}/e2e-${tag}-pass.png`, mail.attachments[0].content)
   const dl = page.waitForEvent('download', { timeout: 10000 })
   await click('[data-download]')
   const file = await dl
-  ok(`${tag}: pass downloads`, /FERAL-pass-FERAL26-.*\.pdf$/.test(file.suggestedFilename()), file.suggestedFilename())
+  ok(`${tag}: pass downloads`, /^FERAL-2026-Pass-FERAL-2026-[A-Z2-9]{6}\.pdf$/.test(file.suggestedFilename()), file.suggestedFilename())
+  const dlPng = page.waitForEvent('download', { timeout: 10000 })
+  await click('[data-download-png]')
+  ok(`${tag}: pass image downloads`, /^FERAL-2026-Pass-FERAL-2026-[A-Z2-9]{6}\.png$/.test((await dlPng).suggestedFilename()))
   ok(`${tag}: confirmation fits the screen`, await noOverflow(page))
   if (shots) await page.screenshot({ path: `${shots}/e2e-${tag}-7-issued.png` })
   ok(`${tag}: no page errors`, errors.length === 0, errors.join(' | '))

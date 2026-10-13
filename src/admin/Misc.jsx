@@ -132,8 +132,7 @@ export function AuditLog() {
   )
 }
 
-// Entry desk: paste a scanned pass link (or open the pass QR on a device
-// that's signed in to the admin — the verification page offers CHECK IN).
+// Entry desk: type the pass ID printed on the attendee's pass.
 export function CheckIn({ can }) {
   const [token, setToken] = useState('')
   const [info, setInfo] = useState(null)
@@ -161,10 +160,19 @@ export function CheckIn({ can }) {
     <div className="max-w-2xl space-y-5">
       <h1 className="display text-4xl md:text-5xl">CHECK-IN</h1>
       <p className="text-sm text-bone/60">
-        Scan a pass QR with this device's camera — the verification page shows a CHECK IN button while you're signed in here. Or paste the scanned link below.
+        Type the UNIQUE ID printed on the attendee's pass (FERAL-2026-XXXXXX), check the name matches, then CHECK IN. Each pass can be checked in once.
       </p>
       <form onSubmit={lookup} className="flex flex-wrap items-end gap-3">
-        <Input label="PASS LINK OR TOKEN" value={token} onChange={(e) => setToken(e.target.value)} className="min-w-0 flex-1" />
+        <Input
+          label="PASS ID"
+          value={token}
+          onChange={(e) => setToken(e.target.value.toUpperCase())}
+          placeholder="FERAL-2026-XXXXXX"
+          autoCapitalize="characters"
+          autoComplete="off"
+          spellCheck={false}
+          className="min-w-0 flex-1"
+        />
         <Btn type="submit">LOOK UP</Btn>
       </form>
       <ErrorLine error={err} />

@@ -11,7 +11,7 @@ export const DEFAULTS = {
     startsAt: '2026-10-26T17:30:00+05:30',
     endsAt: '2026-10-26T23:00:00+05:30',
     entryInstructions:
-      'Show the QR code on this pass at the entrance — on your phone or printed. Each QR can be scanned for entry once.',
+      'Show this pass at the entrance — on your phone or printed. Entry is checked against your unique pass ID, once.',
     coordinatorContact: '+91 8377098457',
   },
   pricing: {
@@ -24,12 +24,15 @@ export const DEFAULTS = {
   minAge: 18,
   paymentMode: null, // null → PAYMENT_MODE from the environment
   organizerPhones: [], // empty → ORGANIZER_PHONE from the environment
-  upi: { vpa: '', payeeName: 'FERAL' }, // shown under the QR when set
+  upi: { vpa: '9818241332@kotakbank', payeeName: 'KHUSHAL AGARWAL' }, // shown under the QR when set
   paymentQrFileId: null,
   emailTemplates: {
     otp: { subject: 'Verify Your Email — FERAL 2026', intro: 'Use this code to verify your email for your FERAL booking.' },
     booking: { subject: 'Your FERAL Booking — Payment Required', intro: 'Your email is verified. Pay the exact amount below to complete your booking.' },
-    confirmed: { subject: 'FERAL 2026 — Payment Confirmed, Your Pass Is Ready', intro: 'Your payment has been confirmed. Your pass and receipt are attached.' },
+    confirmed: {
+      subject: 'Your Official FERAL 2026 Pass',
+      intro: 'Your entry pass for FERAL - Halloween House Party 2026 is ready. Keep this pass accessible and present it at entry. We look forward to seeing you.',
+    },
     rejected: { subject: 'FERAL 2026 — Payment Needs Attention', intro: 'We could not confirm the payment you submitted for this booking.' },
   },
 }

@@ -221,6 +221,9 @@ function BookingCard({ r, can, reload }) {
             <a className="eyebrow inline-flex min-h-11 items-center border border-bone/25 px-4 text-[11px] hover:border-bone" href={`/api/admin/bookings/${r.booking_code}/pass.pdf`} target="_blank" rel="noopener noreferrer">
               PASS PDF ↗
             </a>
+            <a className="eyebrow inline-flex min-h-11 items-center border border-bone/25 px-4 text-[11px] hover:border-bone" href={`/api/admin/bookings/${r.booking_code}/pass.png`} target="_blank" rel="noopener noreferrer">
+              PASS PNG ↗
+            </a>
             <a className="eyebrow inline-flex min-h-11 items-center border border-bone/25 px-4 text-[11px] hover:border-bone" href={`/api/admin/bookings/${r.booking_code}/receipt.pdf`} target="_blank" rel="noopener noreferrer">
               RECEIPT ↗
             </a>

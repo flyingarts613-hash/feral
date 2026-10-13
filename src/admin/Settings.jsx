@@ -50,9 +50,9 @@ export function Settings({ can }) {
         <Templates s={s} put={put} can={can} />
         <Card title="PASS TEMPLATE">
           <p className="text-sm text-bone/70">
-            Passes currently use FERAL's built-in pass design (name, pass type, date, time, venue, pass ID, booking ID and a unique entry QR). When the pass
-            template JSON is supplied, the pass renderer is adapted to it in <code className="text-bone">server/services/documents.js</code> — the data on the pass
-            stays the same.
+            Every confirmed booking gets the FERAL 2026 Official Pass: a horizontal 16:9 ticket (gothic editorial design) with the attendee name, pass type, unique
+            ID (FERAL-2026-XXXXXX), date, venue and timing. It is emailed as a PNG and a PDF with the payment receipt. Passes carry no QR code — entry staff check
+            the pass ID in CHECK-IN. The artwork lives in <code className="text-bone">server/services/passArt.js</code>.
           </p>
         </Card>
       </div>
@@ -119,7 +119,7 @@ function Payment({ s, put, can, reload }) {
         <p className="eyebrow mb-3 text-[10px] text-bone/50">PAYMENT QR</p>
         <div className="flex flex-wrap items-start gap-4">
           {s.paymentQrFileId ? (
-            <img src={`/api/public/payment-qr?v=${s.paymentQrFileId}`} alt="Current payment QR" className="w-36 bg-white p-2" />
+            <img src={`/api/public/payment-qr?v=${s.paymentQrFileId}`} alt="Current payment QR" className="w-36 rounded-lg border border-bone/15" />
           ) : (
             <p className="text-sm text-alarm">No QR uploaded — customers can't pay yet.</p>
           )}

@@ -21,12 +21,13 @@ export const generateOtp = () => String(crypto.randomInt(0, 1_000_000)).padStart
 
 // Unambiguous alphabet (no 0/O, 1/I/L).
 const ALPHA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
-export const randomCode = (len) => Array.from(crypto.randomBytes(len), (b) => ALPHA[b % ALPHA.length]).join('')
-// ALPHA has 31 symbols; b % 31 over 0..255 is very slightly biased, which is fine
-// for human-readable reference codes (they are not secrets — the tokens are).
+export const randomCode = (len) => Array.from({ length: len }, () => ALPHA[crypto.randomInt(ALPHA.length)]).join('')
 
 export const newBookingCode = () => `FRL-${randomCode(6)}`
-export const newPassCode = () => `FERAL26-${randomCode(8)}`
+// Pass IDs: FERAL-2026-XXXXXX (31^6 ≈ 887 million combinations; uniqueness is
+// enforced by the database and a collision is retried with a new code).
+export const PASS_CODE_RE = /^FERAL-2026-[A-HJKMNP-Z2-9]{6}$/
+export const newPassCode = () => `FERAL-2026-${randomCode(6)}`
 
 // Admin passwords: scrypt, N=2^15.
 export async function hashPassword(password) {

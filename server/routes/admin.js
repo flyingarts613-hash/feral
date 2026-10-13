@@ -1,7 +1,7 @@
 import sharp from 'sharp'
 import { z } from 'zod'
 import { getSettings, setSetting, paymentMode, organizerPhones } from '../services/settings.js'
-import { approvePayment, issuePass, rejectPayment, lookupPass, passState } from '../services/payments.js'
+import { approvePayment, issuePass, rejectPayment, lookupPass, lookupPassByCode, passState } from '../services/payments.js'
 import { retryNotification } from '../services/outbox.js'
 import { referralUses } from '../services/pricing.js'
 import { audit, adminActor } from '../services/audit.js'
@@ -211,6 +211,13 @@ export const adminRoutes = (ctx) => async (app) => {
     })
   }
 
+  app.get('/bookings/:code/pass.png', async (req, reply) => {
+    const b = await findBooking(req.params.code)
+    const f = await db.one(`SELECT f.bytes FROM passes ps JOIN files f ON f.id = ps.png_file_id WHERE ps.booking_id = $1`, [b.id])
+    if (!f?.bytes) throw httpError(404, 'not_found', 'Not generated yet.')
+    return reply.type('image/png').header('Cache-Control', 'private, no-store').header('Content-Disposition', `inline; filename="${b.booking_code}-pass.png"`).send(f.bytes)
+  })
+
   const confirmBody = z.object({ confirm: z.literal(true, { error: 'Confirmation required' }) })
 
   app.post('/bookings/:code/approve', async (req) => {
@@ -415,7 +422,12 @@ export const adminRoutes = (ctx) => async (app) => {
   })
 
   // ─── entry check-in ────────────────────────────────────────────────────────
-  const tokenFrom = (raw) => String(raw || '').trim().split('/').pop().split('?')[0]
+  // Accepts the pass ID printed on the pass (FERAL-2026-XXXXXX) or, for passes
+  // that carry one, a verify link/token.
+  const findPass = async (raw) => {
+    const s = String(raw || '').trim()
+    return (await lookupPassByCode(ctx, s)) || lookupPass(ctx, s.split('/').pop().split('?')[0])
+  }
   const passInfo = (p) =>
     p && {
       state: passState(p),
@@ -428,13 +440,13 @@ export const adminRoutes = (ctx) => async (app) => {
     }
 
   app.post('/checkin/lookup', async (req) => {
-    const p = await lookupPass(ctx, tokenFrom(req.body?.token))
+    const p = await findPass(req.body?.token)
     return passInfo(p) || { state: 'INVALID' }
   })
 
   app.post('/checkin/redeem', async (req) => {
     need(req, 'approver')
-    const p = await lookupPass(ctx, tokenFrom(req.body?.token))
+    const p = await findPass(req.body?.token)
     if (!p) throw httpError(404, 'invalid', 'INVALID — not a FERAL pass.')
     if (passState(p) !== 'VALID') throw httpError(409, 'cancelled', 'This pass is cancelled.')
     const r = await db.one(`UPDATE passes SET redeemed_at = now(), redeemed_by = $2 WHERE id = $1 AND redeemed_at IS NULL RETURNING redeemed_at`, [p.id, adminActor(req.admin)])
@@ -446,7 +458,7 @@ export const adminRoutes = (ctx) => async (app) => {
   app.post('/checkin/reset', async (req) => {
     need(req, 'owner')
     const { passCode } = z.object({ passCode: z.string().max(40) }).parse(req.body ?? {})
-    const p = await db.one(`UPDATE passes SET redeemed_at = NULL, redeemed_by = NULL WHERE pass_code = $1 AND redeemed_at IS NOT NULL RETURNING booking_id, pass_code`, [passCode.toUpperCase()])
+    const p = await db.one(`UPDATE passes SET redeemed_at = NULL, redeemed_by = NULL WHERE pass_code = $1 AND redeemed_at IS NOT NULL RETURNING booking_id, pass_code`, [passCode.trim().toUpperCase()])
     if (!p) throw httpError(404, 'not_found', 'No checked-in pass with that ID.')
     await audit(db, { admin: req.admin, action: 'pass_checkin_reset', booking: { id: p.booking_id }, details: { passCode: p.pass_code }, ip: req.ip })
     return { ok: true }

@@ -3,12 +3,10 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { PDFDocument, rgb, setCharacterSpacing, pushGraphicsState, popGraphicsState } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
-import QRCode from 'qrcode'
+import { passPng, passJpeg, PASS_W, PASS_H } from './passArt.js'
 import { CATEGORY_LABEL, rupees } from '../lib/format.js'
 
-// Pass + receipt PDFs. The pass layout below is FERAL's default design. It is the
-// renderer the system uses until the pass template JSON is supplied; that
-// template will be adapted in renderPass() — the inputs (PassData) stay the same.
+// Pass (artwork in passArt.js) + receipt PDFs.
 
 const require = createRequire(import.meta.url)
 const fontFile = (pkg, file) => fs.readFileSync(path.join(path.dirname(require.resolve(`${pkg}/package.json`)), file))
@@ -17,11 +15,7 @@ const FONTS = {
   bodyMedium: fontFile('@expo-google-fonts/inter', '500Medium/Inter_500Medium.ttf'),
 }
 
-const INK = rgb(5 / 255, 5 / 255, 5 / 255)
-const BONE = rgb(242 / 255, 240 / 255, 236 / 255)
 const BLOOD = rgb(158 / 255, 15 / 255, 24 / 255)
-const DIM = rgb(0.55, 0.53, 0.51)
-const PURPLE = rgb(0.42, 0.3, 0.55)
 
 async function setup(meta) {
   const doc = await PDFDocument.create()
@@ -39,7 +33,7 @@ async function setup(meta) {
 }
 
 // Text helper: optional letter-spacing, alignment and shrink-to-fit.
-function text(page, str, { x, y, font, size, color = BONE, spacing = 0, align = 'left', maxWidth }) {
+function text(page, str, { x, y, font, size, color = rgb(0, 0, 0), spacing = 0, align = 'left', maxWidth }) {
   str = String(str)
   const widthAt = (s) => font.widthOfTextAtSize(str, s) + spacing * Math.max(0, str.length - 1)
   let s = size
@@ -67,59 +61,38 @@ function wrap(font, size, str, maxWidth) {
   return lines
 }
 
-const qrPng = (data) => QRCode.toBuffer(data, { errorCorrectionLevel: 'M', margin: 1, scale: 10, color: { dark: '#050505', light: '#ffffff' } })
-
 /**
- * PassData: { holderName, category, passCode, bookingCode, verifyUrl, event: { name, dateLabel, timeLabel, venue, entryInstructions } }
+ * PassData: { holderName, category, passCode, event: { name, dateLabel, timeLabel, venue } }
+ * Returns { png, pdf }: the pass artwork as a 1920×1080 PNG and as a landscape
+ * 16:9 PDF of the same image. Contains no payment data and no QR code.
  */
 export async function renderPass(p) {
-  const { doc, f } = await setup({ title: `FERAL pass ${p.passCode}`, subject: `FERAL 2026 pass for ${p.holderName} (${CATEGORY_LABEL[p.category]})` })
-  const W = 400
-  const H = 720
-  const page = doc.addPage([W, H])
-  const M = 28
-  page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: INK })
-  // red glow band + purple hairline
-  page.drawRectangle({ x: 0, y: H - 6, width: W, height: 6, color: BLOOD })
-  page.drawRectangle({ x: M, y: H - 180, width: W - 2 * M, height: 0.6, color: PURPLE })
-
-  text(page, 'HALLOWEEN HOUSE PARTY 2026', { x: M, y: H - 40, font: f.semi, size: 8.5, color: BLOOD, spacing: 2.2 })
-  text(page, 'CONFIRMED PASS', { x: W - M, y: H - 40, font: f.semi, size: 8.5, color: BONE, spacing: 2.2, align: 'right' })
-  text(page, 'FERAL', { x: M - 3, y: H - 160, font: f.display, size: 118, color: BONE, spacing: -1 })
-
-  // holder
-  text(page, 'PASS HOLDER', { x: M, y: H - 208, font: f.semi, size: 7.5, color: DIM, spacing: 2 })
-  text(page, p.holderName.toUpperCase(), { x: M, y: H - 244, font: f.display, size: 32, maxWidth: W - 2 * M, spacing: 0.4 })
-
-  const admits = p.category === 'couple' ? 'ADMITS TWO' : 'ADMITS ONE'
-  const rows = [
-    ['PASS', `${CATEGORY_LABEL[p.category]} · ${admits}`],
-    ['DATE', p.event.dateLabel.toUpperCase()],
-    ['TIME', p.event.timeLabel.toUpperCase()],
-    ['VENUE', p.event.venue.toUpperCase()],
-  ]
-  let y = H - 282
-  for (const [k, v] of rows) {
-    text(page, k, { x: M, y, font: f.semi, size: 7.5, color: DIM, spacing: 2 })
-    text(page, v, { x: M + 70, y: y - 0.5, font: f.medium, size: 10.5, color: BONE, maxWidth: W - 2 * M - 70 })
-    y -= 22
+  const art = {
+    holderName: p.holderName,
+    passType: CATEGORY_LABEL[p.category],
+    admits: p.category === 'couple' ? 'ADMITS TWO' : 'ADMITS ONE',
+    passCode: p.passCode,
+    event: {
+      title: 'HALLOWEEN HOUSE PARTY',
+      name: 'FERAL',
+      place: 'CHHATARPUR FARMS \u2013 SOUTH DELHI',
+      dateLabel: p.event.dateLabel,
+      timeLabel: p.event.timeLabel,
+      venue: p.event.venue,
+    },
   }
-
-  // QR on a white tile
-  const qr = await doc.embedPng(await qrPng(p.verifyUrl))
-  const Q = 168
-  const qx = (W - Q) / 2
-  const qy = 128
-  page.drawRectangle({ x: qx - 10, y: qy - 10, width: Q + 20, height: Q + 20, color: rgb(1, 1, 1) })
-  page.drawImage(qr, { x: qx, y: qy, width: Q, height: Q })
-
-  text(page, `PASS ID  ${p.passCode}`, { x: W / 2, y: 98, font: f.semi, size: 8.5, color: BONE, spacing: 1.6, align: 'center' })
-  text(page, `BOOKING  ${p.bookingCode}`, { x: W / 2, y: 84, font: f.body, size: 8, color: DIM, spacing: 1.4, align: 'center' })
-
-  const lines = wrap(f.body, 7.5, p.event.entryInstructions, W - 2 * M)
-  lines.slice(0, 3).forEach((l, i) => text(page, l, { x: W / 2, y: 56 - i * 11, font: f.body, size: 7.5, color: DIM, align: 'center' }))
-  page.drawRectangle({ x: 0, y: 0, width: W, height: 4, color: BLOOD })
-  return Buffer.from(await doc.save())
+  const png = await passPng(art)
+  const doc = await PDFDocument.create()
+  doc.setTitle(`FERAL 2026 Official Pass ${p.passCode}`)
+  doc.setSubject(`FERAL 2026 pass for ${p.holderName} (${art.passType})`)
+  doc.setAuthor('FERAL')
+  doc.setCreator('FERAL bookings')
+  doc.setProducer('FERAL bookings')
+  const W = PASS_W / 2
+  const H = PASS_H / 2
+  const page = doc.addPage([W, H])
+  page.drawImage(await doc.embedJpg(await passJpeg(png)), { x: 0, y: 0, width: W, height: H })
+  return { png, pdf: Buffer.from(await doc.save()) }
 }
 
 /**
@@ -190,4 +163,3 @@ export async function renderReceipt(r) {
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' IST' : '—'
 
-export const qrPngBuffer = qrPng
