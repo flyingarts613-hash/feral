@@ -6,6 +6,7 @@ import { createNotifyProvider } from './providers/notify.js'
 import { createRazorpay } from './providers/razorpay.js'
 import { getSettings, setSetting } from './services/settings.js'
 import { sha256 } from './lib/security.js'
+import { syncEnvAdmin } from './services/adminAuth.js'
 
 // Wires config, database and providers into one context object shared by
 // routes, services and the worker. Tests pass a `capture` to use the in-memory
@@ -22,6 +23,8 @@ export async function createContext(cfg, { capture, log = console, razorpayFetch
     razorpay: createRazorpay(cfg, razorpayFetch ? { fetchImpl: razorpayFetch } : {}),
   }
   await bootstrapQr(ctx)
+  const envAdmin = await syncEnvAdmin(ctx)
+  if (envAdmin.status !== 'none' && envAdmin.status !== 'unchanged') log.info?.(`primary admin from environment: ${envAdmin.status}`)
   return ctx
 }
 

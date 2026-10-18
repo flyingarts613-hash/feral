@@ -11,6 +11,7 @@
     "start": "node --env-file-if-exists=.env server/index.js",
     "dev:server": "node --watch --env-file-if-exists=.env server/index.js",
     "admin:create": "node --env-file-if-exists=.env server/scripts/create-admin.js",
+    "admin:hash": "node server/scripts/hash-password.js",
     "test": "node --test --test-concurrency=1 \"server/test/*.test.js\"",
     "test:e2e": "node server/test/e2e/booking-flow.mjs"
   },

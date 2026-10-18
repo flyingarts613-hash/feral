@@ -35,6 +35,15 @@ services:
       # generated once by Render; keep it stable for the whole event
       - key: APP_SECRET
         generateValue: true
+      # primary admin (owner) — enter the values in the dashboard, never here.
+      # ADMIN_PASSWORD_HASH comes from `npm run admin:hash`; or set
+      # ADMIN_PASSWORD instead (hashed in memory at start-up).
+      - key: ADMIN_LOGIN_ID
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       # one-time first-owner setup at /admin/ (closed once an owner exists)
       - key: ADMIN_SETUP_TOKEN
         generateValue: true

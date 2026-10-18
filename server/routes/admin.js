@@ -74,12 +74,29 @@ export const adminRoutes = (ctx) => async (app) => {
   }
 
   app.post('/login', { config: { rateLimit: { max: 10 * cfg.rateLimitScale, timeWindow: 15 * 60000 } } }, async (req, reply) => {
-    const { email, password } = z.object({ email: z.string().trim().toLowerCase().max(254), password: z.string().min(1).max(200) }).parse(req.body ?? {})
-    const a = await db.one('SELECT * FROM admins WHERE email = $1 AND active', [email])
-    const ok = await verifyPassword(password, a?.password_hash ?? DUMMY_HASH)
+    // `loginId` (login ID or email); `email` is still accepted from older clients
+    const body = z
+      .object({ loginId: z.string().trim().toLowerCase().max(254).optional(), email: z.string().trim().toLowerCase().max(254).optional(), password: z.string().min(1).max(200) })
+      .parse(req.body ?? {})
+    const loginId = body.loginId || body.email || ''
+    const actor = `login attempt <${loginId.slice(0, 120)}>`
+    // per-account brute-force guard (on top of the per-IP limit): after N failures
+    // in 15 minutes since the last successful sign-in, refuse even the right password
+    const recent = await db.one(
+      `SELECT count(*)::int AS n FROM audit_logs
+        WHERE action = 'admin_login_failed' AND actor = $1 AND created_at > now() - interval '15 minutes'
+          AND created_at > COALESCE((SELECT last_login_at FROM admins WHERE email = $2), '-infinity')`,
+      [actor, loginId],
+    )
+    if (recent.n >= cfg.adminLoginMaxFailures) {
+      await audit(db, { actor, action: 'admin_login_locked', ip: req.ip })
+      throw httpError(429, 'login_locked', 'Too many failed sign-in attempts. Try again in 15 minutes.')
+    }
+    const a = loginId ? await db.one('SELECT * FROM admins WHERE email = $1 AND active', [loginId]) : null
+    const ok = await verifyPassword(body.password, a?.password_hash ?? DUMMY_HASH)
     if (!a || !ok) {
-      await audit(db, { actor: `login attempt <${email}>`, action: 'admin_login_failed', ip: req.ip })
-      throw httpError(401, 'bad_credentials', 'Incorrect email or password.')
+      await audit(db, { actor, action: 'admin_login_failed', ip: req.ip })
+      throw httpError(401, 'bad_credentials', 'Incorrect login ID or password.')
     }
     const token = randomToken()
     const csrf = randomToken(24)

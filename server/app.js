@@ -85,7 +85,7 @@ export async function buildApp(ctx) {
       for (const i of err.issues) fields[i.path.join('.') || '_'] ??= i.message
       return reply.code(400).send({ error: 'validation', message: 'Please check the highlighted fields.', fields })
     }
-    if (err.statusCode === 429 && !err.code?.startsWith?.('otp')) {
+    if (err.statusCode === 429 && !err.expose) {
       return reply.code(429).send({ error: 'rate_limited', message: 'Too many requests. Please wait a moment and try again.' })
     }
     if (err.expose || (err.statusCode && err.statusCode < 500)) {
@@ -113,6 +113,8 @@ export async function buildApp(ctx) {
       if (/[\\/]assets[\\/]/.test(p)) res.header('Cache-Control', 'public, max-age=31536000, immutable') // res is the Fastify reply
     } })
     app.get('/admin', (req, reply) => reply.redirect('/admin/'))
+    // the sign-in form is part of the admin app; /admin/login is a stable link to it
+    app.get('/admin/login', (req, reply) => reply.redirect('/admin/'))
   }
   app.setNotFoundHandler((req, reply) => reply.code(404).send(req.url.startsWith('/api/') ? { error: 'not_found' } : 'Not found'))
   return app

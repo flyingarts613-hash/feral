@@ -11,10 +11,13 @@ export const TEST_DB = process.env.TEST_DATABASE_URL || 'postgresql://feral@loca
 const silent = { info() {}, warn() {}, error() {}, debug() {}, child() { return silent } }
 
 export async function setup(env = {}) {
-  const c = new pg.Client({ connectionString: TEST_DB })
-  await c.connect()
-  await c.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')
-  await c.end()
+  // __keepSchema: start another server on the same database (a "restart")
+  if (!env.__keepSchema) {
+    const c = new pg.Client({ connectionString: TEST_DB })
+    await c.connect()
+    await c.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')
+    await c.end()
+  }
 
   const cfg = loadConfig({
     NODE_ENV: 'test',

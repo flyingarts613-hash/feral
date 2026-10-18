@@ -42,6 +42,15 @@ export function loadConfig(env = process.env) {
     adminSessionHours: int(env.ADMIN_SESSION_HOURS, 12),
     // One-time first-owner setup at /admin/ (see docs/FREE_DEPLOYMENT.md).
     adminSetupToken: env.ADMIN_SETUP_TOKEN || '',
+    // Primary admin from the environment (see docs/FREE_DEPLOYMENT.md §6).
+    // Prefer ADMIN_PASSWORD_HASH (npm run admin:hash); ADMIN_PASSWORD is hashed
+    // in memory at start-up and never written anywhere.
+    envAdmin: {
+      loginId: (env.ADMIN_LOGIN_ID || '').trim().toLowerCase(),
+      passwordHash: (env.ADMIN_PASSWORD_HASH || '').trim(),
+      password: env.ADMIN_PASSWORD || '',
+    },
+    adminLoginMaxFailures: Math.max(3, int(env.ADMIN_LOGIN_MAX_FAILURES, 5)), // per login ID per 15 minutes
 
     otp: {
       ttlSeconds: int(env.OTP_TTL_SECONDS, 300),
@@ -117,6 +126,12 @@ export function loadConfig(env = process.env) {
   const problems = []
   if (!cfg.databaseUrl) problems.push('DATABASE_URL is required')
   if (cfg.adminSetupToken && cfg.adminSetupToken.length < 32) problems.push('ADMIN_SETUP_TOKEN must be at least 32 random characters')
+  const ea = cfg.envAdmin
+  if (ea.loginId && !/^[a-z0-9@._+-]{3,254}$/.test(ea.loginId)) problems.push('ADMIN_LOGIN_ID may only contain letters, digits and @ . _ + -')
+  if (ea.loginId && !ea.passwordHash && !ea.password) problems.push('ADMIN_LOGIN_ID is set but neither ADMIN_PASSWORD_HASH nor ADMIN_PASSWORD is')
+  if (!ea.loginId && (ea.passwordHash || ea.password)) problems.push('ADMIN_PASSWORD_HASH / ADMIN_PASSWORD is set but ADMIN_LOGIN_ID is not')
+  if (ea.passwordHash && !/^scrypt\$\d+\$\d+\$\d+\$[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+$/.test(ea.passwordHash)) problems.push('ADMIN_PASSWORD_HASH is not a hash made by `npm run admin:hash`')
+  if (!ea.passwordHash && ea.password && ea.password.length < 12) problems.push('ADMIN_PASSWORD must be at least 12 characters')
   if (!cfg.appSecret || cfg.appSecret.length < 32) problems.push('APP_SECRET must be at least 32 random characters')
   if (!['resend', 'smtp', 'dev_outbox', 'test', ''].includes(cfg.email.provider)) problems.push(`Unknown EMAIL_PROVIDER "${cfg.email.provider}"`)
   if (!['twilio_sms', 'twilio_whatsapp', 'whatsapp_cloud', 'test', ''].includes(cfg.notify.provider)) problems.push(`Unknown NOTIFY_PROVIDER "${cfg.notify.provider}"`)
@@ -139,6 +154,7 @@ export function loadConfig(env = process.env) {
   cfg.warnings = []
   if (!cfg.notify.provider && !cfg.notify.organizerEmails.length) cfg.warnings.push('Neither NOTIFY_PROVIDER nor ORGANIZER_EMAIL is set — organizer alerts will fail until one is configured (pending payments still appear in the dashboard).')
   if (cfg.notify.provider && cfg.notify.provider !== 'test' && !cfg.notify.organizerPhones.length) cfg.warnings.push('ORGANIZER_PHONE is not set (it can also be set in the admin dashboard).')
+  if (ea.passwordHash && ea.password) cfg.warnings.push('Both ADMIN_PASSWORD_HASH and ADMIN_PASSWORD are set — the hash is used; remove ADMIN_PASSWORD.')
   if (!cfg.email.provider) cfg.warnings.push('EMAIL_PROVIDER is not set — OTP and pass emails cannot be sent.')
 
   if (problems.length) {

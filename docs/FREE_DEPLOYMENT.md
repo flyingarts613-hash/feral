@@ -174,7 +174,25 @@ Supabase active, so it won't pause.
 
 ## 6. Create the first admin (owner)
 
-Render's free plan has no shell, so use the built-in one-time setup:
+**Recommended — the primary admin from environment variables.** In Render →
+Environment add:
+
+| Variable | Value |
+|---|---|
+| `ADMIN_LOGIN_ID` | the login ID (letters, digits, `@ . _ + -`; e.g. a phone number or email) |
+| `ADMIN_PASSWORD_HASH` | output of `npm run admin:hash` on your computer (type the password when asked) |
+| — or `ADMIN_PASSWORD` | the password itself (12+ characters), if you can't run Node locally |
+
+Mark them as secret. Save → redeploy. On start the server creates (or updates)
+that **owner** account; the logs show `primary admin from environment: created`.
+Only the scrypt hash is stored in the database. Change the password later by
+changing the variable — the old one stops working and that admin is signed out
+everywhere. Removing the variables disables the account. Sign in at
+`/admin/login` (or `/admin/`) with the login ID and password. After 5 wrong
+passwords for the same login ID in 15 minutes, that ID is locked for 15 minutes
+(`ADMIN_LOGIN_MAX_FAILURES`), on top of the per-IP limit.
+
+**Alternative — one-time setup form** (when no admin exists at all):
 
 1. Open `https://<your-service>.onrender.com/admin/`. While **no admin exists**
    and `ADMIN_SETUP_TOKEN` is set, it shows **FIRST-TIME SETUP**.

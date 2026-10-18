@@ -8,7 +8,7 @@ import { loadConfig } from '../config.js'
 import { createDb } from '../db.js'
 import { migrate } from '../migrate.js'
 
-const MIGRATIONS = ['001_init.sql', '002_pass_png.sql', '003_row_level_security.sql', '004_referral_codes_int650_kittu20.sql', '005_offline_passes.sql']
+const MIGRATIONS = ['001_init.sql', '002_pass_png.sql', '003_row_level_security.sql', '004_referral_codes_int650_kittu20.sql', '005_offline_passes.sql', '006_env_admin.sql']
 const silent = { info() {}, warn() {}, error() {} }
 
 test('a fresh database is migrated completely, with row-level security on every table', async () => {

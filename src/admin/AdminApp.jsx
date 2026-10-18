@@ -123,6 +123,7 @@ export default function AdminApp() {
 function Login({ onIn }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [show, setShow] = useState(false)
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
   const [setup, setSetup] = useState(false)
@@ -138,7 +139,8 @@ function Login({ onIn }) {
     setBusy(true)
     setErr(null)
     try {
-      const r = await call('/login', { method: 'POST', body: { email, password } })
+      const r = await call('/login', { method: 'POST', body: { loginId: email, password } })
+      setPassword('')
       setCsrf(r.csrfToken)
       onIn(r.admin)
     } catch (e2) {
@@ -154,12 +156,35 @@ function Login({ onIn }) {
         <p className="eyebrow mt-2 text-bone/45">ADMIN SIGN-IN</p>
         {created && <p className="mt-4 text-sm text-bone/70">Owner {created} created. Sign in with the password you just chose.</p>}
         <div className="mt-8 space-y-5">
-          <Input label="EMAIL" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input label="PASSWORD" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <Input label="LOGIN ID" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} required data-login-id />
+          <label className="block">
+            <span className="eyebrow mb-1.5 block text-[10px] text-bone/50">PASSWORD</span>
+            <span className="flex border border-bone/15 bg-ink focus-within:border-bone/60">
+              <input
+                type={show ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-bone outline-none"
+                data-login-password
+              />
+              <button
+                type="button"
+                onClick={() => setShow((v) => !v)}
+                className="eyebrow shrink-0 px-3 text-[10px] text-bone/55 hover:text-bone"
+                aria-label={show ? 'Hide password' : 'Show password'}
+                aria-pressed={show}
+                data-login-toggle
+              >
+                {show ? 'HIDE' : 'SHOW'}
+              </button>
+            </span>
+          </label>
         </div>
         {err && <p className="mt-4 text-sm text-alarm" role="alert">{err}</p>}
-        <Btn type="submit" busy={busy} className="mt-8 w-full">
-          SIGN IN
+        <Btn type="submit" busy={busy} className="mt-8 w-full" data-login-submit>
+          LOG IN
         </Btn>
       </form>
     </div>

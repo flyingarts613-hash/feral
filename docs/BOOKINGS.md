@@ -49,6 +49,12 @@ being sent (refused in production).
 
 ### Admins
 
+The primary admin can come from the environment: `ADMIN_LOGIN_ID` +
+`ADMIN_PASSWORD_HASH` (`npm run admin:hash`) or `ADMIN_PASSWORD`. It is created
+or updated as an **owner** on every start, signed out everywhere when the
+password changes and disabled when the variables are removed (see
+FREE_DEPLOYMENT.md §6). Sign in at `/admin/login`.
+
 There is no default password. `npm run admin:create` asks for one (12+
 characters) or, with `--generate`, prints a strong one once. Roles:
 
