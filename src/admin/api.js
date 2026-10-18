@@ -9,16 +9,19 @@ export class AdminError extends Error {
     this.status = status
     this.code = body?.error
     this.fields = body?.fields
+    this.field = body?.field
+    this.bookingId = body?.bookingId
   }
 }
 
-export async function call(path, { method = 'GET', body, form } = {}) {
+export async function call(path, { method = 'GET', body, form, headers = {} } = {}) {
   const res = await fetch(`/api/admin${path}`, {
     method,
     credentials: 'same-origin',
     headers: {
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...(method !== 'GET' && csrf ? { 'X-CSRF-Token': csrf } : {}),
+      ...headers,
     },
     body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
   })

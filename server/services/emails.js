@@ -86,6 +86,46 @@ ${button(downloadUrl, 'DOWNLOAD MY PASS')}
   return { subject, html: layout({ preheader: `Your FERAL pass ${pass.pass_code} is ready`, title: subject, body }), text }
 }
 
+// Offline-issued passes (Admin → Issue Offline Pass). One email per booking with
+// every pass: the PDF (pass + entry QR card per attendee) is attached, and each
+// pass's QR is shown inline (cid:feral-qr-<seq>).
+export function offlinePassesEmail({ settings, booking, passes, methodLabel, downloadUrl, sample = false }) {
+  const t = settings.emailTemplates.offline
+  const ev = settings.event
+  const vars = { name: booking.holder_name, bookingId: booking.booking_code }
+  const subject = `${sample ? '[TEST] ' : ''}${fill(t.subject, vars)}`
+  const contact = ev.coordinatorContact
+  const many = passes.length > 1
+  const qrBlocks = passes
+    .map(
+      (p) => `<td align="center" style="padding:10px;vertical-align:top">
+  <img src="cid:feral-qr-${p.seq}" alt="Entry QR for pass ${h(p.pass_code)}" width="150" height="150" style="display:block;width:150px;height:150px;border:1px solid #c8a477">
+  <div style="margin-top:8px;font-size:12px;letter-spacing:1px;color:#f0e5d2">${h(p.pass_code)}</div>
+  <div style="font-size:12px;color:#8d8884">${h(p.holder_name || booking.holder_name)}${many ? ` · ${p.seq}/${passes.length}` : ''}</div></td>`,
+    )
+    .reduce((rows, td, i) => (i % 2 ? ((rows[rows.length - 1] += td), rows) : [...rows, td]), [])
+    .map((r) => `<tr>${r}</tr>`)
+    .join('')
+  const body = `${sample ? '<p style="padding:10px 12px;border:1px solid #9e0f18;color:#f2f0ec;font-size:13px;letter-spacing:1px">TEST EMAIL — SAMPLE PASS, NOT VALID FOR ENTRY</p>' : ''}
+<p>Hi ${h(booking.holder_name)},</p><p>${h(fill(t.intro, vars))}</p>
+${table([
+  row('Booking ID', booking.booking_code),
+  row('Pass', CATEGORY_LABEL[booking.category]),
+  row('Quantity', `${passes.length} pass${many ? 'es' : ''}`),
+  row('Amount received', rupees(booking.final_paise), true),
+  row('Payment', `Received${methodLabel ? ` · ${methodLabel}` : ''}`),
+])}
+${table([row('Event', ev.name), row('Date', ev.dateLabel), row('Time', ev.timeLabel), row('Venue', ev.venue)])}
+<p style="margin:22px 0 6px;font-size:11px;letter-spacing:3px;color:#c8a477">YOUR ENTRY QR${many ? ' CODES' : ''}</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto">${qrBlocks}</table>
+<p><strong style="color:#f2f0ec">At the entrance:</strong> show ${many ? 'each guest\u2019s' : 'your'} pass and its QR code — on your phone or printed. Each QR is checked once, so don't share it.${ev.entryInstructions ? ` ${h(ev.entryInstructions)}` : ''}</p>
+${downloadUrl ? button(downloadUrl, many ? 'DOWNLOAD ALL PASSES' : 'DOWNLOAD MY PASS') : ''}
+<p style="font-size:13px;color:#8d8884">Your official pass${many ? 'es' : ''} (PDF, with the entry QR after each pass) and your payment receipt are attached.${contact ? ` Questions? Contact the coordinators on ${h(contact)}.` : ''} <a href="https://www.getferal.in" style="color:#c8a477">www.getferal.in</a></p>`
+  const passLines = passes.map((p) => `  ${p.pass_code}  ${p.holder_name || booking.holder_name}`).join('\n')
+  const text = `${sample ? 'TEST EMAIL — SAMPLE PASS, NOT VALID FOR ENTRY\n\n' : ''}Hi ${booking.holder_name},\n\n${fill(t.intro, vars)}\n\nBooking ID: ${booking.booking_code}\nPass: ${CATEGORY_LABEL[booking.category]}\nQuantity: ${passes.length}\nAmount received: ${rupeesPlain(booking.final_paise)}\nPayment: Received${methodLabel ? ` (${methodLabel})` : ''}\n\n${ev.name}\n${ev.dateLabel}, ${ev.timeLabel}\n${ev.venue}\n\nPass ID${many ? 's' : ''}:\n${passLines}\n\nAt the entrance, show your pass and its QR code (in the attached PDF) — on your phone or printed. Each QR is checked once.\n${downloadUrl ? `\nDownload: ${downloadUrl}\n` : ''}${contact ? `\nQuestions? Contact the coordinators on ${contact}.` : ''}\nwww.getferal.in`
+  return { subject, html: layout({ preheader: `${many ? `${passes.length} FERAL passes` : 'Your FERAL pass'} · booking ${booking.booking_code}`, title: subject, body }), text }
+}
+
 export function rejectedEmail({ settings, booking, reason, bookingUrl }) {
   const t = settings.emailTemplates.rejected
   const vars = { name: booking.holder_name, bookingId: booking.booking_code }

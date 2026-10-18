@@ -124,7 +124,7 @@ export async function issuePass(ctx, bookingId, { newCode = newPassCode } = {}) 
       })
     } catch (e) {
       if (e.code !== '23505') throw e
-      if (e.constraint === 'passes_booking_id_key') return ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId]) // concurrent issue won
+      if (e.constraint === 'passes_booking_seq_key') return ctx.db.one('SELECT * FROM passes WHERE booking_id = $1', [bookingId]) // concurrent issue won
       if (attempt >= 5) throw e
       ctx.log.warn({ booking: booking.booking_code, attempt }, 'pass ID collision, drawing a new one')
     }
@@ -158,7 +158,7 @@ export async function rejectPayment(ctx, bookingCode, actor, { reason = '', ip =
 export async function lookupPass(ctx, token) {
   if (!token || token.length < 20 || token.length > 100) return null
   return ctx.db.one(
-    `SELECT ps.*, b.holder_name, b.category, b.booking_code, b.status AS booking_status
+    `SELECT ps.*, COALESCE(ps.holder_name, b.holder_name) AS holder_name, b.category, b.booking_code, b.status AS booking_status, b.source
        FROM passes ps JOIN bookings b ON b.id = ps.booking_id WHERE ps.qr_token_hash = $1`,
     [qrTokenHash(ctx, token)],
   )
@@ -169,7 +169,7 @@ export async function lookupPassByCode(ctx, code) {
   const c = String(code || '').trim().toUpperCase().replace(/\s+/g, '')
   if (!PASS_CODE_RE.test(c)) return null
   return ctx.db.one(
-    `SELECT ps.*, b.holder_name, b.category, b.booking_code, b.status AS booking_status
+    `SELECT ps.*, COALESCE(ps.holder_name, b.holder_name) AS holder_name, b.category, b.booking_code, b.status AS booking_status, b.source
        FROM passes ps JOIN bookings b ON b.id = ps.booking_id WHERE ps.pass_code = $1`,
     [c],
   )

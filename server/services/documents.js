@@ -3,7 +3,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { PDFDocument, rgb, setCharacterSpacing, pushGraphicsState, popGraphicsState } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
-import { passPng, passJpeg, PASS_W, PASS_H } from './passArt.js'
+import { passPng, passJpeg, passSvg, entryCardSvg, svgJpeg, qrPng, PASS_W, PASS_H } from './passArt.js'
 import { CATEGORY_LABEL, rupees } from '../lib/format.js'
 
 // Pass (artwork in passArt.js) + receipt PDFs.
@@ -95,6 +95,63 @@ export async function renderPass(p) {
   return { png, pdf: Buffer.from(await doc.save()) }
 }
 
+export const METHOD_LABEL = {
+  upi_static: 'UPI',
+  razorpay: 'Razorpay',
+  offline_cash: 'Cash (offline)',
+  offline_upi: 'UPI (offline)',
+  offline_other: 'Other (offline)',
+}
+
+/**
+ * Offline-issued passes: one PDF for the whole booking, two pages per pass —
+ * the official pass artwork, then its entry QR card. Also returns a small QR
+ * PNG per pass for the email body.
+ * OfflinePassesData: { bookingCode, category, quantity, event, website, sample,
+ *   passes: [{ seq, holderName, passCode, verifyUrl }] }
+ */
+export async function renderOfflinePasses(o) {
+  const passType = CATEGORY_LABEL[o.category]
+  const admits = o.category === 'couple' ? 'ADMITS TWO' : 'ADMITS ONE'
+  const doc = await PDFDocument.create()
+  doc.setTitle(`FERAL 2026 Official Pass${o.passes.length > 1 ? 'es' : ''} ${o.bookingCode}`)
+  doc.setSubject(`FERAL 2026 ${passType} × ${o.passes.length} — ${o.bookingCode}`)
+  doc.setAuthor('FERAL')
+  doc.setCreator('FERAL bookings')
+  doc.setProducer('FERAL bookings')
+  const W = PASS_W / 2
+  const H = PASS_H / 2
+  const qrs = []
+  for (const p of o.passes) {
+    const art = passSvg({
+      holderName: p.holderName,
+      passType,
+      admits,
+      passCode: p.passCode,
+      event: { title: 'HALLOWEEN HOUSE PARTY', name: 'FERAL', place: 'CHHATARPUR FARMS \u2013 SOUTH DELHI', dateLabel: o.event.dateLabel, timeLabel: o.event.timeLabel, venue: o.event.venue },
+    })
+    const card = entryCardSvg({
+      holderName: p.holderName,
+      passType,
+      admits,
+      passCode: p.passCode,
+      bookingCode: o.bookingCode,
+      seq: p.seq,
+      quantity: o.passes.length,
+      verifyUrl: p.verifyUrl,
+      event: o.event,
+      website: o.website,
+      sample: o.sample,
+    })
+    for (const svg of [art, card]) {
+      const page = doc.addPage([W, H])
+      page.drawImage(await doc.embedJpg(await svgJpeg(svg)), { x: 0, y: 0, width: W, height: H })
+    }
+    qrs.push(await qrPng(p.verifyUrl))
+  }
+  return { pdf: Buffer.from(await doc.save()), qrPngs: qrs }
+}
+
 /**
  * ReceiptData: { preliminary, bookingCode, holderName, email, phone, category, referralCode,
  *   originalPaise, discountPaise, finalPaise, method, reference, verifiedAt, issuedAt, event }
@@ -139,13 +196,13 @@ export async function renderReceipt(r) {
   row('Email', r.email)
   row('Phone', r.phone)
   rule()
-  row('Pass', CATEGORY_LABEL[r.category])
+  row('Pass', `${CATEGORY_LABEL[r.category]}${r.quantity > 1 ? ` × ${r.quantity}` : ''}`)
   row('Original price', rupees(r.originalPaise))
-  row(`Referral discount${r.referralCode ? ` (${r.referralCode})` : ''}`, r.discountPaise ? `−${rupees(r.discountPaise)}` : rupees(0))
+  row(r.referralCode ? `Referral discount (${r.referralCode})` : r.method?.startsWith('offline_') ? 'Adjustment' : 'Referral discount', r.discountPaise ? `−${rupees(r.discountPaise)}` : rupees(0))
   rule()
   row(r.preliminary ? 'Amount payable' : 'Amount paid', rupees(r.finalPaise), { bold: true, color: r.preliminary ? BLOOD : BLACK })
   if (!r.preliminary) {
-    row('Payment method', r.method === 'razorpay' ? 'Razorpay' : 'UPI')
+    row('Payment method', METHOD_LABEL[r.method] || 'UPI')
     row('Payment reference', r.reference || '—')
     row('Payment verified', fmtDate(r.verifiedAt))
   } else {

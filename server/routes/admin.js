@@ -9,6 +9,7 @@ import { httpError } from '../services/bookings.js'
 import { hashPassword, randomToken, safeEqual, sha256, verifyPassword } from '../lib/security.js'
 import { ADMIN_COOKIE as COOKIE, RANK, adminFromRequest, adminTokenHash } from '../services/adminAuth.js'
 import { CATEGORY_LABEL, cleanText, normalizeIndianMobile } from '../lib/format.js'
+import { offlineRoutes } from './offline.js'
 
 const DUMMY_HASH = await hashPassword(randomToken()) // equalises login timing for unknown emails
 
@@ -46,7 +47,7 @@ const SETTING_SCHEMAS = {
   ),
   upi: z.object({ vpa: z.string().max(100).regex(/^$|^[\w.-]{2,256}@[a-zA-Z]{2,64}$/, 'Invalid UPI ID'), payeeName: z.string().max(60) }),
   emailTemplates: z.object(
-    Object.fromEntries(['otp', 'booking', 'confirmed', 'rejected'].map((k) => [k, z.object({ subject: z.string().min(2).max(160), intro: z.string().max(1000) })])),
+    Object.fromEntries(['otp', 'booking', 'confirmed', 'rejected', 'offline'].map((k) => [k, z.object({ subject: z.string().min(2).max(160), intro: z.string().max(1000) })])),
   ),
 }
 
@@ -172,7 +173,7 @@ export const adminRoutes = (ctx) => async (app) => {
   }
 
   const SELECT = `
-    SELECT b.id, b.booking_code, b.holder_name, b.email, b.phone, b.age, b.gender, b.category, b.referral_code,
+    SELECT b.id, b.booking_code, b.holder_name, b.email, b.phone, b.age, b.gender, b.category, b.referral_code, b.source, b.quantity,
            b.original_paise, b.discount_paise, b.final_paise, b.status, b.created_at, b.email_verified_at,
            p.id AS payment_id, p.method, p.transaction_reference, p.status AS payment_status, p.screenshot_file_id IS NOT NULL AS has_screenshot,
            p.submitted_at, p.approved_at, p.rejected_at, p.rejection_reason, p.reviewed_by_label, p.gateway_verified, p.amount_paise,
@@ -182,7 +183,7 @@ export const adminRoutes = (ctx) => async (app) => {
               FROM notifications n WHERE n.booking_id = b.id AND n.type <> 'otp') AS notifications
       FROM bookings b
       LEFT JOIN LATERAL (SELECT * FROM payments WHERE booking_id = b.id AND status <> 'CREATED' ORDER BY created_at DESC LIMIT 1) p ON true
-      LEFT JOIN passes ps ON ps.booking_id = b.id`
+      LEFT JOIN passes ps ON ps.booking_id = b.id AND ps.seq = 1`
 
   app.get('/bookings', async (req) => {
     const f = listQuery.parse(req.query ?? {})
@@ -234,7 +235,7 @@ export const adminRoutes = (ctx) => async (app) => {
     app.get(`/bookings/:code/${doc}.pdf`, async (req, reply) => {
       const b = await findBooking(req.params.code)
       const col = doc === 'pass' ? 'pdf_file_id' : 'receipt_file_id'
-      const f = await db.one(`SELECT f.bytes FROM passes ps JOIN files f ON f.id = ps.${col} WHERE ps.booking_id = $1`, [b.id])
+      const f = await db.one(`SELECT f.bytes FROM passes ps JOIN files f ON f.id = ps.${col} WHERE ps.booking_id = $1 ORDER BY ps.seq LIMIT 1`, [b.id])
       if (!f?.bytes) throw httpError(404, 'not_found', 'Not generated yet.')
       return reply.type('application/pdf').header('Content-Disposition', `inline; filename="${b.booking_code}-${doc}.pdf"`).send(f.bytes)
     })
@@ -242,7 +243,7 @@ export const adminRoutes = (ctx) => async (app) => {
 
   app.get('/bookings/:code/pass.png', async (req, reply) => {
     const b = await findBooking(req.params.code)
-    const f = await db.one(`SELECT f.bytes FROM passes ps JOIN files f ON f.id = ps.png_file_id WHERE ps.booking_id = $1`, [b.id])
+    const f = await db.one(`SELECT f.bytes FROM passes ps JOIN files f ON f.id = ps.png_file_id WHERE ps.booking_id = $1 ORDER BY ps.seq LIMIT 1`, [b.id])
     if (!f?.bytes) throw httpError(404, 'not_found', 'Not generated yet.')
     return reply.type('image/png').header('Cache-Control', 'private, no-store').header('Content-Disposition', `inline; filename="${b.booking_code}-pass.png"`).send(f.bytes)
   })
@@ -349,7 +350,7 @@ export const adminRoutes = (ctx) => async (app) => {
       ['Pass', (r) => CATEGORY_LABEL[r.category]], ['Referral', 'referral_code'], ['Original (Rs)', (r) => r.original_paise / 100],
       ['Discount (Rs)', (r) => r.discount_paise / 100], ['Final (Rs)', (r) => r.final_paise / 100], ['Booking status', 'status'],
       ['Payment status', 'payment_status'], ['Payment method', 'method'], ['Reference', 'transaction_reference'], ['Reviewed by', 'reviewed_by_label'],
-      ['Pass ID', 'pass_code'], ['Pass status', 'pass_status'], ['Checked in', 'redeemed_at'], ['Created', 'created_at'],
+      ['Source', 'source'], ['Passes', 'quantity'], ['Pass ID', 'pass_code'], ['Pass status', 'pass_status'], ['Checked in', 'redeemed_at'], ['Created', 'created_at'],
       ['Submitted', 'submitted_at'], ['Approved', 'approved_at'], ['Rejected', 'rejected_at'], ['Rejection reason', 'rejection_reason'],
     ]
     const val = (r, c) => (typeof c === 'function' ? c(r) : r[c] instanceof Date ? r[c].toISOString() : r[c])
@@ -449,6 +450,9 @@ export const adminRoutes = (ctx) => async (app) => {
     await audit(db, { admin: req.admin, action: 'referral_code_updated', details: { code: r.code, changes: b }, ip: req.ip })
     return r
   })
+
+  // ─── offline passes ────────────────────────────────────────────────────────
+  offlineRoutes(app, ctx, { need })
 
   // ─── entry check-in ────────────────────────────────────────────────────────
   // Accepts the pass ID printed on the pass (FERAL-2026-XXXXXX) or, for passes

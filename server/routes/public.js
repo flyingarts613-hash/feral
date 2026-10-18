@@ -15,7 +15,7 @@ import {
 import { normalizeIndianMobile, cleanText } from '../lib/format.js'
 
 // Latin letters only: the name is printed on the pass in a serif that covers Latin scripts.
-const NAME = /^[\p{Script=Latin}][\p{Script=Latin}\p{M} .'-]*$/u
+export const NAME = /^[\p{Script=Latin}][\p{Script=Latin}\p{M} .'-]*$/u
 
 export const bookingSchema = z.object({
   name: z.string().transform((s) => cleanText(s, 80)).pipe(z.string().min(2, 'Enter your full name').max(80).regex(NAME, 'Write your name in English letters')),
@@ -125,11 +125,13 @@ export const publicRoutes = (ctx) => async (app) => {
       const row = await ctx.db.one(
         `SELECT f.bytes, ps.pass_code FROM passes ps JOIN files f ON f.id = ps.${col}
            JOIN payments p ON p.id = ps.payment_id
-          WHERE ps.booking_id = $1 AND ps.status IN ('GENERATED', 'ISSUED') AND p.status = 'APPROVED'`,
+          WHERE ps.booking_id = $1 AND ps.status IN ('GENERATED', 'ISSUED') AND p.status = 'APPROVED' ORDER BY ps.seq LIMIT 1`,
         [b.id],
       )
       if (!row) throw httpError(404, 'no_pass', 'No pass has been issued for this booking yet.')
-      return reply.type(mime).header('Content-Disposition', `attachment; filename="FERAL-2026-Pass-${row.pass_code}.${ext}"`).send(row.bytes)
+      // offline bookings keep all their passes in one PDF
+      const file = b.quantity > 1 ? `FERAL-2026-Passes-${b.booking_code}` : `FERAL-2026-Pass-${row.pass_code}`
+      return reply.type(mime).header('Content-Disposition', `attachment; filename="${file}.${ext}"`).send(row.bytes)
     })
   }
 

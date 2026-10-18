@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import fontkit from '@pdf-lib/fontkit'
 import sharp from 'sharp'
+import QRCode from 'qrcode'
 
 // FERAL 2026 pass artwork — horizontal 16:9 ticket, gothic editorial style.
 // Built as SVG with every piece of text converted to glyph outlines (no SVG
@@ -251,4 +252,99 @@ export async function passPng(p, { width = PASS_W } = {}) {
 // Flattened JPEG for embedding in the PDF.
 export async function passJpeg(png) {
   return sharp(png).flatten({ background: '#ffffff' }).jpeg({ quality: 92, chromaSubsampling: '4:4:4', mozjpeg: true }).toBuffer()
+}
+
+// ─── entry QR card ─────────────────────────────────────────────────────────
+// A companion page that follows the pass in offline-issued PDFs: the pass's
+// unique entry QR (it opens APP/verify/<token>, checked on the server and
+// usable once) in the same black / crimson / gold style. The pass artwork
+// itself is unchanged.
+
+// QR as one SVG path of unit squares (no external images, no text).
+function qrPath(data) {
+  const { modules } = QRCode.create(data, { errorCorrectionLevel: 'M' })
+  const n = modules.size
+  let d = ''
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (modules.data[y * n + x]) d += `M${x} ${y}h1v1h-1z`
+  return { d, n }
+}
+
+/**
+ * EntryCardData: { holderName, passType, admits, passCode, bookingCode, seq, quantity, verifyUrl,
+ *   event: { dateLabel, timeLabel, venue }, website, sample }
+ */
+export function entryCardSvg(p) {
+  const W = PASS_W
+  const H = PASS_H
+  const out = []
+  // QR on a cream tile, left
+  const tile = 640
+  const tx = 150
+  const ty = (H - tile) / 2
+  const { d, n } = qrPath(p.verifyUrl)
+  const quiet = 4
+  const k = (tile - 56) / (n + quiet * 2)
+  // right column
+  const rx = 900
+  const rw = W - rx - 130
+  const label = (s, x, y) => outline(s, { font: FONT.caps, size: 17, x, y, fill: C.gold, spacing: 5.5 }).svg
+  const value = (s, x, y, w, size = 40) => outline(s, { font: FONT.serifSemi, size, x, y, fill: C.cream, maxWidth: w, minSize: 22 }).svg
+  const right = []
+  right.push(outline('ENTRY QR', { font: FONT.capsBold, size: 34, x: rx, y: 168, fill: C.gold, spacing: 15 }).svg)
+  right.push(outline(`PASS ${p.seq} OF ${p.quantity}`, { font: FONT.caps, size: 20, x: rx + rw, y: 166, fill: C.cream, spacing: 6, align: 'right', opacity: 0.8 }).svg)
+  right.push(`<line x1="${rx}" y1="200" x2="${rx + rw}" y2="200" stroke="${C.gold}" stroke-opacity="0.35" stroke-width="1.2"/>`)
+  right.push(label('ATTENDEE', rx, 276))
+  right.push(outline(p.holderName, { font: FONT.serifBold, size: 64, x: rx, y: 346, fill: C.cream, maxWidth: rw, minSize: 28 }).svg)
+  const colB = rx + 330
+  right.push(label('PASS TYPE', rx, 430), label('UNIQUE ID', colB, 430))
+  right.push(value(p.passType, rx, 482, 300), outline(p.passCode, { font: FONT.capsBold, size: 30, x: colB, y: 478, fill: C.cream, spacing: 2.5, maxWidth: rx + rw - colB, minSize: 18 }).svg)
+  right.push(label('DATE', rx, 562), label('TIMING', colB, 562))
+  right.push(value(p.event.dateLabel, rx, 614, 300), value(p.event.timeLabel, colB, 614, rx + rw - colB))
+  right.push(label('VENUE', rx, 694))
+  right.push(value(p.event.venue, rx, 744, rw, 36))
+  right.push(`<line x1="${rx}" y1="800" x2="${rx + rw}" y2="800" stroke="${C.gold}" stroke-opacity="0.35" stroke-width="1.2"/>`)
+  right.push(outline('PRESENT THIS QR AT ENTRY', { font: FONT.caps, size: 20, x: rx, y: 858, fill: C.cream, spacing: 6 }).svg)
+  right.push(outline('Each QR admits once and is checked at the door. Keep it private.', { font: FONT.serifSemi, size: 28, x: rx, y: 904, fill: C.cream, maxWidth: rw, minSize: 18, opacity: 0.75 }).svg)
+  right.push(outline(`${p.admits} · BOOKING ${p.bookingCode} · ${p.website}`, { font: FONT.caps, size: 17, x: rx, y: 984, fill: C.gold, spacing: 7, maxWidth: rw, opacity: 0.9 }).svg)
+
+  const sample = p.sample
+    ? `<g transform="translate(${tx + tile / 2} ${ty + tile / 2}) rotate(-18)"><rect x="-360" y="-58" width="720" height="116" fill="${C.crimson}" fill-opacity="0.92"/>${
+        outline('SAMPLE — NOT VALID', { font: FONT.capsBold, size: 50, x: 0, y: 18, fill: C.cream, spacing: 6, align: 'center', maxWidth: 680 }).svg
+      }</g>`
+    : ''
+
+  out.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <radialGradient id="eglow" cx="0.3" cy="0.5" r="0.8">
+      <stop offset="0" stop-color="${C.burgundy}" stop-opacity="0.9"/>
+      <stop offset="0.7" stop-color="${C.burgundy}" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="${C.background}" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="egrain" width="256" height="256" patternUnits="userSpaceOnUse"><image width="256" height="256" href="${GRAIN}" xlink:href="${GRAIN}"/></pattern>
+  </defs>
+  <rect width="${W}" height="${H}" rx="26" fill="${C.background}"/>
+  <rect width="${W}" height="${H}" rx="26" fill="url(#eglow)"/>
+  <rect width="${W}" height="${H}" rx="26" fill="url(#egrain)"/>
+  <rect x="${tx}" y="${ty}" width="${tile}" height="${tile}" rx="10" fill="${C.cream}"/>
+  <rect x="${tx + 14}" y="${ty + 14}" width="${tile - 28}" height="${tile - 28}" rx="4" fill="none" stroke="${C.gold}" stroke-width="2"/>
+  <g transform="translate(${tx + 28 + quiet * k} ${ty + 28 + quiet * k}) scale(${f2(k * 1000) / 1000})"><path d="${d}" fill="${C.background}" shape-rendering="crispEdges"/></g>
+  ${sample}
+  ${right.join('\n  ')}
+  <g fill="none" stroke="${C.gold}">
+    <rect x="26" y="26" width="${W - 52}" height="${H - 52}" rx="6" stroke-width="2.2"/>
+    <rect x="38" y="38" width="${W - 76}" height="${H - 76}" rx="3" stroke-width="0.9" stroke-opacity="0.55"/>
+  </g>
+  ${corner(52, 52, 1, 1)}${corner(W - 52, 52, -1, 1)}${corner(52, H - 52, 1, -1)}${corner(W - 52, H - 52, -1, -1)}
+</svg>`)
+  return out.join('')
+}
+
+// Straight to a print-quality JPEG (for PDFs): no PNG / palette step.
+export async function svgJpeg(svg) {
+  return sharp(Buffer.from(svg)).flatten({ background: '#ffffff' }).jpeg({ quality: 90, chromaSubsampling: '4:4:4', mozjpeg: true }).toBuffer()
+}
+
+// Small PNG of just the QR, for showing inline in emails.
+export async function qrPng(data, size = 360) {
+  return QRCode.toBuffer(data, { errorCorrectionLevel: 'M', margin: 2, width: size, color: { dark: '#0B0808', light: '#F0E5D2' } })
 }

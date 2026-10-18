@@ -4,6 +4,7 @@ import { bookingEmail, confirmedEmail, organizerPendingMessage, organizerRejecte
 import { bookingUrl, mintLink } from './bookings.js'
 import { renderReceipt } from './documents.js'
 import { audit } from './audit.js'
+import { offlinePassesMail } from './offline.js'
 import { escapeHtml } from '../lib/format.js'
 
 // Renders and sends one queued message. Throws on failure (the caller retries).
@@ -85,6 +86,12 @@ async function deliver(ctx, n) {
       return ctx.notify.send({ to: n.recipient, kind: pending ? 'payment_pending' : 'payment_rejected', ...msg })
     }
 
+    case 'offline_passes': {
+      // passes, PDF and receipt were stored when the booking was issued; nothing is regenerated
+      const mail = await offlinePassesMail(ctx, booking, settings)
+      return ctx.email.send({ to: n.recipient, ...mail, idempotencyKey: `n-${n.id}-${n.attempts}` })
+    }
+
     default:
       throw new Error(`unknown notification type ${n.type}`)
   }
@@ -92,7 +99,7 @@ async function deliver(ctx, n) {
 
 // After a message is accepted by the provider.
 async function afterSent(ctx, n) {
-  if (n.type !== 'payment_confirmed') return
+  if (n.type !== 'payment_confirmed' && n.type !== 'offline_passes') return
   await ctx.db.tx(async (c) => {
     const b = await c.one('SELECT * FROM bookings WHERE id = $1 FOR UPDATE', [n.booking_id])
     await c.query(`UPDATE passes SET status = 'ISSUED', issued_at = COALESCE(issued_at, now()) WHERE booking_id = $1 AND status = 'GENERATED'`, [b.id])
@@ -103,19 +110,38 @@ async function afterSent(ctx, n) {
   })
 }
 
+// Delivers one claimed message; on failure it is re-queued with back-off (or
+// FAILED after its last attempt). Returns { ok, error }.
+async function runOne(ctx, n) {
+  try {
+    const r = await deliver(ctx, n)
+    await markSent(ctx.db, n, { provider: r.provider, messageId: r.messageId, providerStatus: r.status ?? null })
+    await afterSent(ctx, n)
+    return { ok: true }
+  } catch (e) {
+    const final = await markFailed(ctx.db, n, e.message, n.channel === 'email' ? ctx.email.name : ctx.notify.name)
+    ctx.log[final ? 'error' : 'warn']({ id: n.id, type: n.type, attempt: n.attempts, err: e.message }, final ? 'notification failed permanently' : 'notification failed, will retry')
+    return { ok: false, error: e.message }
+  }
+}
+
 export async function processOnce(ctx, limit = 10) {
   const due = await claimDue(ctx.db, limit)
-  for (const n of due) {
-    try {
-      const r = await deliver(ctx, n)
-      await markSent(ctx.db, n, { provider: r.provider, messageId: r.messageId, providerStatus: r.status ?? null })
-      await afterSent(ctx, n)
-    } catch (e) {
-      const final = await markFailed(ctx.db, n, e.message, n.channel === 'email' ? ctx.email.name : ctx.notify.name)
-      ctx.log[final ? 'error' : 'warn']({ id: n.id, type: n.type, attempt: n.attempts, err: e.message }, final ? 'notification failed permanently' : 'notification failed, will retry')
-    }
-  }
+  for (const n of due) await runOne(ctx, n)
   return due.length
+}
+
+// Sends one specific queued message right now (e.g. straight after an admin
+// issues offline passes, so they see the result). The claim is atomic, so the
+// background worker can never send the same message at the same time.
+export async function deliverNow(ctx, id) {
+  const n = await ctx.db.one(
+    `UPDATE notifications SET status = 'SENDING', locked_until = now() + interval '2 minutes', attempts = attempts + 1, updated_at = now()
+      WHERE id = $1 AND (status = 'QUEUED' OR (status = 'SENDING' AND locked_until < now())) RETURNING *`,
+    [id],
+  )
+  if (n) await runOne(ctx, n)
+  return ctx.db.one('SELECT id, status, attempts, max_attempts, last_error, sent_at, provider FROM notifications WHERE id = $1', [id])
 }
 
 // Retention: drop bookings that never verified their email, expired sessions

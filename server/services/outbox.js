@@ -2,13 +2,17 @@
 // transaction as the change that caused them, then delivered by the worker with
 // retries. dedupe_key makes every logical message exist once.
 
-export async function enqueue(q, { booking, channel, type, recipient, key, payload = {}, maxAttempts = 6 }) {
-  await q.query(
-    `INSERT INTO notifications (booking_id, channel, type, recipient, dedupe_key, payload, status, max_attempts)
-     VALUES ($1, $2, $3, $4, $5, $6, 'QUEUED', $7)
-     ON CONFLICT (dedupe_key) DO NOTHING`,
-    [booking?.id ?? null, channel, type, recipient, key, JSON.stringify(payload), maxAttempts],
+// delaySeconds holds a message back from the background worker (used when the
+// caller sends it immediately itself with deliverNow). Returns the row id, or
+// null when the dedupe key already existed.
+export async function enqueue(q, { booking, channel, type, recipient, key, payload = {}, maxAttempts = 6, delaySeconds = 0 }) {
+  const r = await q.query(
+    `INSERT INTO notifications (booking_id, channel, type, recipient, dedupe_key, payload, status, max_attempts, next_attempt_at)
+     VALUES ($1, $2, $3, $4, $5, $6, 'QUEUED', $7, now() + make_interval(secs => $8))
+     ON CONFLICT (dedupe_key) DO NOTHING RETURNING id`,
+    [booking?.id ?? null, channel, type, recipient, key, JSON.stringify(payload), maxAttempts, delaySeconds],
   )
+  return r.rows[0]?.id ?? null
 }
 
 export const backoffSeconds = (attempt) => Math.min(30 * 2 ** (attempt - 1), 1800)

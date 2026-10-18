@@ -11,6 +11,7 @@ const STATUS_TONE = {
   PAYMENT_REJECTED: 'bad',
   CANCELLED: 'dim',
 }
+const OFFLINE_METHOD = { offline_cash: 'Cash (offline)', offline_upi: 'UPI (offline)', offline_other: 'Other (offline)' }
 const nTone = { SENT: 'info', DELIVERED: 'ok', FAILED: 'bad', QUEUED: 'warn', SENDING: 'warn' }
 
 function useList(filters, onChange) {
@@ -152,6 +153,7 @@ function BookingCard({ r, can, reload }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <Chip tone={STATUS_TONE[r.status]}>{r.status.replaceAll('_', ' ')}</Chip>
+          {r.source === 'offline' && <Chip tone="info">OFFLINE{r.quantity > 1 ? ` × ${r.quantity}` : ''}</Chip>}
         </div>
       </div>
 
@@ -165,7 +167,7 @@ function BookingCard({ r, can, reload }) {
           ['DISCOUNT', r.discount_paise ? `−${rupees(r.discount_paise)}` : '—'],
           ['FINAL PAYABLE', rupees(r.final_paise)],
           ['UPI / PAYMENT REF', r.transaction_reference || '—'],
-          ['METHOD', r.method ? (r.method === 'razorpay' ? `Razorpay${r.gateway_verified ? ' · signature verified' : ''}` : 'UPI QR') : '—'],
+          ['METHOD', r.method ? (r.method === 'razorpay' ? `Razorpay${r.gateway_verified ? ' · signature verified' : ''}` : OFFLINE_METHOD[r.method] || 'UPI QR') : '—'],
           ['SUBMITTED', when(r.submitted_at)],
         ].map(([k, v]) => (
           <div key={k} className="min-w-0">

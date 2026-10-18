@@ -89,9 +89,9 @@ export async function buildApp(ctx) {
       return reply.code(429).send({ error: 'rate_limited', message: 'Too many requests. Please wait a moment and try again.' })
     }
     if (err.expose || (err.statusCode && err.statusCode < 500)) {
-      const { statusCode = 400, code, message, field, attemptsLeft, retryAfter } = err
+      const { statusCode = 400, code, message, field, attemptsLeft, retryAfter, bookingId } = err
       if (retryAfter) reply.header('Retry-After', retryAfter)
-      return reply.code(statusCode).send({ error: code || 'bad_request', message, field, attemptsLeft, retryAfter })
+      return reply.code(statusCode).send({ error: code || 'bad_request', message, field, attemptsLeft, retryAfter, bookingId })
     }
     req.log.error({ err: err.message, stack: cfg.prod ? undefined : err.stack }, 'request failed')
     return reply.code(500).send({ error: 'server_error', message: 'Something went wrong. Please try again.' })

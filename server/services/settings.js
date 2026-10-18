@@ -33,6 +33,10 @@ export const DEFAULTS = {
       subject: 'Your Official FERAL 2026 Pass',
       intro: 'Your entry pass for FERAL - Halloween House Party 2026 is ready. Keep this pass accessible and present it at entry. We look forward to seeing you.',
     },
+    offline: {
+      subject: 'Your FERAL Halloween Party Pass Is Here',
+      intro: 'Your payment has been received and your official FERAL pass is ready. We can\u2019t wait to see you at FERAL — Halloween House Party 2026.',
+    },
     rejected: { subject: 'FERAL 2026 — Payment Needs Attention', intro: 'We could not confirm the payment you submitted for this booking.' },
   },
 }

@@ -223,6 +223,55 @@ If generating or emailing a pass fails, the approval stays; the booking shows
 "Payment: APPROVED · Pass: GENERATED · Email: FAILED — RETRY AVAILABLE" with
 retry buttons, and retries never create a second pass or email.
 
+## Offline passes (payments received in person)
+
+Admin → **ISSUE OFFLINE PASS** (approver or owner):
+
+1. Enter the customer's name, email and phone, the pass category (Male/Stag,
+   Female, Couple) and the number of passes (1–10). Optionally a name for each
+   pass (empty = the customer's name) and a group name / note.
+2. Choose how the money was received (Cash, UPI, Other) and, optionally, the
+   transaction / receipt number. The amount is filled in from the price list; if
+   you change it, a reason is required and recorded.
+3. Tick "I confirm ₹… has been received" and press **GENERATE & SEND PASS**.
+
+The server prices and validates everything again, renders every pass first
+(nothing is saved if that fails), then in one database transaction creates a
+PAID booking marked `offline`, an APPROVED payment, one pass per attendee
+(unique `FERAL-2026-XXXXXX` ID and its own unguessable QR token), the audit
+entry and the queued email. Only then is the email sent, immediately, so the
+result shows on screen.
+
+**Email** — subject "Your FERAL Halloween Party Pass Is Here" (editable in
+Settings → Email templates → E), with booking ID, pass type and quantity,
+amount, event date/time/venue, each pass's QR inline, a download link, the
+coordinators' contact (Settings → Event) and two attachments: one PDF with
+every pass (the official pass, then its **entry QR card**) and the payment
+receipt. If sending fails the booking and passes stay; the email retries
+automatically (6 tries) and **RESEND EMAIL** sends it again — never creating
+new passes. A resend within a minute of a successful send is refused, so a
+double click can't send two.
+
+**Duplicates** — each form carries a request ID, so a double click or a retry
+after a timeout returns the booking already created. Issuing the same passes to
+the same email again within 30 minutes asks you to tick "issue anyway".
+
+**Entry** — offline passes are ordinary passes: scanning the QR opens
+`/verify/<token>` (CHECK IN on a signed-in admin phone) and Admin → CHECK-IN
+accepts the pass ID or the scanned link. Each pass checks in once.
+
+**OFFLINE BOOKINGS** lists them with search (name, email, phone, booking ID),
+filters (pass, email status), details (passes, check-in state, email history,
+audit trail), PDF download, receipt, resend and copy-ID. They also appear in
+ALL BOOKINGS and the CSV export (columns *Source* and *Passes*).
+
+**Test first** — **SEND TEST EMAIL TO ME** sends a sample pass (marked "not
+valid for entry", nothing stored) to the signed-in admin's own address, so you
+can check the email provider and the design before issuing a real pass.
+
+No new environment variables; migration `005_offline_passes.sql` runs
+automatically on start.
+
 ## Security & privacy
 
 Server-side validation for everything; parameterised SQL only; HttpOnly,

@@ -93,8 +93,8 @@ export async function adminSession(ctx, app, role = 'owner') {
   const res = await app.inject({ method: 'POST', url: '/api/admin/login', payload: { email, password: 'correct horse battery' } })
   const cookie = res.cookies.find((c) => c.name === 'feral_admin')
   const { csrfToken } = json(res)
-  const req = (method, url, payload) =>
-    app.inject({ method, url: `/api/admin${url}`, payload, headers: { cookie: `feral_admin=${cookie.value}`, 'x-csrf-token': csrfToken } })
+  const req = (method, url, payload, headers = {}) =>
+    app.inject({ method, url: `/api/admin${url}`, payload, headers: { cookie: `feral_admin=${cookie.value}`, 'x-csrf-token': csrfToken, ...headers } })
   return { req, cookie: cookie.value, csrfToken, email }
 }
 

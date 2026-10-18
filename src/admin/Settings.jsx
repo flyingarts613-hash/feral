@@ -181,7 +181,7 @@ function EventInfo({ s, put, can }) {
 
 function Templates({ s, put, can }) {
   const [t, setT] = useState(s.emailTemplates)
-  const names = { otp: 'A — EMAIL VERIFICATION', booking: 'B — PAYMENT REQUIRED', confirmed: 'C — PASS READY', rejected: 'D — PAYMENT REJECTED' }
+  const names = { otp: 'A — EMAIL VERIFICATION', booking: 'B — PAYMENT REQUIRED', confirmed: 'C — PASS READY', rejected: 'D — PAYMENT REJECTED', offline: 'E — OFFLINE PASS ISSUED' }
   return (
     <Card title="EMAIL TEMPLATES">
       <p className="mb-4 text-xs text-bone/45">Subject and opening line of each email. Use {'{{name}}'} and {'{{bookingId}}'}. The layout, amounts and links are filled in automatically.</p>

@@ -4,12 +4,15 @@ import { Approvals, AllBookings } from './Bookings'
 import Overview from './Overview'
 import { ReferralCodes, Settings } from './Settings'
 import { AuditLog, CheckIn, Notifications } from './Misc'
+import { IssueOffline, OfflineBookings } from './Offline'
 import { Btn, Input } from './ui'
 
 const TABS = [
   ['approvals', 'PAYMENT APPROVALS'],
   ['overview', 'OVERVIEW'],
   ['bookings', 'ALL BOOKINGS'],
+  ['offline-issue', 'ISSUE OFFLINE PASS'],
+  ['offline', 'OFFLINE BOOKINGS'],
   ['checkin', 'CHECK-IN'],
   ['notifications', 'NOTIFICATIONS'],
   ['referrals', 'REFERRAL CODES'],
@@ -105,6 +108,8 @@ export default function AdminApp() {
         {tab === 'approvals' && <Approvals can={can} onChange={poll} />}
         {tab === 'overview' && <Overview />}
         {tab === 'bookings' && <AllBookings can={can} onChange={poll} />}
+        {tab === 'offline-issue' && <IssueOffline can={can} openBookings={() => go('offline')} />}
+        {tab === 'offline' && <OfflineBookings can={can} />}
         {tab === 'checkin' && <CheckIn can={can} />}
         {tab === 'notifications' && <Notifications can={can} />}
         {tab === 'referrals' && <ReferralCodes can={can} />}

@@ -40,7 +40,7 @@ export const bookingUrl = (ctx, code, token) => `${ctx.cfg.appUrl}/#booking=${en
 export async function bookingView(ctx, booking) {
   const settings = await getSettings(ctx.db)
   const payment = await ctx.db.one('SELECT * FROM payments WHERE booking_id = $1 ORDER BY created_at DESC LIMIT 1', [booking.id])
-  const pass = await ctx.db.one('SELECT status, pass_code, issued_at FROM passes WHERE booking_id = $1', [booking.id])
+  const pass = await ctx.db.one('SELECT status, pass_code, issued_at FROM passes WHERE booking_id = $1 ORDER BY seq LIMIT 1', [booking.id])
   const otp = await ctx.db.one(`SELECT created_at, expires_at FROM otp_codes WHERE booking_id = $1 AND status IN ('ACTIVE','SEND_FAILED') ORDER BY created_at DESC LIMIT 1`, [booking.id])
   const cooldown = otp ? Math.max(0, Math.ceil((new Date(otp.created_at).getTime() + ctx.cfg.otp.resendCooldownSeconds * 1000 - Date.now()) / 1000)) : 0
   return {
