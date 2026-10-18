@@ -18,19 +18,25 @@ export const TEAM = [
         name: 'SHASHANK',
         role: '',
         image: '/images/organisers/shashank.jpg',
-        instagram: '',
+        instagram: 'https://www.instagram.com/_shashankgarcha/',
         focus: 'center top', // tall photo: keep the head in frame when cropped to 3:4
       },
     ],
   },
   {
-    group: 'PR HEAD',
+    group: 'PR HEADS',
     members: [
       {
         name: 'NANDITA VERMA',
         role: 'PR HEAD',
         image: '/images/organisers/nandita.jpg',
         instagram: 'https://www.instagram.com/nanditaaa.v/',
+      },
+      {
+        name: 'MAHICA PATEL',
+        role: 'PR HEAD',
+        image: '/images/organisers/mahica.jpg',
+        instagram: 'https://www.instagram.com/mahicapatel_/',
       },
     ],
   },

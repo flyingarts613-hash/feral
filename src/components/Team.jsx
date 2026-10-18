@@ -50,7 +50,9 @@ export default function Team() {
       <div className="flex flex-col gap-[14vh] md:gap-[20vh]">
         {TEAM.map((g, gi) => {
           const side = sides[gi]
-          const layout = side ? SOLO(side.right) : GRID[gi] ?? GRID[1]
+          // a pair (organisers, PR heads) gets the big side-by-side layout
+          const pair = g.members.length === 2
+          const layout = side ? SOLO(side.right) : pair ? GRID[0] : GRID[gi] ?? GRID[1]
           return (
             <div key={g.group} className={side?.pullUp ? 'md:-mt-[52vw]' : ''}>
               <div className="grid grid-cols-12 md:gap-x-8">
@@ -62,7 +64,7 @@ export default function Team() {
               <ul className={`grid ${layout.grid}`}>
                 {g.members.map((m, i) => (
                   <li key={i} className={layout.item(i)}>
-                    <Portrait member={m} sizes={layout.sizes} big={gi === 0 || Boolean(side)} />
+                    <Portrait member={m} sizes={layout.sizes} big={gi === 0 || pair || Boolean(side)} />
                   </li>
                 ))}
               </ul>
