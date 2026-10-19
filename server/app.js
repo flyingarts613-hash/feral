@@ -113,8 +113,8 @@ export async function buildApp(ctx) {
       if (/[\\/]assets[\\/]/.test(p)) res.header('Cache-Control', 'public, max-age=31536000, immutable') // res is the Fastify reply
     } })
     app.get('/admin', (req, reply) => reply.redirect('/admin/'))
-    // the sign-in form is part of the admin app; /admin/login is a stable link to it
-    app.get('/admin/login', (req, reply) => reply.redirect('/admin/'))
+    // the sign-in page: the admin app itself (it shows the login form until signed in)
+    app.get('/admin/login', (req, reply) => reply.header('Cache-Control', 'no-store').sendFile('admin/index.html'))
   }
   app.setNotFoundHandler((req, reply) => reply.code(404).send(req.url.startsWith('/api/') ? { error: 'not_found' } : 'Not found'))
   return app

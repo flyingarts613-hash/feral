@@ -115,7 +115,10 @@ export const adminRoutes = (ctx) => async (app) => {
   // random characters, set on the server) is supplied. Once an admin exists it
   // is permanently closed.
   const noAdmins = async (q) => (await q.one('SELECT count(*)::int AS n FROM admins')).n === 0
-  app.get('/setup', async () => ({ available: Boolean(cfg.adminSetupToken) && (await noAdmins(db)) }))
+  // With a primary admin configured in the environment (ADMIN_LOGIN_ID) the
+  // setup form is never offered, even while that account is being created.
+  const setupAllowed = () => Boolean(cfg.adminSetupToken) && !cfg.envAdmin.loginId
+  app.get('/setup', async () => ({ available: setupAllowed() && (await noAdmins(db)) }))
   app.post('/setup', { config: { rateLimit: { max: 5 * cfg.rateLimitScale, timeWindow: 15 * 60000 } } }, async (req) => {
     const body = z
       .object({
@@ -125,7 +128,7 @@ export const adminRoutes = (ctx) => async (app) => {
         password: z.string().min(12, 'Use at least 12 characters').max(200),
       })
       .parse(req.body ?? {})
-    if (!cfg.adminSetupToken || !safeEqual(body.token, cfg.adminSetupToken)) {
+    if (!setupAllowed() || !safeEqual(body.token, cfg.adminSetupToken)) {
       await audit(db, { actor: 'setup attempt', action: 'admin_setup_refused', ip: req.ip })
       throw httpError(403, 'setup_refused', 'Setup is not available.')
     }

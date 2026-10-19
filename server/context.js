@@ -24,7 +24,8 @@ export async function createContext(cfg, { capture, log = console, razorpayFetch
   }
   await bootstrapQr(ctx)
   const envAdmin = await syncEnvAdmin(ctx)
-  if (envAdmin.status !== 'none' && envAdmin.status !== 'unchanged') log.info?.(`primary admin from environment: ${envAdmin.status}`)
+  // always reported (no values), so the deploy log shows whether the login exists
+  log.info?.(`primary admin from environment: ${envAdmin.status === 'none' ? 'not configured (ADMIN_LOGIN_ID is not set)' : envAdmin.status}`)
   return ctx
 }
 

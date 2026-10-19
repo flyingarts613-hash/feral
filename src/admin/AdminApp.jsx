@@ -58,6 +58,13 @@ export default function AdminApp() {
     history.replaceState(null, '', `#${t}`)
   }
 
+  // Signed out → /admin/login; signed in → /admin/ (the open tab stays in the #hash).
+  useEffect(() => {
+    if (me === undefined) return
+    const want = me ? '/admin/' : '/admin/login'
+    if (location.pathname !== want) history.replaceState(null, '', want + location.hash)
+  }, [me])
+
   if (me === undefined) return <p className="eyebrow p-10 text-bone/40">LOADING…</p>
   if (!me) return <Login onIn={(a) => setMe(a)} />
 
@@ -126,14 +133,19 @@ function Login({ onIn }) {
   const [show, setShow] = useState(false)
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
-  const [setup, setSetup] = useState(false)
+  // The sign-in form is always what /admin/login shows. The one-time owner setup
+  // is only offered as a link, and only while the server allows it (no admins
+  // yet, ADMIN_SETUP_TOKEN set, no ADMIN_LOGIN_ID configured).
+  const [setupAvailable, setSetupAvailable] = useState(false)
+  const [setupOpen, setSetupOpen] = useState(false)
   const [created, setCreated] = useState(null)
   useEffect(() => {
     call('/setup')
-      .then((r) => setSetup(Boolean(r?.available)))
+      .then((r) => setSetupAvailable(Boolean(r?.available)))
       .catch(() => {})
   }, [])
-  if (setup && !created) return <FirstOwner onDone={(a) => (setCreated(a.email), setEmail(a.email), setSetup(false))} />
+  if (setupAvailable && setupOpen && !created)
+    return <FirstOwner onDone={(a) => (setCreated(a.email), setEmail(a.email), setSetupOpen(false), setSetupAvailable(false))} onCancel={() => setSetupOpen(false)} />
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
@@ -186,13 +198,18 @@ function Login({ onIn }) {
         <Btn type="submit" busy={busy} className="mt-8 w-full" data-login-submit>
           LOG IN
         </Btn>
+        {setupAvailable && (
+          <button type="button" onClick={() => setSetupOpen(true)} className="eyebrow mt-6 block w-full text-center text-[10px] text-bone/40 hover:text-bone" data-setup-link>
+            NO ADMIN YET? FIRST-TIME SETUP
+          </button>
+        )}
       </form>
     </div>
   )
 }
 
 // Shown only while the server has no admins and ADMIN_SETUP_TOKEN is set.
-function FirstOwner({ onDone }) {
+function FirstOwner({ onDone, onCancel }) {
   const [f, setF] = useState({ token: '', name: '', email: '', password: '', confirm: '' })
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -228,6 +245,9 @@ function FirstOwner({ onDone }) {
         <Btn type="submit" busy={busy} className="mt-8 w-full">
           CREATE OWNER
         </Btn>
+        <button type="button" onClick={onCancel} className="eyebrow mt-4 block w-full text-center text-[10px] text-bone/40 hover:text-bone">
+          ← BACK TO LOG IN
+        </button>
       </form>
     </div>
   )

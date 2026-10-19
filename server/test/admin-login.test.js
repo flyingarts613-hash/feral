@@ -165,13 +165,41 @@ test('bad environment values stop the server instead of starting without a login
   assert.throws(() => loadConfig({ ...base, ADMIN_LOGIN_ID: 'bad id!', ADMIN_PASSWORD: PASSWORD }), /ADMIN_LOGIN_ID may only/)
 })
 
-test('/admin/login opens the admin sign-in; the public site and QR pages stay public', async () => {
+test('/admin/login serves the admin sign-in page; the public site and QR pages stay public', async () => {
   const t = await boot({ SERVE_STATIC: 'true', ADMIN_LOGIN_ID: LOGIN_ID, ADMIN_PASSWORD: PASSWORD })
   const r = await t.app.inject({ method: 'GET', url: '/admin/login' })
-  assert.deepEqual([r.statusCode, r.headers.location], [302, '/admin/'])
   const page = await t.app.inject({ method: 'GET', url: '/admin/' })
-  assert.equal(page.statusCode, 200)
-  assert.ok(!page.body.includes(LOGIN_ID) && !page.body.includes(PASSWORD))
+  assert.deepEqual([r.statusCode, page.statusCode], [200, 200])
+  assert.match(r.headers['content-type'], /text\/html/)
+  assert.equal(r.body, page.body) // the same admin app, which shows the login form until signed in
+  assert.match(r.headers['content-security-policy'], /frame-ancestors 'none'/)
+  assert.ok(!r.body.includes(LOGIN_ID) && !r.body.includes(PASSWORD))
+  // its relative asset links resolve from /admin/login exactly as from /admin/
+  const js = r.body.match(/src="\.\.\/(assets\/[^"]+\.js)"/)[1]
+  assert.equal((await t.app.inject({ method: 'GET', url: `/${js}` })).statusCode, 200)
   assert.equal((await t.app.inject({ method: 'GET', url: '/api/public/config' })).statusCode, 200)
   assert.equal((await t.app.inject({ method: 'GET', url: '/' })).statusCode, 200)
+})
+
+test('with ADMIN_LOGIN_ID configured the first-time setup is never offered and its endpoint refuses', async () => {
+  const TOKEN = 's'.repeat(44)
+  const t = await boot({ ADMIN_SETUP_TOKEN: TOKEN, ADMIN_LOGIN_ID: LOGIN_ID, ADMIN_PASSWORD: PASSWORD })
+  assert.equal(json(await t.app.inject({ method: 'GET', url: '/api/admin/setup' })).available, false)
+  // even if the admins table were emptied, setup stays closed while ADMIN_LOGIN_ID is set
+  await t.ctx.db.query('DELETE FROM admins')
+  assert.equal(json(await t.app.inject({ method: 'GET', url: '/api/admin/setup' })).available, false)
+  const r = await t.app.inject({ method: 'POST', url: '/api/admin/setup', payload: { token: TOKEN, name: 'Someone', email: 'someone@example.com', password: 'a long password 123' } })
+  assert.equal(r.statusCode, 403)
+  assert.equal((await t.ctx.db.one('SELECT count(*)::int AS n FROM admins')).n, 0)
+  // and the reason this happened in production: without ADMIN_LOGIN_ID there is no admin at all
+  const t2 = await boot({ ADMIN_SETUP_TOKEN: TOKEN })
+  assert.equal((await t2.ctx.db.one('SELECT count(*)::int AS n FROM admins')).n, 0)
+  assert.equal(json(await t2.app.inject({ method: 'GET', url: '/api/admin/setup' })).available, true)
+})
+
+test('production warns when ADMIN_LOGIN_ID is missing', async () => {
+  const { loadConfig } = await import('../config.js')
+  const base = { NODE_ENV: 'production', DATABASE_URL: 'postgres://x', APP_SECRET: 'z'.repeat(40), APP_URL: 'https://x.example', EMAIL_PROVIDER: 'smtp', SMTP_HOST: 'h', EMAIL_FROM: 'a@b.co' }
+  assert.ok(loadConfig(base).warnings.some((w) => /ADMIN_LOGIN_ID is not set/.test(w)))
+  assert.ok(!loadConfig({ ...base, ADMIN_LOGIN_ID: LOGIN_ID, ADMIN_PASSWORD: PASSWORD }).warnings.some((w) => /ADMIN_LOGIN_ID/.test(w)))
 })

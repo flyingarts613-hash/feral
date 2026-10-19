@@ -154,6 +154,7 @@ export function loadConfig(env = process.env) {
   cfg.warnings = []
   if (!cfg.notify.provider && !cfg.notify.organizerEmails.length) cfg.warnings.push('Neither NOTIFY_PROVIDER nor ORGANIZER_EMAIL is set — organizer alerts will fail until one is configured (pending payments still appear in the dashboard).')
   if (cfg.notify.provider && cfg.notify.provider !== 'test' && !cfg.notify.organizerPhones.length) cfg.warnings.push('ORGANIZER_PHONE is not set (it can also be set in the admin dashboard).')
+  if (prod && !ea.loginId) cfg.warnings.push('ADMIN_LOGIN_ID is not set — the primary admin login from the environment is not configured.')
   if (ea.passwordHash && ea.password) cfg.warnings.push('Both ADMIN_PASSWORD_HASH and ADMIN_PASSWORD are set — the hash is used; remove ADMIN_PASSWORD.')
   if (!cfg.email.provider) cfg.warnings.push('EMAIL_PROVIDER is not set — OTP and pass emails cannot be sent.')
 
