@@ -6,7 +6,7 @@
 
 export const TEAM = [
   {
-    group: 'ORGANISERS',
+    group: 'ORGANISER',
     members: [
       {
         name: 'KRITIK AGGARWAL',
@@ -14,29 +14,16 @@ export const TEAM = [
         image: '/images/organisers/organiser-01.jpg',
         instagram: 'https://www.instagram.com/kritik_aggarwal2006/',
       },
-      {
-        name: 'SHASHANK',
-        role: '',
-        image: '/images/organisers/shashank.jpg',
-        instagram: 'https://www.instagram.com/_shashankgarcha/',
-        focus: 'center top', // tall photo: keep the head in frame when cropped to 3:4
-      },
     ],
   },
   {
-    group: 'PR HEADS',
+    group: 'PR HEAD',
     members: [
       {
         name: 'NANDITA VERMA',
         role: 'PR HEAD',
         image: '/images/organisers/nandita.jpg',
         instagram: 'https://www.instagram.com/nanditaaa.v/',
-      },
-      {
-        name: 'MAHICA PATEL',
-        role: 'PR HEAD',
-        image: '/images/organisers/mahica.jpg',
-        instagram: 'https://www.instagram.com/mahicapatel_/',
       },
     ],
   },
@@ -48,6 +35,17 @@ export const TEAM = [
         role: 'COORDINATOR',
         image: '/images/organisers/ritika.jpg',
         instagram: 'https://www.instagram.com/ritika.298/',
+      },
+    ],
+  },
+  {
+    group: 'SPECIAL THANKS',
+    members: [
+      {
+        name: 'Nikhil Yadav',
+        role: '',
+        image: '/images/organisers/nikhil-yadav.jpg',
+        instagram: '',
       },
     ],
   },

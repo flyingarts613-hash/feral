@@ -245,14 +245,6 @@
       1200
     ]
   },
-  "/images/organisers/mahica.jpg": {
-    "width": 780,
-    "height": 1040,
-    "widths": [
-      480,
-      780
-    ]
-  },
   "/images/organisers/nandita.jpg": {
     "width": 1000,
     "height": 1333,
@@ -260,6 +252,14 @@
       480,
       960,
       1000
+    ]
+  },
+  "/images/organisers/nikhil-yadav.jpg": {
+    "width": 960,
+    "height": 1280,
+    "widths": [
+      480,
+      960
     ]
   },
   "/images/organisers/organiser-01.jpg": {
@@ -278,14 +278,6 @@
       480,
       960,
       1000
-    ]
-  },
-  "/images/organisers/shashank.jpg": {
-    "width": 853,
-    "height": 1280,
-    "widths": [
-      480,
-      853
     ]
   },
   "/images/party/party-main.jpg": {
