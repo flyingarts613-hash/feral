@@ -28,17 +28,6 @@ export const TEAM = [
     ],
   },
   {
-    group: 'COORDINATORS',
-    members: [
-      {
-        name: 'RITIKA',
-        role: 'COORDINATOR',
-        image: '/images/organisers/ritika.jpg',
-        instagram: 'https://www.instagram.com/ritika.298/',
-      },
-    ],
-  },
-  {
     group: 'SPECIAL THANKS',
     members: [
       {
